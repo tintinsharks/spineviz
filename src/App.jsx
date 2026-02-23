@@ -838,7 +838,7 @@ function TabbedPanel({findings,active,onSel,mob,tab,setTab,activeEx,setActiveEx,
     <>
       <TabBar tab={tab} setTab={setTab} mob={mob} paid={paid} />
       {tab==="findings"&&<Summary findings={findings} active={active} onSel={onSel} mob={mob} />}
-      {tab==="exercises"&&<PTLibrary findings={findings} onSelectFinding={onSel} activeEx={activeEx} setActiveEx={setActiveEx} assessAnswers={assessAnswers} />}
+      {tab==="exercises"&&<PTLibrary findings={findings} onSelectFinding={onSel} activeEx={activeEx} setActiveEx={setActiveEx} assessAnswers={assessAnswers} paid={paid} onUnlock={startCheckout} onGoToReport={()=>setTab("report")} />}
       {tab==="treatments"&&<TreatmentsTab findings={findings} activeTx={activeTx} setActiveTx={(tx,f)=>setActiveTx(tx,f)} txFinding={txFinding} />}
       {tab==="report"&&<ReportTab findings={findings} onGenerateReport={(f,a)=>generateReport(f)} onComplete={(a)=>setAssessAnswers(a)} />}
     </>
@@ -1583,7 +1583,7 @@ export default function App(){
             <div style={{flex:1,overflow:"auto",padding:"0 16px 16px"}}>
               {hasDetail ? mobDetailContent
                : tab==="findings" ? <Summary findings={findings} active={active} onSel={togSel} mob={true} />
-               : tab==="exercises" ? <PTLibrary findings={findings} onSelectFinding={togSel} activeEx={activeEx} setActiveEx={setActiveEx} assessAnswers={assessAnswers} />
+               : tab==="exercises" ? <PTLibrary findings={findings} onSelectFinding={togSel} activeEx={activeEx} setActiveEx={setActiveEx} assessAnswers={assessAnswers} paid={paid} onUnlock={startCheckout} onGoToReport={()=>onTabChange("report")} />
                : tab==="treatments" ? <TreatmentsTab findings={findings} activeTx={activeTx} setActiveTx={selectTx} txFinding={txFinding} />
                : tab==="report" ? <ReportTab findings={findings} onGenerateReport={(f,a)=>generateReport(f)} onComplete={(a)=>setAssessAnswers(a)} />
                : null}

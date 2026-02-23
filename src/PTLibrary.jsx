@@ -1,5 +1,31 @@
 import { useState } from "react";
 
+/* ═══════════════════ LOCKED STATE ═══════════════════ */
+function LockedExerciseTab({onUnlock}){
+  return(
+    <div style={{animation:"fadeIn .4s",textAlign:"center",padding:"30px 10px"}}>
+      <div style={{fontSize:40,marginBottom:12}}>🔒</div>
+      <div style={{fontSize:16,fontWeight:700,color:"#1D1D1F",marginBottom:6,fontFamily:"Georgia,serif"}}>Personalized Exercise Program</div>
+      <div style={{fontSize:12,color:"#6E6E73",lineHeight:1.6,maxWidth:280,margin:"0 auto 18px"}}>
+        Unlock Pro to get a customized exercise program based on your MRI findings, pain level, activity goals, and medical history.
+      </div>
+      <div style={{textAlign:"left",maxWidth:260,margin:"0 auto 18px"}}>
+        {["18 exercises matched to your pathology","3-phase progression (Weeks 1-12)","Pain-adapted rep prescriptions","Goal-specific exercise priorities","Condition-aware safety modifications"].map((f,i)=>(
+          <div key={i} style={{fontSize:11,color:"#6E6E73",padding:"4px 0",display:"flex",alignItems:"center",gap:6}}>
+            <span style={{color:"#0071E3",fontSize:11}}>✓</span>{f}
+          </div>
+        ))}
+      </div>
+      <button onClick={onUnlock} style={{
+        background:"linear-gradient(135deg,#0071E3 0%,#0059B3 100%)",border:"none",color:"#fff",
+        padding:"12px 32px",borderRadius:10,fontSize:14,fontWeight:700,cursor:"pointer",
+        boxShadow:"0 4px 16px rgba(0,113,227,0.3)",
+      }}>$5 — Unlock Pro</button>
+      <div style={{fontSize:10,color:"#AEAEB2",marginTop:8}}>One-time payment · Instant access</div>
+    </div>
+  );
+}
+
 /* ═══════════════════ EXERCISE DATABASE ═══════════════════
    Each exercise is tagged with which findings it addresses.
    The library filters to show only exercises relevant to
@@ -123,23 +149,29 @@ const PHASE_NAMES = { 1: "Phase 1: Early Recovery", 2: "Phase 2: Building Streng
 const PHASE_TIME = { 1: "Weeks 1-2", 2: "Weeks 3-6", 3: "Weeks 7-12" };
 const PHASE_COLOR = { 1: "#0071E3", 2: "#2D8B4E", 3: "#6B3FA0" };
 
-export default function PTLibrary({ findings, onSelectFinding, activeEx, setActiveEx, assessAnswers }) {
+export default function PTLibrary({ findings, onSelectFinding, activeEx, setActiveEx, assessAnswers, paid, onUnlock, onGoToReport }) {
   const [viewMode, setViewMode] = useState("byPhase"); // byPhase | byFinding
   const [activePhase, setActivePhase] = useState(null);
 
   if (!findings || findings.length === 0) return null;
 
-  // If assessment not yet completed, show prompt
+  // Not paid → show locked state
+  if (!paid) return (
+    <LockedExerciseTab onUnlock={onUnlock} />
+  );
+
+  // Paid but assessment not completed → prompt to finish
   if (!assessAnswers) return (
     <div style={{animation:"fadeIn .4s",textAlign:"center",padding:"24px 10px"}}>
       <div style={{fontSize:36,marginBottom:10}}>🏋️</div>
       <div style={{fontSize:15,fontWeight:700,color:"#1D1D1F",marginBottom:6,fontFamily:"Georgia,serif"}}>Your Exercise Program</div>
       <div style={{fontSize:12,color:"#6E6E73",lineHeight:1.6,maxWidth:280,margin:"0 auto 16px"}}>
-        Complete the clinical assessment in the <strong>Report</strong> tab first. We'll use your pain level, activity goals, and medical history to build a personalized exercise program.
+        Complete the clinical assessment first. We'll use your pain level, activity goals, and medical history to build a personalized exercise program.
       </div>
-      <div style={{padding:"10px 14px",background:"rgba(0,113,227,0.04)",borderRadius:8,border:"1px solid rgba(0,113,227,0.08)"}}>
-        <div style={{fontSize:11,color:"#0071E3",fontWeight:600}}>→ Go to the Report tab to start</div>
-      </div>
+      <button onClick={onGoToReport} style={{
+        background:"#0071E3",border:"none",color:"#fff",padding:"10px 24px",borderRadius:8,
+        fontSize:13,fontWeight:600,cursor:"pointer",boxShadow:"0 4px 12px rgba(0,113,227,0.2)",
+      }}>Go to Assessment →</button>
     </div>
   );
 
