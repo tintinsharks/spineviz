@@ -485,7 +485,7 @@ function ReportTab({findings,onGenerateReport,onComplete}){
         <div style={{width:28,height:28,borderRadius:7,background:"rgba(45,139,78,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,flexShrink:0}}>🩺</div>
         <div style={{textAlign:"left"}}>
           <div style={{fontSize:10,fontWeight:700,color:"#2D8B4E",letterSpacing:.3}}>Clinical Advisory Panel</div>
-          <div style={{fontSize:9,color:"#6E6E73",lineHeight:1.4,marginTop:1}}>Content reviewed by board-certified orthopedic surgeons &amp; physiatrists</div>
+          <div style={{fontSize:9,color:"#6E6E73",lineHeight:1.4,marginTop:1}}>Content reviewed by board-certified orthopedic surgeons, physiatrists &amp; physical therapists</div>
         </div>
       </div>
       <div style={{display:"flex",alignItems:"center",gap:8,padding:"8px 12px",background:"rgba(0,113,227,0.03)",borderRadius:8,border:"1px solid rgba(0,113,227,0.1)"}}>

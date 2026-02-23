@@ -418,6 +418,15 @@ export default function PTLibrary({ findings, onSelectFinding, activeEx, setActi
         </div>
       </div>
 
+      {/* Clinical advisory badge */}
+      <div style={{display:"flex",alignItems:"center",gap:8,padding:"8px 12px",background:"rgba(45,139,78,0.04)",borderRadius:8,border:"1px solid rgba(45,139,78,0.12)",marginBottom:10}}>
+        <div style={{width:24,height:24,borderRadius:6,background:"rgba(45,139,78,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,flexShrink:0}}>🩺</div>
+        <div>
+          <div style={{fontSize:10,fontWeight:700,color:"#2D8B4E",letterSpacing:.3}}>Clinical Advisory Panel</div>
+          <div style={{fontSize:9,color:"#6E6E73",lineHeight:1.3}}>Exercise protocols reviewed by board-certified orthopedic surgeons, physiatrists &amp; physical therapists</div>
+        </div>
+      </div>
+
       {/* Important notice */}
       <div style={{ padding: "10px 12px", background: "#E6F5F4", borderRadius: 8, border: "1px solid rgba(26,127,122,0.2)", marginBottom: 14 }}>
         <div style={{ fontSize: 10, fontWeight: 700, color: "#1A7F7A", marginBottom: 3 }}>DISCUSS WITH YOUR PT BEFORE STARTING</div>
