@@ -5,13 +5,13 @@ function LockedExerciseTab({onUnlock}){
   return(
     <div style={{animation:"fadeIn .4s",textAlign:"center",padding:"30px 10px"}}>
       <div style={{fontSize:40,marginBottom:12}}>🔒</div>
-      <div style={{fontSize:16,fontWeight:700,color:"#1D1D1F",marginBottom:6,fontFamily:"Georgia,serif"}}>Personalized Exercise Program</div>
-      <div style={{fontSize:12,color:"#6E6E73",lineHeight:1.6,maxWidth:280,margin:"0 auto 18px"}}>
+      <div style={{fontSize:16,fontWeight:700,color:T.tx,marginBottom:6,fontFamily:"Georgia,serif"}}>Personalized Exercise Program</div>
+      <div style={{fontSize:12,color:T.txM,lineHeight:1.6,maxWidth:280,margin:"0 auto 18px"}}>
         Unlock Pro to get a customized exercise program based on your MRI findings, pain level, activity goals, and medical history.
       </div>
       <div style={{textAlign:"left",maxWidth:260,margin:"0 auto 18px"}}>
         {["18 exercises matched to your pathology","3-phase progression (Weeks 1-12)","Pain-adapted rep prescriptions","Goal-specific exercise priorities","Condition-aware safety modifications"].map((f,i)=>(
-          <div key={i} style={{fontSize:11,color:"#6E6E73",padding:"4px 0",display:"flex",alignItems:"center",gap:6}}>
+          <div key={i} style={{fontSize:11,color:T.txM,padding:"4px 0",display:"flex",alignItems:"center",gap:6}}>
             <span style={{color:"#0071E3",fontSize:11}}>✓</span>{f}
           </div>
         ))}
@@ -21,7 +21,7 @@ function LockedExerciseTab({onUnlock}){
         padding:"12px 32px",borderRadius:10,fontSize:14,fontWeight:700,cursor:"pointer",
         boxShadow:"0 4px 16px rgba(0,113,227,0.3)",
       }}>$5 — Unlock Pro</button>
-      <div style={{fontSize:10,color:"#AEAEB2",marginTop:8}}>One-time payment · Instant access</div>
+      <div style={{fontSize:10,color:T.txL,marginTop:8}}>One-time payment · Instant access</div>
     </div>
   );
 }
@@ -240,7 +240,8 @@ const PHASE_NAMES = { 1: "Phase 1: Early Recovery", 2: "Phase 2: Building Streng
 const PHASE_TIME = { 1: "Weeks 1-2", 2: "Weeks 3-6", 3: "Weeks 7-12" };
 const PHASE_COLOR = { 1: "#0071E3", 2: "#2D8B4E", 3: "#6B3FA0" };
 
-export default function PTLibrary({ findings, onSelectFinding, activeEx, setActiveEx, assessAnswers, paid, onUnlock, onGoToReport, joint, recoveryStage }) {
+export default function PTLibrary({ findings, onSelectFinding, activeEx, setActiveEx, assessAnswers, paid, onUnlock, onGoToReport, joint, recoveryStage, theme }) {
+  const T = theme || {bg:"#F5F4F1",bgD:"#ECEAE6",sf:"#FFFFFF",sfA:"#FAFAF8",tx:"#1D1D1F",txM:"#6E6E73",txL:"#AEAEB2",txF:"#C7C7CC",ac:"#0071E3",bd:"rgba(0,0,0,0.06)",bdM:"rgba(0,0,0,0.1)"};
   const [viewMode, setViewMode] = useState("byPhase");
   const [activePhase, setActivePhase] = useState(null);
 
@@ -255,8 +256,8 @@ export default function PTLibrary({ findings, onSelectFinding, activeEx, setActi
   if (!assessAnswers) return (
     <div style={{animation:"fadeIn .4s",textAlign:"center",padding:"24px 10px"}}>
       <div style={{fontSize:36,marginBottom:10}}>🏋️</div>
-      <div style={{fontSize:15,fontWeight:700,color:"#1D1D1F",marginBottom:6,fontFamily:"Georgia,serif"}}>Your Exercise Program</div>
-      <div style={{fontSize:12,color:"#6E6E73",lineHeight:1.6,maxWidth:280,margin:"0 auto 16px"}}>
+      <div style={{fontSize:15,fontWeight:700,color:T.tx,marginBottom:6,fontFamily:"Georgia,serif"}}>Your Exercise Program</div>
+      <div style={{fontSize:12,color:T.txM,lineHeight:1.6,maxWidth:280,margin:"0 auto 16px"}}>
         Complete the clinical assessment first. We'll use your pain level, activity goals, and medical history to build a personalized exercise program.
       </div>
       <button onClick={onGoToReport} style={{
@@ -411,9 +412,9 @@ export default function PTLibrary({ findings, onSelectFinding, activeEx, setActi
               <span style={{ color: pc, fontSize: 14, fontWeight: 700, fontFamily: "monospace", width: 20 }}>
                 {isSel ? "●" : "○"}
               </span>
-              <span style={{ fontSize: 13, fontWeight: 600, color: "#1D1D1F" }}>{ex.name}</span>
+              <span style={{ fontSize: 13, fontWeight: 600, color: T.tx }}>{ex.name}</span>
               {ex.priority && <span style={{fontSize:7,fontWeight:800,color:"#0071E3",background:"rgba(0,113,227,0.1)",padding:"1px 4px",borderRadius:2}}>PRIORITY</span>}
-              {ex.optional && <span style={{fontSize:7,fontWeight:800,color:"#AEAEB2",background:"rgba(0,0,0,0.04)",padding:"1px 4px",borderRadius:2}}>OPTIONAL</span>}
+              {ex.optional && <span style={{fontSize:7,fontWeight:800,color:T.txL,background:"rgba(0,0,0,0.04)",padding:"1px 4px",borderRadius:2}}>OPTIONAL</span>}
             </div>
             <span style={{ fontSize: 10, color: pc, fontWeight: 600, padding: "2px 8px", background: pc+"12", borderRadius: 4 }}>
               {PHASE_TIME[ex.phase]}
@@ -429,11 +430,11 @@ export default function PTLibrary({ findings, onSelectFinding, activeEx, setActi
               </span>
             ))}
           </div>
-          <div style={{ fontSize: 11, color: "#AEAEB2", marginTop: 3, marginLeft: 28 }}>{ex.adjustedRx || ex.rx}</div>
+          <div style={{ fontSize: 11, color: T.txL, marginTop: 3, marginLeft: 28 }}>{ex.adjustedRx || ex.rx}</div>
           {ex.notes && ex.notes.length > 0 && (
             <div style={{ marginTop: 4, marginLeft: 28 }}>
               {ex.notes.map((n, i) => (
-                <div key={i} style={{ fontSize: 10, color: n.startsWith("⚠️") ? "#C45D00" : n.startsWith("⭐") ? "#0071E3" : "#6E6E73", lineHeight: 1.4, marginTop: 2 }}>{n}</div>
+                <div key={i} style={{ fontSize: 10, color: n.startsWith("⚠️") ? "#C45D00" : n.startsWith("⭐") ? "#0071E3" : T.txM, lineHeight: 1.4, marginTop: 2 }}>{n}</div>
               ))}
             </div>
           )}
@@ -457,7 +458,7 @@ export default function PTLibrary({ findings, onSelectFinding, activeEx, setActi
           : (activePhase === null || activePhase === phase);
         const stageLabel = isCurrent ? "CURRENT" : isPast ? "COMPLETED" : isFuture ? "UPCOMING" : null;
         const stageBg = isCurrent ? "rgba(26,127,122,0.08)" : isPast ? "rgba(45,139,78,0.06)" : isFuture ? "rgba(0,0,0,0.03)" : null;
-        const stageColor = isCurrent ? "#1A7F7A" : isPast ? "#2D8B4E" : "#AEAEB2";
+        const stageColor = isCurrent ? "#1A7F7A" : isPast ? "#2D8B4E" : T.txL;
         return (
           <div key={phase} style={{ marginBottom: 14, opacity: isFuture ? 0.45 : isPast ? 0.65 : 1, transition: "opacity .2s" }}>
             <div onClick={() => setActivePhase(p => p === phase ? null : phase)}
@@ -467,16 +468,16 @@ export default function PTLibrary({ findings, onSelectFinding, activeEx, setActi
               }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <div style={{ width: 8, height: 8, borderRadius: 4, background: isPast ? "#2D8B4E" : PHASE_COLOR[phase] }} />
-                <span style={{ fontSize: 13, fontWeight: 700, color: isFuture ? "#AEAEB2" : "#1D1D1F", textDecoration: isPast ? "line-through" : "none" }}>{PHASE_NAMES[phase]}</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: isFuture ? T.txL : T.tx, textDecoration: isPast ? "line-through" : "none" }}>{PHASE_NAMES[phase]}</span>
                 {stageLabel && <span style={{ fontSize: 7, fontWeight: 800, color: stageColor, background: stageBg, padding: "2px 6px", borderRadius: 3 }}>{stageLabel}</span>}
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                 <span style={{ fontSize: 10, color: PHASE_COLOR[phase], fontWeight: 600 }}>{PHASE_TIME[phase]}</span>
-                <span style={{ fontSize: 10, color: "#AEAEB2" }}>{phaseExs.length} ex</span>
+                <span style={{ fontSize: 10, color: T.txL }}>{phaseExs.length} ex</span>
               </div>
             </div>
             {isActive && phaseExs.map(ex => <ExCard key={ex.id} ex={ex} />)}
-            {!isActive && <div style={{ fontSize: 10, color: "#AEAEB2", padding: "0 0 0 16px", cursor: "pointer" }} onClick={() => setActivePhase(phase)}>
+            {!isActive && <div style={{ fontSize: 10, color: T.txL, padding: "0 0 0 16px", cursor: "pointer" }} onClick={() => setActivePhase(phase)}>
               {phaseExs.length} exercises · tap to expand
             </div>}
           </div>
@@ -499,9 +500,9 @@ export default function PTLibrary({ findings, onSelectFinding, activeEx, setActi
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
               <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1.5,
                 color: sc, background: sc+"12", padding: "2px 8px", borderRadius: 4 }}>{f.sev}</span>
-              <span style={{ fontSize: 13, fontWeight: 700, color: "#1D1D1F", fontFamily: "Georgia, serif" }}>{f.str}</span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: T.tx, fontFamily: "Georgia, serif" }}>{f.str}</span>
             </div>
-            <div style={{ fontSize: 11, color: "#AEAEB2", marginBottom: 6, marginLeft: 4 }}>
+            <div style={{ fontSize: 11, color: T.txL, marginBottom: 6, marginLeft: 4 }}>
               {fExs.length} exercises target this finding
             </div>
             {fExs.map(ex => <ExCard key={ex.id} ex={ex} />)}
@@ -542,16 +543,16 @@ export default function PTLibrary({ findings, onSelectFinding, activeEx, setActi
             <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#1A7F7A", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 11, fontWeight: 800, flexShrink: 0 }}>{recoveryStage.week}</div>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 10, fontWeight: 700, color: "#1A7F7A", textTransform: "uppercase", letterSpacing: .5 }}>Your current stage</div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: "#1D1D1F" }}>{recoveryStage.title} · Week {recoveryStage.week}</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: T.tx }}>{recoveryStage.title} · Week {recoveryStage.week}</div>
             </div>
             <div style={{ textAlign: "right" }}>
               <div style={{ fontSize: 16, fontWeight: 800, color: "#1A7F7A", fontFamily: "monospace" }}>{currentPhaseExs.length}</div>
-              <div style={{ fontSize: 8, fontWeight: 600, color: "#AEAEB2", textTransform: "uppercase" }}>exercises now</div>
+              <div style={{ fontSize: 8, fontWeight: 600, color: T.txL, textTransform: "uppercase" }}>exercises now</div>
             </div>
           </div>
           <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
             {pastPhaseExs.length > 0 && <span style={{ fontSize: 9, padding: "2px 7px", borderRadius: 4, background: "rgba(26,127,122,0.08)", color: "#1A7F7A", fontWeight: 600 }}>✓ {pastPhaseExs.length} completed-phase exercises</span>}
-            {futurePhaseExs.length > 0 && <span style={{ fontSize: 9, padding: "2px 7px", borderRadius: 4, background: "rgba(0,0,0,0.03)", color: "#AEAEB2", fontWeight: 600 }}>{futurePhaseExs.length} upcoming</span>}
+            {futurePhaseExs.length > 0 && <span style={{ fontSize: 9, padding: "2px 7px", borderRadius: 4, background: "rgba(0,0,0,0.03)", color: T.txL, fontWeight: 600 }}>{futurePhaseExs.length} upcoming</span>}
           </div>
         </div>
       )}
@@ -566,7 +567,7 @@ export default function PTLibrary({ findings, onSelectFinding, activeEx, setActi
           {goals.slice(0, 3).map(g => (
             <span key={g} style={{ fontSize: 9, padding: "2px 7px", borderRadius: 4, background: "rgba(0,113,227,0.06)", color: "#0071E3", fontWeight: 600 }}>{g}</span>
           ))}
-          {goals.length > 3 && <span style={{ fontSize: 9, padding: "2px 7px", borderRadius: 4, background: "rgba(0,0,0,0.03)", color: "#AEAEB2", fontWeight: 600 }}>+{goals.length - 3} more</span>}
+          {goals.length > 3 && <span style={{ fontSize: 9, padding: "2px 7px", borderRadius: 4, background: "rgba(0,0,0,0.03)", color: T.txL, fontWeight: 600 }}>+{goals.length - 3} more</span>}
           {conditions.length > 0 && <span style={{ fontSize: 9, padding: "2px 7px", borderRadius: 4, background: "rgba(107,63,160,0.06)", color: "#6B3FA0", fontWeight: 600 }}>{conditions.length} condition{conditions.length > 1 ? "s" : ""} noted</span>}
         </div>
       </div>
@@ -576,24 +577,24 @@ export default function PTLibrary({ findings, onSelectFinding, activeEx, setActi
         <div style={{width:24,height:24,borderRadius:6,background:"rgba(45,139,78,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,flexShrink:0}}>🩺</div>
         <div>
           <div style={{fontSize:10,fontWeight:700,color:"#2D8B4E",letterSpacing:.3}}>Clinical Advisory Panel</div>
-          <div style={{fontSize:9,color:"#6E6E73",lineHeight:1.3}}>Exercise protocols reviewed by board-certified orthopedic surgeons, physiatrists &amp; physical therapists</div>
+          <div style={{fontSize:9,color:T.txM,lineHeight:1.3}}>Exercise protocols reviewed by board-certified orthopedic surgeons, physiatrists &amp; physical therapists</div>
         </div>
       </div>
 
       {/* Important notice */}
       <div style={{ padding: "10px 12px", background: "#E6F5F4", borderRadius: 8, border: "1px solid rgba(26,127,122,0.2)", marginBottom: 14 }}>
         <div style={{ fontSize: 10, fontWeight: 700, color: "#1A7F7A", marginBottom: 3 }}>DISCUSS WITH YOUR PT BEFORE STARTING</div>
-        <div style={{ fontSize: 11, lineHeight: 1.5, color: "#6E6E73" }}>
+        <div style={{ fontSize: 11, lineHeight: 1.5, color: T.txM }}>
           This program is adapted to your pain level, goals, and medical history. Your physical therapist will further modify based on examination.
         </div>
       </div>
 
       {/* View toggle */}
-      <div style={{ display: "flex", gap: 4, marginBottom: 14, background: "#ECEAE6", borderRadius: 8, padding: 3 }}>
+      <div style={{ display: "flex", gap: 4, marginBottom: 14, background: T.bgD, borderRadius: 8, padding: 3 }}>
         {[["byPhase", "By Phase"], ["byFinding", "By Finding"]].map(([v, label]) => (
           <button key={v} onClick={() => { setViewMode(v); setActivePhase(null); }}
             style={{ flex: 1, padding: "6px 10px", borderRadius: 6, border: "none", fontSize: 11, fontWeight: 600, cursor: "pointer",
-              background: viewMode === v ? "#fff" : "transparent", color: viewMode === v ? "#1D1D1F" : "#AEAEB2",
+              background: viewMode === v ? T.sf : "transparent", color: viewMode === v ? T.tx : T.txL,
               boxShadow: viewMode === v ? "0 1px 3px rgba(0,0,0,0.06)" : "none", transition: "all .2s" }}>
             {label}
           </button>
@@ -604,15 +605,15 @@ export default function PTLibrary({ findings, onSelectFinding, activeEx, setActi
       <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
         <div style={{ flex: 1, padding: "8px", borderRadius: 8, background: "#F5F9FE", textAlign: "center" }}>
           <div style={{ fontSize: 18, fontWeight: 700, color: "#0071E3", fontFamily: "monospace" }}>{customizedExercises.length}</div>
-          <div style={{ fontSize: 9, fontWeight: 600, color: "#AEAEB2", textTransform: "uppercase" }}>Exercises</div>
+          <div style={{ fontSize: 9, fontWeight: 600, color: T.txL, textTransform: "uppercase" }}>Exercises</div>
         </div>
         <div style={{ flex: 1, padding: "8px", borderRadius: 8, background: "#F5F9FE", textAlign: "center" }}>
           <div style={{ fontSize: 18, fontWeight: 700, color: "#0071E3", fontFamily: "monospace" }}>{priorityCount}</div>
-          <div style={{ fontSize: 9, fontWeight: 600, color: "#AEAEB2", textTransform: "uppercase" }}>Priority</div>
+          <div style={{ fontSize: 9, fontWeight: 600, color: T.txL, textTransform: "uppercase" }}>Priority</div>
         </div>
         <div style={{ flex: 1, padding: "8px", borderRadius: 8, background: "#F5F9FE", textAlign: "center" }}>
           <div style={{ fontSize: 18, fontWeight: 700, color: "#0071E3", fontFamily: "monospace" }}>{activePhases} Phase{activePhases>1?"s":""}</div>
-          <div style={{ fontSize: 9, fontWeight: 600, color: "#AEAEB2", textTransform: "uppercase" }}>Program</div>
+          <div style={{ fontSize: 9, fontWeight: 600, color: T.txL, textTransform: "uppercase" }}>Program</div>
         </div>
       </div>
 
@@ -620,8 +621,8 @@ export default function PTLibrary({ findings, onSelectFinding, activeEx, setActi
       {viewMode === "byPhase" ? byPhaseView() : byFindingView()}
 
       {/* Attribution */}
-      <div style={{ padding: "8px 10px", background: "#FAFAF8", borderRadius: 6, marginTop: 12 }}>
-        <div style={{ fontSize: 9, fontWeight: 600, color: "#AEAEB2" }}>
+      <div style={{ padding: "8px 10px", background: T.sfA, borderRadius: 6, marginTop: 12 }}>
+        <div style={{ fontSize: 9, fontWeight: 600, color: T.txL }}>
           Exercise protocols reviewed by the ClearScan Clinical Advisory Panel (Orthopedics, PM&R, Physical Therapy) following AAOS and APTA guidelines.
         </div>
       </div>

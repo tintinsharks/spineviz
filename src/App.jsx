@@ -494,7 +494,7 @@ function AnatomyExplorerCard({structureName,onClose,joint}){
   );
 
   const catColors={Bone:"#8B7355",Cartilage:"#4A90D9",Ligament:"#7B6B5A","Rotator Cuff":"#9B59B6",Tendon:"#8B6914","Soft Tissue":"#6B8E6B",Fluid:"#B8A040",Joint:"#D4A373"};
-  const catColor=catColors[info.cat]||"#6E6E73";
+  const catColor=catColors[info.cat]||T.txM;
 
   return(
     <div style={{position:"absolute",bottom:20,left:20,right:20,maxWidth:400,background:T.sf,borderRadius:14,boxShadow:"0 8px 32px rgba(0,0,0,0.15)",border:`1px solid ${T.bd}`,zIndex:20,animation:"slideUp .3s cubic-bezier(.16,1,.3,1)",overflow:"hidden"}}>
@@ -555,16 +555,16 @@ function AnalyzingSplash({joint,mob,findings}){
     return()=>timers.forEach(clearTimeout);
   },[]);
   return(
-    <div style={{position:"absolute",inset:0,zIndex:25,background:"radial-gradient(ellipse at 50% 40%,rgba(250,249,247,0.97),rgba(245,244,241,0.98))",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",animation:"fadeIn .2s"}}>
+    <div style={{position:"absolute",inset:0,zIndex:25,background:`radial-gradient(ellipse at 50% 40%,${T.sfA}f8,${T.bg}fa)`,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",animation:"fadeIn .2s"}}>
       <div style={{width:mob?220:280,marginBottom:20}}>
         {/* Progress bar */}
-        <div style={{height:4,background:"#ECEAE6",borderRadius:2,overflow:"hidden",marginBottom:12}}>
+        <div style={{height:4,background:T.bgD,borderRadius:2,overflow:"hidden",marginBottom:12}}>
           <div style={{height:"100%",background:"linear-gradient(90deg,#0071E3,#1A7F7A)",borderRadius:2,width:`${progress}%`,transition:"width .3s ease-out"}} />
         </div>
         {/* Label */}
         <div style={{textAlign:"center"}}>
-          <div style={{fontSize:mob?15:17,fontWeight:700,color:"#1D1D1F",marginBottom:4,fontFamily:"Georgia,serif"}}>Analyzing {jLabel} MRI</div>
-          <div style={{fontSize:12,color:"#6E6E73",transition:"opacity .2s"}}>{label}</div>
+          <div style={{fontSize:mob?15:17,fontWeight:700,color:T.tx,marginBottom:4,fontFamily:"Georgia,serif"}}>Analyzing {jLabel} MRI</div>
+          <div style={{fontSize:12,color:T.txM,transition:"opacity .2s"}}>{label}</div>
         </div>
       </div>
     </div>
@@ -716,11 +716,11 @@ function RecoveryTimeline({finding,joint,selected,onSelect}){
           <span style={{fontSize:20}}>{phases[selIdx]?.icon}</span>
           <div style={{flex:1}}>
             <div style={{fontSize:9,fontWeight:700,color:teal,textTransform:"uppercase",letterSpacing:.8}}>Where you are now</div>
-            <div style={{fontSize:12,fontWeight:700,color:"#1D1D1F"}}>{phases[selIdx]?.title}</div>
-            <div style={{fontSize:10,color:"#6E6E73",marginTop:1}}>{phases[selIdx]?.desc}</div>
+            <div style={{fontSize:12,fontWeight:700,color:T.tx}}>{phases[selIdx]?.title}</div>
+            <div style={{fontSize:10,color:T.txM,marginTop:1}}>{phases[selIdx]?.desc}</div>
           </div>
         </div>
-        <div style={{fontSize:9,color:"#AEAEB2",marginTop:6}}>Tap a different stage below if you're further along in your recovery</div>
+        <div style={{fontSize:9,color:T.txL,marginTop:6}}>Tap a different stage below if you're further along in your recovery</div>
       </div>
 
       {phases.map((ph,i)=>{
@@ -736,7 +736,7 @@ function RecoveryTimeline({finding,joint,selected,onSelect}){
           <div style={{display:"flex",flexDirection:"column",alignItems:"center",width:32,flexShrink:0,zIndex:1}}>
             <div style={{
               width:32,height:32,borderRadius:"50%",flexShrink:0,
-              background:isSel?teal:isPast?"rgba(26,127,122,0.15)":i===phases.length-1?teal:"#fff",
+              background:isSel?teal:isPast?"rgba(26,127,122,0.15)":i===phases.length-1?teal:T.sf,
               border:`3px solid ${isSel?teal:isPast?teal+"80":teal}`,
               display:"flex",alignItems:"center",justifyContent:"center",
               fontSize:isSel?14:13,
@@ -749,21 +749,21 @@ function RecoveryTimeline({finding,joint,selected,onSelect}){
           {/* Right — content card */}
           <div style={{
             flex:1,padding:isSel?"10px 12px":"8px 12px",
-            background:isSel?"rgba(26,127,122,0.06)":isPast?"rgba(26,127,122,0.02)":"#FAFAF8",
+            background:isSel?"rgba(26,127,122,0.06)":isPast?"rgba(26,127,122,0.02)":T.sfA,
             borderRadius:10,
-            border:isSel?`2px solid ${teal}`:`1px solid ${isPast?"rgba(26,127,122,0.1)":"rgba(0,0,0,0.05)"}`,
+            border:isSel?`2px solid ${teal}`:`1px solid ${isPast?"rgba(26,127,122,0.1)":T.bd}`,
             transition:"all .2s",marginBottom:0,
           }}>
             {/* Header */}
             <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
-              <span style={{fontSize:12,fontWeight:700,color:isPast?"#AEAEB2":isSel?"#1D1D1F":"#6E6E73"}}>{ph.title}</span>
+              <span style={{fontSize:12,fontWeight:700,color:isPast?T.txL:isSel?T.tx:T.txM}}>{ph.title}</span>
               {isSel&&<span style={{fontSize:8,fontWeight:700,color:"#fff",background:teal,padding:"2px 6px",borderRadius:3}}>YOU ARE HERE</span>}
               {isPast&&<span style={{fontSize:8,fontWeight:600,color:teal,background:"rgba(26,127,122,0.08)",padding:"2px 6px",borderRadius:3}}>✓ DONE</span>}
-              <span style={{fontSize:9,color:"#AEAEB2",fontWeight:600,marginLeft:"auto"}}>Week {ph.week}</span>
+              <span style={{fontSize:9,color:T.txL,fontWeight:600,marginLeft:"auto"}}>Week {ph.week}</span>
             </div>
             {/* Expanded content */}
             {isSel&&<>
-              <div style={{fontSize:10,color:"#6E6E73",marginTop:4,marginBottom:6,fontStyle:"italic"}}>{ph.desc}</div>
+              <div style={{fontSize:10,color:T.txM,marginTop:4,marginBottom:6,fontStyle:"italic"}}>{ph.desc}</div>
               {/* Functional snapshot — compact pills */}
               {ph.meters&&<div style={{display:"flex",gap:6,marginBottom:8,flexWrap:"wrap"}}>
                 {[
@@ -774,11 +774,11 @@ function RecoveryTimeline({finding,joint,selected,onSelect}){
                   <div key={mi} style={{
                     display:"flex",alignItems:"center",gap:4,
                     padding:"4px 8px",borderRadius:6,
-                    background:"rgba(0,0,0,0.03)",border:"1px solid rgba(0,0,0,0.05)",
+                    background:"rgba(0,0,0,0.03)",border:`1px solid ${T.bd}`,
                   }}>
                     <span style={{fontSize:9}}>{m.icon}</span>
-                    <span style={{fontSize:9,fontWeight:700,color:"#6E6E73"}}>{m.label}</span>
-                    <span style={{fontSize:9,fontWeight:600,color:"#1D1D1F"}}>{m.text}</span>
+                    <span style={{fontSize:9,fontWeight:700,color:T.txM}}>{m.label}</span>
+                    <span style={{fontSize:9,fontWeight:600,color:T.tx}}>{m.text}</span>
                   </div>
                 ))}
               </div>}
@@ -786,7 +786,7 @@ function RecoveryTimeline({finding,joint,selected,onSelect}){
                 {ph.items.map((item,j)=>(
                   <div key={j} style={{display:"flex",alignItems:"flex-start",gap:6,marginBottom:3}}>
                     <span style={{color:teal,fontSize:10,marginTop:2,flexShrink:0}}>•</span>
-                    <span style={{fontSize:11,color:"#1D1D1F",lineHeight:1.45}}>{item}</span>
+                    <span style={{fontSize:11,color:T.tx,lineHeight:1.45}}>{item}</span>
                   </div>
                 ))}
               </div>
@@ -799,7 +799,7 @@ function RecoveryTimeline({finding,joint,selected,onSelect}){
       {/* Clinical timeline */}
       <div style={{marginTop:8,padding:"8px 10px",background:"rgba(26,127,122,0.03)",borderRadius:6,border:"1px solid rgba(26,127,122,0.08)"}}>
         <div style={{fontSize:10,color:teal,fontWeight:600,marginBottom:2}}>Clinical timeline</div>
-        <div style={{fontSize:10,color:"#6E6E73",lineHeight:1.5}}>{finding.timeline}</div>
+        <div style={{fontSize:10,color:T.txM,lineHeight:1.5}}>{finding.timeline}</div>
       </div>
     </div>
   );
@@ -811,17 +811,17 @@ function ReportPreview({findings,joint,paid,onUnlock,onDismiss,onDownload}){
   const jLabel=joint==="shoulder"?"Shoulder":joint==="hip"?"Hip":"Knee";
   const sevColors={severe:"#BF1029",moderate:"#C45D00",mild:"#A68B00"};
   return(
-    <div style={{position:"absolute",inset:0,zIndex:30,background:"rgba(250,249,247,0.97)",display:"flex",flexDirection:"column",animation:"fadeIn .4s",overflow:"hidden"}}>
+    <div style={{position:"absolute",inset:0,zIndex:30,background:`${T.sfA}f8`,display:"flex",flexDirection:"column",animation:"fadeIn .4s",overflow:"hidden"}}>
       {/* Header bar */}
-      <div style={{padding:"12px 16px",borderBottom:"1px solid rgba(0,0,0,0.06)",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0,background:"#fff"}}>
+      <div style={{padding:"12px 16px",borderBottom:`1px solid ${T.bd}`,display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0,background:T.sf}}>
         <div style={{display:"flex",alignItems:"center",gap:8}}>
           <span style={{fontSize:16}}>📋</span>
           <div>
-            <div style={{fontSize:13,fontWeight:700,color:"#1D1D1F"}}>Your {jLabel} MRI Report</div>
-            <div style={{fontSize:10,color:"#6E6E73"}}>Assessment complete · Personalized to your results</div>
+            <div style={{fontSize:13,fontWeight:700,color:T.tx}}>Your {jLabel} MRI Report</div>
+            <div style={{fontSize:10,color:T.txM}}>Assessment complete · Personalized to your results</div>
           </div>
         </div>
-        <button onClick={onDismiss} style={{background:"none",border:"none",fontSize:18,color:"#AEAEB2",cursor:"pointer",padding:"4px 6px"}}>✕</button>
+        <button onClick={onDismiss} style={{background:"none",border:"none",fontSize:18,color:T.txL,cursor:"pointer",padding:"4px 6px"}}>✕</button>
       </div>
 
       {/* Scrollable report preview */}
@@ -829,20 +829,20 @@ function ReportPreview({findings,joint,paid,onUnlock,onDismiss,onDownload}){
         {/* Clear section — appointment questions */}
         <div style={{marginBottom:16}}>
           <div style={{fontSize:9,fontWeight:700,color:"#0071E3",textTransform:"uppercase",letterSpacing:1.2,marginBottom:8}}>Questions for Your Appointment</div>
-          <div style={{fontSize:11,color:"#6E6E73",marginBottom:10,lineHeight:1.5}}>Bring these to your next visit. Check the ones that matter most.</div>
+          <div style={{fontSize:11,color:T.txM,marginBottom:10,lineHeight:1.5}}>Bring these to your next visit. Check the ones that matter most.</div>
           {(findings||[]).map((f,i)=>{
             if(!f.questions||f.questions.length===0)return null;
-            const sc=sevColors[f.sev]||"#6E6E73";
+            const sc=sevColors[f.sev]||T.txM;
             return(
               <div key={i} style={{marginBottom:10}}>
                 <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:4}}>
                   <span style={{fontSize:8,fontWeight:700,color:sc,background:sc+"12",padding:"2px 6px",borderRadius:3,textTransform:"uppercase"}}>{f.sev}</span>
-                  <span style={{fontSize:12,fontWeight:700,color:"#1D1D1F",fontFamily:"Georgia,serif"}}>{f.str}</span>
+                  <span style={{fontSize:12,fontWeight:700,color:T.tx,fontFamily:"Georgia,serif"}}>{f.str}</span>
                 </div>
                 {f.questions.slice(0,3).map((q,qi)=>(
-                  <div key={qi} style={{display:"flex",alignItems:"flex-start",gap:8,padding:"6px 10px",marginBottom:3,borderRadius:6,background:"#fff",border:"1px solid rgba(0,0,0,0.06)"}}>
+                  <div key={qi} style={{display:"flex",alignItems:"flex-start",gap:8,padding:"6px 10px",marginBottom:3,borderRadius:6,background:T.sf,border:`1px solid ${T.bd}`}}>
                     <div style={{width:14,height:14,borderRadius:3,border:"1.5px solid #AEAEB2",flexShrink:0,marginTop:1}} />
-                    <span style={{fontSize:11,color:"#1D1D1F",lineHeight:1.4}}>{q}</span>
+                    <span style={{fontSize:11,color:T.tx,lineHeight:1.4}}>{q}</span>
                   </div>
                 ))}
               </div>
@@ -851,12 +851,12 @@ function ReportPreview({findings,joint,paid,onUnlock,onDismiss,onDownload}){
           {/* General questions */}
           <div style={{marginBottom:6}}>
             <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:4}}>
-              <span style={{fontSize:12,fontWeight:700,color:"#6E6E73"}}>General Questions</span>
+              <span style={{fontSize:12,fontWeight:700,color:T.txM}}>General Questions</span>
             </div>
             {["What should I focus on right now?","Should I start PT before other decisions?","What activities should I avoid?"].map((q,qi)=>(
-              <div key={qi} style={{display:"flex",alignItems:"flex-start",gap:8,padding:"6px 10px",marginBottom:3,borderRadius:6,background:"#fff",border:"1px solid rgba(0,0,0,0.06)"}}>
+              <div key={qi} style={{display:"flex",alignItems:"flex-start",gap:8,padding:"6px 10px",marginBottom:3,borderRadius:6,background:T.sf,border:`1px solid ${T.bd}`}}>
                 <div style={{width:14,height:14,borderRadius:3,border:"1.5px solid #AEAEB2",flexShrink:0,marginTop:1}} />
-                <span style={{fontSize:11,color:"#1D1D1F",lineHeight:1.4}}>{q}</span>
+                <span style={{fontSize:11,color:T.tx,lineHeight:1.4}}>{q}</span>
               </div>
             ))}
           </div>
@@ -866,41 +866,41 @@ function ReportPreview({findings,joint,paid,onUnlock,onDismiss,onDownload}){
         <div style={{position:"relative"}}>
           {/* Blurred content */}
           <div style={{filter:"blur(4px)",opacity:.6,pointerEvents:"none",userSelect:"none"}}>
-            <div style={{fontSize:9,fontWeight:700,color:"#AEAEB2",textTransform:"uppercase",letterSpacing:1.2,marginBottom:8}}>Your MRI Findings Explained</div>
+            <div style={{fontSize:9,fontWeight:700,color:T.txL,textTransform:"uppercase",letterSpacing:1.2,marginBottom:8}}>Your MRI Findings Explained</div>
             {(findings||[]).slice(0,2).map((f,i)=>{
-              const sc=sevColors[f.sev]||"#6E6E73";
+              const sc=sevColors[f.sev]||T.txM;
               return(
-                <div key={i} style={{padding:"10px 12px",marginBottom:6,borderRadius:8,background:"#fff",border:"1px solid rgba(0,0,0,0.06)"}}>
+                <div key={i} style={{padding:"10px 12px",marginBottom:6,borderRadius:8,background:T.sf,border:`1px solid ${T.bd}`}}>
                   <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:3}}>
                     <span style={{fontSize:8,fontWeight:700,color:sc,background:sc+"12",padding:"2px 6px",borderRadius:3,textTransform:"uppercase"}}>{f.sev}</span>
-                    <span style={{fontSize:13,fontWeight:700,color:"#1D1D1F"}}>{f.str}</span>
+                    <span style={{fontSize:13,fontWeight:700,color:T.tx}}>{f.str}</span>
                   </div>
-                  <div style={{fontSize:11,color:"#6E6E73",lineHeight:1.5}}>{f.desc?.slice(0,100)}...</div>
+                  <div style={{fontSize:11,color:T.txM,lineHeight:1.5}}>{f.desc?.slice(0,100)}...</div>
                 </div>
               );
             })}
 
-            <div style={{fontSize:9,fontWeight:700,color:"#AEAEB2",textTransform:"uppercase",letterSpacing:1.2,marginBottom:8,marginTop:16}}>Treatment Comparison</div>
+            <div style={{fontSize:9,fontWeight:700,color:T.txL,textTransform:"uppercase",letterSpacing:1.2,marginBottom:8,marginTop:16}}>Treatment Comparison</div>
             {(findings||[]).slice(0,1).flatMap(f=>f.treatments||[]).slice(0,3).map((tx,i)=>(
-              <div key={i} style={{padding:"8px 12px",marginBottom:4,borderRadius:8,background:"#fff",border:"1px solid rgba(0,0,0,0.06)",borderLeft:`3px solid ${tx.color||"#0071E3"}`}}>
-                <div style={{fontSize:12,fontWeight:700,color:"#1D1D1F"}}>{tx.name}</div>
-                <div style={{fontSize:10,color:"#6E6E73",marginTop:2}}>{tx.desc?.slice(0,80)}...</div>
+              <div key={i} style={{padding:"8px 12px",marginBottom:4,borderRadius:8,background:T.sf,border:`1px solid ${T.bd}`,borderLeft:`3px solid ${tx.color||"#0071E3"}`}}>
+                <div style={{fontSize:12,fontWeight:700,color:T.tx}}>{tx.name}</div>
+                <div style={{fontSize:10,color:T.txM,marginTop:2}}>{tx.desc?.slice(0,80)}...</div>
               </div>
             ))}
 
-            <div style={{fontSize:9,fontWeight:700,color:"#AEAEB2",textTransform:"uppercase",letterSpacing:1.2,marginBottom:8,marginTop:16}}>Personalized Exercise Program</div>
+            <div style={{fontSize:9,fontWeight:700,color:T.txL,textTransform:"uppercase",letterSpacing:1.2,marginBottom:8,marginTop:16}}>Personalized Exercise Program</div>
             {["Phase 1: Early Recovery — Weeks 1-2","Phase 2: Building Strength — Weeks 3-6","Phase 3: Return to Activity — Weeks 7-12"].map((p,i)=>(
-              <div key={i} style={{padding:"8px 12px",marginBottom:4,borderRadius:8,background:"#fff",border:"1px solid rgba(0,0,0,0.06)",fontSize:11,color:"#1D1D1F",fontWeight:600}}>{p}</div>
+              <div key={i} style={{padding:"8px 12px",marginBottom:4,borderRadius:8,background:T.sf,border:`1px solid ${T.bd}`,fontSize:11,color:T.tx,fontWeight:600}}>{p}</div>
             ))}
           </div>
 
           {/* Gradient overlay on blur transition */}
-          <div style={{position:"absolute",top:-30,left:0,right:0,height:30,background:"linear-gradient(180deg,rgba(250,249,247,0) 0%,rgba(250,249,247,0.5) 100%)",pointerEvents:"none"}} />
+          <div style={{position:"absolute",top:-30,left:0,right:0,height:30,background:`linear-gradient(180deg,${T.sfA}00 0%,${T.sfA}80 100%)`,pointerEvents:"none"}} />
         </div>
       </div>
 
       {/* CTA bar at bottom */}
-      <div style={{padding:"12px 16px",borderTop:"1px solid rgba(0,0,0,0.06)",background:"#fff",flexShrink:0}}>
+      <div style={{padding:"12px 16px",borderTop:`1px solid ${T.bd}`,background:T.sf,flexShrink:0}}>
         {paid?(
           <button onClick={onDownload} style={{
             width:"100%",padding:"12px",borderRadius:10,border:"none",
@@ -916,7 +916,7 @@ function ReportPreview({findings,joint,paid,onUnlock,onDismiss,onDownload}){
               color:"#fff",fontSize:14,fontWeight:700,cursor:"pointer",
               boxShadow:"0 4px 16px rgba(0,113,227,0.3)",marginBottom:6,
             }}>$5 — Unlock Full Report</button>
-            <div style={{textAlign:"center",fontSize:10,color:"#AEAEB2"}}>Includes specialist perspectives, exercises, treatments & PDF download</div>
+            <div style={{textAlign:"center",fontSize:10,color:T.txL}}>Includes specialist perspectives, exercises, treatments & PDF download</div>
           </div>
         )}
       </div>
@@ -1023,8 +1023,8 @@ function LandingPage({onStart,onSelectCondition,mob,dark,toggleDark}){
           }}>I Have My MRI Report →</button>
           <a href="#conditions" style={{
             padding:"14px 28px",borderRadius:12,
-            border:"1px solid rgba(0,0,0,0.1)",background:"#fff",
-            color:"#1D1D1F",fontSize:16,fontWeight:600,cursor:"pointer",textDecoration:"none",
+            border:"1px solid rgba(0,0,0,0.1)",background:T.sf,
+            color:T.tx,fontSize:16,fontWeight:600,cursor:"pointer",textDecoration:"none",
             display:"inline-block",
           }}>Browse by Diagnosis ↓</a>
         </div>
@@ -1034,7 +1034,7 @@ function LandingPage({onStart,onSelectCondition,mob,dark,toggleDark}){
           {[["🔒","No data stored"],["⚡","Instant results"],["🧠","No AI hallucination"],["📋","PDF report"]].map(([ic,tx],i)=>(
             <div key={i} style={{display:"flex",alignItems:"center",gap:5}}>
               <span style={{fontSize:14}}>{ic}</span>
-              <span style={{fontSize:11,color:"#AEAEB2",fontWeight:600}}>{tx}</span>
+              <span style={{fontSize:11,color:T.txL,fontWeight:600}}>{tx}</span>
             </div>
           ))}
         </div>
@@ -1052,7 +1052,7 @@ function LandingPage({onStart,onSelectCondition,mob,dark,toggleDark}){
             <div key={i} style={{padding:20,borderRadius:12,background:dark?"#242428":"#fff",border:`1px solid ${dark?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.06)"}`}}>
               <div style={{width:32,height:32,borderRadius:"50%",background:"rgba(0,113,227,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,fontWeight:800,color:"#0071E3",marginBottom:10}}>{s.step}</div>
               <div style={{fontSize:14,fontWeight:700,color:dark?"#E8E8ED":"#1D1D1F",marginBottom:4}}>{s.title}</div>
-              <div style={{fontSize:12,color:"#6E6E73",lineHeight:1.5}}>{s.desc}</div>
+              <div style={{fontSize:12,color:T.txM,lineHeight:1.5}}>{s.desc}</div>
             </div>
           ))}
         </div>
@@ -1061,7 +1061,7 @@ function LandingPage({onStart,onSelectCondition,mob,dark,toggleDark}){
       {/* Body Part Selector + Condition Browser */}
       <div id="conditions" style={{maxWidth:800,margin:"0 auto",padding:mob?"0 20px 40px":"0 40px 60px"}}>
         <h2 style={{fontSize:mob?18:22,fontWeight:700,color:dark?"#E8E8ED":"#1D1D1F",textAlign:"center",marginBottom:6,fontFamily:"Georgia,serif"}}>Don't Have Your MRI Report?</h2>
-        <p style={{fontSize:13,color:"#6E6E73",textAlign:"center",marginBottom:24,lineHeight:1.5}}>Select your body part and diagnosis below. We'll load a representative MRI report so you can explore what ClearScan shows.</p>
+        <p style={{fontSize:13,color:T.txM,textAlign:"center",marginBottom:24,lineHeight:1.5}}>Select your body part and diagnosis below. We'll load a representative MRI report so you can explore what ClearScan shows.</p>
 
         {/* Joint selector */}
         <div style={{display:"flex",gap:10,justifyContent:"center",marginBottom:24}}>
@@ -1078,8 +1078,8 @@ function LandingPage({onStart,onSelectCondition,mob,dark,toggleDark}){
               }}>
                 <span style={{fontSize:mob?24:32}}>{jd.icon}</span>
                 <div style={{textAlign:"left"}}>
-                  <div style={{fontSize:mob?14:16,fontWeight:700,color:isSel?jd.color:"#1D1D1F"}}>{jd.label}</div>
-                  <div style={{fontSize:10,color:"#AEAEB2"}}>{jd.conditions.length} conditions</div>
+                  <div style={{fontSize:mob?14:16,fontWeight:700,color:isSel?jd.color:T.tx}}>{jd.label}</div>
+                  <div style={{fontSize:10,color:T.txL}}>{jd.conditions.length} conditions</div>
                 </div>
               </button>
             );
@@ -1097,13 +1097,13 @@ function LandingPage({onStart,onSelectCondition,mob,dark,toggleDark}){
                   border:`1px solid ${dark?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.06)"}`,cursor:"pointer",
                   transition:"all .15s",position:"relative",overflow:"hidden",
                 }} onMouseEnter={e=>{e.currentTarget.style.borderColor=CONDITIONS[selJoint].color+"40";e.currentTarget.style.transform="translateY(-1px)";e.currentTarget.style.boxShadow="0 4px 12px rgba(0,0,0,0.06)"}}
-                   onMouseLeave={e=>{e.currentTarget.style.borderColor="rgba(0,0,0,0.06)";e.currentTarget.style.transform="none";e.currentTarget.style.boxShadow="none"}}>
+                   onMouseLeave={e=>{e.currentTarget.style.borderColor=T.bd;e.currentTarget.style.transform="none";e.currentTarget.style.boxShadow="none"}}>
                   <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
-                    <span style={{fontSize:14,fontWeight:700,color:"#1D1D1F"}}>{c.name}</span>
+                    <span style={{fontSize:14,fontWeight:700,color:T.tx}}>{c.name}</span>
                     <span style={{fontSize:8,fontWeight:700,color:sc,background:sc+"12",padding:"2px 6px",borderRadius:3,textTransform:"uppercase"}}>{c.sev}</span>
                     {c.common&&<span style={{fontSize:8,fontWeight:600,color:"#0071E3",background:"rgba(0,113,227,0.06)",padding:"2px 6px",borderRadius:3}}>COMMON</span>}
                   </div>
-                  <div style={{fontSize:11,color:"#6E6E73",lineHeight:1.45}}>{c.desc}</div>
+                  <div style={{fontSize:11,color:T.txM,lineHeight:1.45}}>{c.desc}</div>
                   <div style={{fontSize:10,color:CONDITIONS[selJoint].color,fontWeight:600,marginTop:6}}>Explore this diagnosis →</div>
                 </div>
               );
@@ -1111,7 +1111,7 @@ function LandingPage({onStart,onSelectCondition,mob,dark,toggleDark}){
           </div>
         </div>}
 
-        {!selJoint&&<div style={{textAlign:"center",padding:20,color:"#AEAEB2",fontSize:13}}>
+        {!selJoint&&<div style={{textAlign:"center",padding:20,color:T.txL,fontSize:13}}>
           Select a body part above to browse conditions
         </div>}
       </div>
@@ -1121,13 +1121,13 @@ function LandingPage({onStart,onSelectCondition,mob,dark,toggleDark}){
         <div style={{maxWidth:700,margin:"0 auto"}}>
           <h2 style={{fontSize:mob?16:20,fontWeight:700,color:dark?"#E8E8ED":"#1D1D1F",marginBottom:16,fontFamily:"Georgia,serif"}}>Understanding Your MRI Report</h2>
 
-          <div style={{fontSize:13,color:"#6E6E73",lineHeight:1.7}}>
+          <div style={{fontSize:13,color:T.txM,lineHeight:1.7}}>
             <p style={{marginBottom:14}}>MRI reports are written by radiologists for other physicians — not for patients. Terms like "intrasubstance signal abnormality," "grade III sprain," or "full-thickness tear with retraction" can feel overwhelming when you're reading them for the first time.</p>
             <p style={{marginBottom:14}}>ClearScan translates your MRI impression into plain language you can understand. Each finding is explained individually: what the structure is, what went wrong, how severe it is, and what you might feel. More importantly, we help you prepare for the conversation that matters — your next doctor's appointment.</p>
             <p style={{marginBottom:14}}>Our clinical content is developed with input from board-certified orthopedic surgeons, physiatrists, and physical therapists. All analysis runs instantly on your device — your MRI text is never sent to a server or stored anywhere.</p>
           </div>
 
-          <h3 style={{fontSize:15,fontWeight:700,color:"#1D1D1F",marginTop:20,marginBottom:10}}>What ClearScan Includes</h3>
+          <h3 style={{fontSize:15,fontWeight:700,color:T.tx,marginTop:20,marginBottom:10}}>What ClearScan Includes</h3>
           <div style={{display:"grid",gridTemplateColumns:mob?"1fr":"1fr 1fr",gap:10}}>
             {[
               ["🩺","Appointment Questions","Finding-specific questions to ask your orthopedist, with checkboxes you can print"],
@@ -1137,17 +1137,17 @@ function LandingPage({onStart,onSelectCondition,mob,dark,toggleDark}){
               ["🗺️","Specialist Finder","Find top-rated orthopedic surgeons and PTs near your ZIP code"],
               ["📈","Recovery Timeline","Stage-by-stage recovery guide describing what you'll be able to do and when"],
             ].map(([ic,title,desc],i)=>(
-              <div key={i} style={{padding:"12px 14px",borderRadius:8,background:"#FAFAF8",border:"1px solid rgba(0,0,0,0.04)"}}>
+              <div key={i} style={{padding:"12px 14px",borderRadius:8,background:T.sfA,border:`1px solid ${T.bd}`}}>
                 <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:4}}>
                   <span style={{fontSize:14}}>{ic}</span>
-                  <span style={{fontSize:12,fontWeight:700,color:"#1D1D1F"}}>{title}</span>
+                  <span style={{fontSize:12,fontWeight:700,color:T.tx}}>{title}</span>
                 </div>
-                <div style={{fontSize:11,color:"#6E6E73",lineHeight:1.4}}>{desc}</div>
+                <div style={{fontSize:11,color:T.txM,lineHeight:1.4}}>{desc}</div>
               </div>
             ))}
           </div>
 
-          <h3 style={{fontSize:15,fontWeight:700,color:"#1D1D1F",marginTop:24,marginBottom:10}}>Frequently Asked Questions</h3>
+          <h3 style={{fontSize:15,fontWeight:700,color:T.tx,marginTop:24,marginBottom:10}}>Frequently Asked Questions</h3>
           {[
             ["Is my MRI data stored anywhere?","No. ClearScan runs entirely in your browser. Your MRI text is never sent to a server, database, or AI service. When you close the tab, everything is gone."],
             ["How accurate is the interpretation?","ClearScan uses pattern-matching rules developed with orthopedic specialists — not AI language models. This means consistent, reproducible results with no hallucination risk. However, ClearScan is an educational tool, not a medical diagnosis."],
@@ -1156,8 +1156,8 @@ function LandingPage({onStart,onSelectCondition,mob,dark,toggleDark}){
             ["Can I share the report with my doctor?","Yes. The PDF report is designed to bring to your appointment. The Questions page includes printable checkboxes."],
           ].map(([q,a],i)=>(
             <div key={i} style={{marginBottom:12}}>
-              <div style={{fontSize:13,fontWeight:700,color:"#1D1D1F",marginBottom:3}}>{q}</div>
-              <div style={{fontSize:12,color:"#6E6E73",lineHeight:1.55}}>{a}</div>
+              <div style={{fontSize:13,fontWeight:700,color:T.tx,marginBottom:3}}>{q}</div>
+              <div style={{fontSize:12,color:T.txM,lineHeight:1.55}}>{a}</div>
             </div>
           ))}
         </div>
@@ -1165,7 +1165,7 @@ function LandingPage({onStart,onSelectCondition,mob,dark,toggleDark}){
 
       {/* Footer */}
       <div style={{padding:"20px 40px",borderTop:`1px solid ${dark?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.06)"}`,textAlign:"center",background:dark?"#1A1A1E":"#FAFAF8"}}>
-        <div style={{fontSize:10,color:"#AEAEB2",lineHeight:1.6}}>
+        <div style={{fontSize:10,color:T.txL,lineHeight:1.6}}>
           ClearScan is an educational tool and does not provide medical advice, diagnosis, or treatment.<br/>
           Always consult a qualified healthcare provider for medical decisions.<br/>
           © {new Date().getFullYear()} ClearScan. All rights reserved.
@@ -1228,7 +1228,7 @@ function SpecialistFinder({joint,mob}){
     const mUrl=`https://www.google.com/maps/place/?q=place_id:${p.placeId}`;
     return(
       <a href={mUrl} target="_blank" rel="noopener noreferrer" style={{
-        display:"block",padding:"8px 10px",borderRadius:8,border:"1px solid rgba(0,0,0,0.05)",
+        display:"block",padding:"8px 10px",borderRadius:8,border:`1px solid ${T.bd}`,
         marginBottom:4,textDecoration:"none",transition:"background .15s",cursor:"pointer",
       }}
       onMouseEnter={e=>e.currentTarget.style.background="rgba(0,113,227,0.02)"}
@@ -1236,15 +1236,15 @@ function SpecialistFinder({joint,mob}){
       >
         <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:6}}>
           <div style={{flex:1,minWidth:0}}>
-            <div style={{fontSize:11,fontWeight:700,color:"#1D1D1F",lineHeight:1.3,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.name}</div>
-            <div style={{fontSize:9,color:"#AEAEB2",marginTop:2,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.address}</div>
+            <div style={{fontSize:11,fontWeight:700,color:T.tx,lineHeight:1.3,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.name}</div>
+            <div style={{fontSize:9,color:T.txL,marginTop:2,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.address}</div>
           </div>
           <div style={{textAlign:"right",flexShrink:0}}>
             <div style={{display:"flex",alignItems:"center",gap:3}}>
-              <span style={{fontSize:11,fontWeight:700,color:"#1D1D1F"}}>{p.rating}</span>
+              <span style={{fontSize:11,fontWeight:700,color:T.tx}}>{p.rating}</span>
               <Stars rating={p.rating} />
             </div>
-            <div style={{fontSize:9,color:"#AEAEB2"}}>{p.reviews.toLocaleString()} reviews</div>
+            <div style={{fontSize:9,color:T.txL}}>{p.reviews.toLocaleString()} reviews</div>
           </div>
         </div>
         {p.open!=null&&<div style={{marginTop:3}}><span style={{fontSize:8,fontWeight:700,color:p.open?"#2D8B4E":"#BF1029",background:p.open?"rgba(45,139,78,0.06)":"rgba(191,16,41,0.06)",padding:"1px 5px",borderRadius:3}}>{p.open?"Open now":"Closed"}</span></div>}
@@ -1258,10 +1258,10 @@ function SpecialistFinder({joint,mob}){
       :[{icon:"🏋️",label:"Orthopedic PT",q:"orthopedic physical therapist"},{icon:"🤸",label:"Sports Rehab PT",q:"sports rehabilitation physical therapy"}];
     return specs.map((s,i)=>(
       <a key={i} href={`https://www.google.com/maps/search/${encodeURIComponent(s.q+" near "+zip)}`} target="_blank" rel="noopener noreferrer" style={{
-        display:"flex",alignItems:"center",gap:8,padding:"8px 10px",borderRadius:7,border:"1px solid rgba(0,0,0,0.05)",textDecoration:"none",marginBottom:4,
+        display:"flex",alignItems:"center",gap:8,padding:"8px 10px",borderRadius:7,border:`1px solid ${T.bd}`,textDecoration:"none",marginBottom:4,
       }}>
         <span style={{fontSize:13}}>{s.icon}</span>
-        <span style={{fontSize:11,fontWeight:600,color:"#1D1D1F",flex:1}}>{s.label}</span>
+        <span style={{fontSize:11,fontWeight:600,color:T.tx,flex:1}}>{s.label}</span>
         <span style={{fontSize:10,color:"#0071E3"}}>Maps →</span>
       </a>
     ));
@@ -1271,15 +1271,15 @@ function SpecialistFinder({joint,mob}){
     <div style={{flex:1,minWidth:0,display:"flex",flexDirection:"column"}}>
       <div style={{display:"flex",alignItems:"center",gap:5,padding:"0 2px",marginBottom:6,flexShrink:0}}>
         <div style={{width:20,height:20,borderRadius:5,background:iconBg,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11}}>{icon}</div>
-        <span style={{fontSize:11,fontWeight:700,color:"#1D1D1F"}}>{title}</span>
-        {data&&!data.fallback&&data.results?.length>0&&<span style={{fontSize:9,color:"#AEAEB2",marginLeft:"auto"}}>{data.results.length} found</span>}
+        <span style={{fontSize:11,fontWeight:700,color:T.tx}}>{title}</span>
+        {data&&!data.fallback&&data.results?.length>0&&<span style={{fontSize:9,color:T.txL,marginLeft:"auto"}}>{data.results.length} found</span>}
       </div>
       <div style={{flex:1,overflow:"auto",paddingRight:2}}>
         {data?.fallback
           ?<FallbackLinks type={type} />
           :data?.results?.length>0
             ?data.results.map((p,i)=><ProviderCard key={i} p={p} />)
-            :<div style={{fontSize:10,color:"#AEAEB2",padding:"12px 4px",textAlign:"center"}}>No results found nearby. Try a different ZIP code.</div>
+            :<div style={{fontSize:10,color:T.txL,padding:"12px 4px",textAlign:"center"}}>No results found nearby. Try a different ZIP code.</div>
         }
       </div>
     </div>
@@ -1289,12 +1289,12 @@ function SpecialistFinder({joint,mob}){
     <button onClick={()=>setOpen(true)} style={{
       position:"absolute",top:mob?8:14,left:mob?8:14,zIndex:15,
       background:"rgba(255,255,255,0.92)",backdropFilter:"blur(12px)",
-      border:"1px solid rgba(0,0,0,0.08)",borderRadius:9,padding:"7px 12px",
+      border:`1px solid ${T.bdM}`,borderRadius:9,padding:"7px 12px",
       cursor:"pointer",display:"flex",alignItems:"center",gap:6,
       boxShadow:"0 2px 12px rgba(0,0,0,0.06)",animation:"fadeIn .3s",
     }}>
       <span style={{fontSize:14}}>🩺</span>
-      <span style={{fontSize:11,fontWeight:600,color:"#1D1D1F"}}>Find a Specialist</span>
+      <span style={{fontSize:11,fontWeight:600,color:T.tx}}>Find a Specialist</span>
     </button>
   );
 
@@ -1305,23 +1305,23 @@ function SpecialistFinder({joint,mob}){
     <div style={{
       position:"absolute",top:mob?8:14,left:mob?8:14,zIndex:20,
       width:panelW,maxWidth:"calc(100% - 16px)",
-      background:"#fff",borderRadius:12,
-      boxShadow:"0 8px 32px rgba(0,0,0,0.12)",border:"1px solid rgba(0,0,0,0.06)",
+      background:T.sf,borderRadius:12,
+      boxShadow:"0 8px 32px rgba(0,0,0,0.12)",border:`1px solid ${T.bd}`,
       animation:"fadeIn .25s",overflow:"hidden",display:"flex",flexDirection:"column",
       maxHeight:mob?"80vh":"70vh",
     }}>
       {/* Header */}
-      <div style={{padding:"12px 14px 10px",borderBottom:"1px solid rgba(0,0,0,0.06)",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0}}>
+      <div style={{padding:"12px 14px 10px",borderBottom:`1px solid ${T.bd}`,display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0}}>
         <div style={{display:"flex",alignItems:"center",gap:6}}>
           <span style={{fontSize:16}}>🩺</span>
-          <span style={{fontSize:13,fontWeight:700,color:"#1D1D1F"}}>Find a Specialist</span>
-          {hasResults&&<span style={{fontSize:9,color:"#AEAEB2",background:"rgba(0,0,0,0.03)",padding:"2px 6px",borderRadius:3}}>within 10 mi of {zip}</span>}
+          <span style={{fontSize:13,fontWeight:700,color:T.tx}}>Find a Specialist</span>
+          {hasResults&&<span style={{fontSize:9,color:T.txL,background:"rgba(0,0,0,0.03)",padding:"2px 6px",borderRadius:3}}>within 10 mi of {zip}</span>}
         </div>
-        <button onClick={()=>{setOpen(false)}} style={{background:"none",border:"none",fontSize:16,color:"#AEAEB2",cursor:"pointer",padding:"2px 4px"}}>✕</button>
+        <button onClick={()=>{setOpen(false)}} style={{background:"none",border:"none",fontSize:16,color:T.txL,cursor:"pointer",padding:"2px 4px"}}>✕</button>
       </div>
 
       {/* Zip input */}
-      <div style={{padding:"10px 14px",borderBottom:hasResults?"1px solid rgba(0,0,0,0.06)":"none",flexShrink:0}}>
+      <div style={{padding:"10px 14px",borderBottom:hasResults?`1px solid ${T.bd}`:"none",flexShrink:0}}>
         <div style={{display:"flex",gap:6}}>
           <input type="text" value={zip} onChange={e=>setZip(e.target.value.replace(/\D/g,"").slice(0,5))}
             placeholder="Enter ZIP code" maxLength={5}
@@ -1330,18 +1330,18 @@ function SpecialistFinder({joint,mob}){
           />
           <button onClick={search} disabled={zip.length<5||loading} style={{
             padding:"9px 16px",borderRadius:7,border:"none",fontSize:12,fontWeight:700,
-            background:zip.length>=5&&!loading?"#0071E3":"#ECEAE6",color:zip.length>=5&&!loading?"#fff":"#AEAEB2",
+            background:zip.length>=5&&!loading?"#0071E3":T.bgD,color:zip.length>=5&&!loading?"#fff":T.txL,
             cursor:zip.length>=5&&!loading?"pointer":"not-allowed",whiteSpace:"nowrap",
           }}>{loading?"Searching...":"Search"}</button>
         </div>
-        {!hasResults&&!loading&&<div style={{fontSize:10,color:"#AEAEB2",marginTop:6,lineHeight:1.4}}>Enter your ZIP code to find top-rated {jLabel.toLowerCase()} specialists and physical therapists within 10 miles, ranked by patient reviews.</div>}
+        {!hasResults&&!loading&&<div style={{fontSize:10,color:T.txL,marginTop:6,lineHeight:1.4}}>Enter your ZIP code to find top-rated {jLabel.toLowerCase()} specialists and physical therapists within 10 miles, ranked by patient reviews.</div>}
       </div>
 
       {/* Loading */}
       {loading&&(
         <div style={{padding:"30px 14px",textAlign:"center",flexShrink:0}}>
           <div style={{width:24,height:24,border:"3px solid #ECEAE6",borderTopColor:"#0071E3",borderRadius:"50%",animation:"spin .8s linear infinite",margin:"0 auto 10px"}} />
-          <div style={{fontSize:11,color:"#6E6E73"}}>Finding top-rated specialists near {zip}...</div>
+          <div style={{fontSize:11,color:T.txM}}>Finding top-rated specialists near {zip}...</div>
         </div>
       )}
 
@@ -1349,7 +1349,7 @@ function SpecialistFinder({joint,mob}){
       {hasResults&&!loading&&(
         <div style={{display:"flex",flexDirection:mob?"column":"row",flex:1,overflow:"hidden",minHeight:0}}>
           {/* LEFT — Physicians */}
-          <div style={{flex:1,padding:"10px 10px",borderRight:mob?"none":"1px solid rgba(0,0,0,0.06)",borderBottom:mob?"1px solid rgba(0,0,0,0.06)":"none",display:"flex",flexDirection:"column",overflow:"hidden",minWidth:0}}>
+          <div style={{flex:1,padding:"10px 10px",borderRight:mob?"none":`1px solid ${T.bd}`,borderBottom:mob?`1px solid ${T.bd}`:"none",display:"flex",flexDirection:"column",overflow:"hidden",minWidth:0}}>
             <ResultColumn title="Physicians" icon="👨‍⚕️" iconBg="rgba(0,113,227,0.08)" data={physicians} type="doc" />
           </div>
           {/* RIGHT — Physical Therapists */}
@@ -1361,8 +1361,8 @@ function SpecialistFinder({joint,mob}){
 
       {/* Footer */}
       {hasResults&&!loading&&(
-        <div style={{padding:"6px 14px",borderTop:"1px solid rgba(0,0,0,0.04)",background:"#FAFAF8",flexShrink:0}}>
-          <div style={{fontSize:8,color:"#AEAEB2",lineHeight:1.4}}>Ranked by Google rating and review count. ClearScan does not endorse any provider. Click a listing to view on Google Maps.</div>
+        <div style={{padding:"6px 14px",borderTop:`1px solid ${T.bd}`,background:T.sfA,flexShrink:0}}>
+          <div style={{fontSize:8,color:T.txL,lineHeight:1.4}}>Ranked by Google rating and review count. ClearScan does not endorse any provider. Click a listing to view on Google Maps.</div>
         </div>
       )}
     </div>
@@ -1373,11 +1373,11 @@ function SpecialistFinder({joint,mob}){
 function TabBar({tab,setTab,mob,paid}){
   const tabs=[["findings","Findings"],["treatments","Treatments"],["report","Report"],["exercises","Exercises"]];
   return(
-    <div style={{display:"flex",gap:3,background:"#ECEAE6",borderRadius:9,padding:3,marginBottom:mob?12:14,flexShrink:0}}>
+    <div style={{display:"flex",gap:3,background:T.bgD,borderRadius:9,padding:3,marginBottom:mob?12:14,flexShrink:0}}>
       {tabs.map(([k,label])=>(
         <button key={k} onClick={()=>setTab(k)} style={{
           flex:1,padding:mob?"7px 6px":"7px 10px",borderRadius:7,border:"none",fontSize:11,fontWeight:600,cursor:"pointer",
-          background:tab===k?"#fff":"transparent",color:tab===k?"#1D1D1F":"#AEAEB2",
+          background:tab===k?T.sf:"transparent",color:tab===k?T.tx:T.txL,
           boxShadow:tab===k?"0 1px 3px rgba(0,0,0,0.06)":"none",transition:"all .15s",
         }}>{label}</button>
       ))}
@@ -1525,14 +1525,14 @@ function ReportTab({findings,onGenerateReport,onComplete,joint,onGoToExercises,p
         <div style={{width:28,height:28,borderRadius:7,background:"rgba(45,139,78,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,flexShrink:0}}>🩺</div>
         <div style={{textAlign:"left"}}>
           <div style={{fontSize:10,fontWeight:700,color:"#2D8B4E",letterSpacing:.3}}>Clinical Advisory Panel</div>
-          <div style={{fontSize:9,color:"#6E6E73",lineHeight:1.4,marginTop:1}}>Content reviewed by board-certified orthopedic surgeons, physiatrists &amp; physical therapists</div>
+          <div style={{fontSize:9,color:T.txM,lineHeight:1.4,marginTop:1}}>Content reviewed by board-certified orthopedic surgeons, physiatrists &amp; physical therapists</div>
         </div>
       </div>
       <div style={{display:"flex",alignItems:"center",gap:8,padding:"8px 12px",background:"rgba(0,113,227,0.03)",borderRadius:8,border:"1px solid rgba(0,113,227,0.1)"}}>
         <div style={{width:28,height:28,borderRadius:7,background:"rgba(0,113,227,0.06)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,flexShrink:0}}>🎯</div>
         <div style={{textAlign:"left"}}>
           <div style={{fontSize:10,fontWeight:700,color:"#0071E3",letterSpacing:.3}}>Personalized to Your MRI</div>
-          <div style={{fontSize:9,color:"#6E6E73",lineHeight:1.4,marginTop:1}}>Adapted to your {findings?.length||0} findings, pain level, goals &amp; medical history</div>
+          <div style={{fontSize:9,color:T.txM,lineHeight:1.4,marginTop:1}}>Adapted to your {findings?.length||0} findings, pain level, goals &amp; medical history</div>
         </div>
       </div>
     </div>
@@ -1545,8 +1545,8 @@ function ReportTab({findings,onGenerateReport,onComplete,joint,onGoToExercises,p
   if(step===0) return(
     <div style={{animation:"fadeIn .4s",textAlign:"center",padding:"16px 0"}}>
       <div style={{fontSize:36,marginBottom:10}}>📋</div>
-      <div style={{fontSize:16,fontWeight:700,color:"#1D1D1F",marginBottom:4,fontFamily:"Georgia,serif"}}>Build Your Report</div>
-      <div style={{fontSize:12,color:"#6E6E73",lineHeight:1.6,maxWidth:280,margin:"0 auto 14px"}}>
+      <div style={{fontSize:16,fontWeight:700,color:T.tx,marginBottom:4,fontFamily:"Georgia,serif"}}>Build Your Report</div>
+      <div style={{fontSize:12,color:T.txM,lineHeight:1.6,maxWidth:280,margin:"0 auto 14px"}}>
         Personalize your report with a quick assessment. Two ways to complete it:
       </div>
 
@@ -1556,14 +1556,14 @@ function ReportTab({findings,onGenerateReport,onComplete,joint,onGoToExercises,p
           <span style={{fontSize:16,flexShrink:0}}>⚡</span>
           <div>
             <div style={{fontSize:11,fontWeight:700,color:"#0071E3"}}>Quick Assessment</div>
-            <div style={{fontSize:10,color:"#6E6E73",lineHeight:1.4,marginTop:1}}>{total} questions, ~30 seconds</div>
+            <div style={{fontSize:10,color:T.txM,lineHeight:1.4,marginTop:1}}>{total} questions, ~30 seconds</div>
           </div>
         </div>
         <div style={{display:"flex",gap:8,padding:"8px 10px",background:"rgba(45,139,78,0.03)",borderRadius:8,border:"1px solid rgba(45,139,78,0.08)"}}>
           <span style={{fontSize:16,flexShrink:0}}>🩺</span>
           <div>
             <div style={{fontSize:11,fontWeight:700,color:"#2D8B4E"}}>Doctor Questions</div>
-            <div style={{fontSize:10,color:"#6E6E73",lineHeight:1.4,marginTop:1}}>Answer questions in each finding's detail panel — auto-completes when you answer 3+</div>
+            <div style={{fontSize:10,color:T.txM,lineHeight:1.4,marginTop:1}}>Answer questions in each finding's detail panel — auto-completes when you answer 3+</div>
           </div>
         </div>
       </div>
@@ -1573,12 +1573,12 @@ function ReportTab({findings,onGenerateReport,onComplete,joint,onGoToExercises,p
         <div style={{maxWidth:300,margin:"0 auto 12px",padding:"8px 12px",background:docAnswerCount>=3?"rgba(45,139,78,0.04)":"rgba(0,113,227,0.04)",borderRadius:8,border:`1px solid ${docAnswerCount>=3?"rgba(45,139,78,0.12)":"rgba(0,113,227,0.08)"}`}}>
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:4}}>
             <span style={{fontSize:10,fontWeight:700,color:docAnswerCount>=3?"#2D8B4E":"#0071E3"}}>Doctor Questions Progress</span>
-            <span style={{fontSize:10,color:"#AEAEB2"}}>{docAnswerCount} answered</span>
+            <span style={{fontSize:10,color:T.txL}}>{docAnswerCount} answered</span>
           </div>
-          <div style={{height:3,background:"#ECEAE6",borderRadius:2,overflow:"hidden"}}>
+          <div style={{height:3,background:T.bgD,borderRadius:2,overflow:"hidden"}}>
             <div style={{width:`${Math.min(100,(docAnswerCount/3)*100)}%`,height:"100%",background:docAnswerCount>=3?"#2D8B4E":"#0071E3",borderRadius:2,transition:"width .3s"}} />
           </div>
-          {docAnswerCount<3&&<div style={{fontSize:9,color:"#6E6E73",marginTop:4}}>Answer {3-docAnswerCount} more across any finding to auto-complete</div>}
+          {docAnswerCount<3&&<div style={{fontSize:9,color:T.txM,marginTop:4}}>Answer {3-docAnswerCount} more across any finding to auto-complete</div>}
           {docAnswerCount>=3&&<div style={{fontSize:9,color:"#2D8B4E",marginTop:4,fontWeight:600}}>✓ Enough answers to auto-complete! Assessment will finalize automatically.</div>}
         </div>
       )}
@@ -1588,7 +1588,7 @@ function ReportTab({findings,onGenerateReport,onComplete,joint,onGoToExercises,p
         background:"#0071E3",border:"none",color:"#fff",padding:"11px 32px",borderRadius:10,
         fontSize:14,fontWeight:600,cursor:"pointer",boxShadow:"0 4px 12px rgba(0,113,227,0.2)",
       }}>Start Quick Assessment</button>
-      <div style={{fontSize:10,color:"#AEAEB2",marginTop:10}}>Or keep answering doctor questions in finding details</div>
+      <div style={{fontSize:10,color:T.txL,marginTop:10}}>Or keep answering doctor questions in finding details</div>
     </div>
   );
 
@@ -1596,8 +1596,8 @@ function ReportTab({findings,onGenerateReport,onComplete,joint,onGoToExercises,p
   if(step>total) return(
     <div style={{animation:"fadeIn .4s",textAlign:"center",padding:"16px 0"}}>
       <div style={{fontSize:36,marginBottom:10}}>✅</div>
-      <div style={{fontSize:16,fontWeight:700,color:"#1D1D1F",marginBottom:4,fontFamily:"Georgia,serif"}}>Assessment Complete</div>
-      <div style={{fontSize:12,color:"#6E6E73",lineHeight:1.6,maxWidth:280,margin:"0 auto 14px"}}>
+      <div style={{fontSize:16,fontWeight:700,color:T.tx,marginBottom:4,fontFamily:"Georgia,serif"}}>Assessment Complete</div>
+      <div style={{fontSize:12,color:T.txM,lineHeight:1.6,maxWidth:280,margin:"0 auto 14px"}}>
         Your personalized report is ready with recommendations based on your {findings?.length||0} findings, activity goals, and medical history.
       </div>
       <ClinicalBadges />
@@ -1618,24 +1618,24 @@ function ReportTab({findings,onGenerateReport,onComplete,joint,onGoToExercises,p
       </button>}
 
       {/* Email capture + PDF download */}
-      <div style={{maxWidth:300,margin:"0 auto 12px",padding:"14px 16px",background:"#FAFAF8",borderRadius:10,border:"1px solid rgba(0,0,0,0.06)"}}>
+      <div style={{maxWidth:300,margin:"0 auto 12px",padding:"14px 16px",background:T.sfA,borderRadius:10,border:`1px solid ${T.bd}`}}>
         {!emailSubmitted?(
           <>
-            <div style={{fontSize:11,fontWeight:700,color:"#1D1D1F",marginBottom:2}}>Download Your PDF Report</div>
-            <div style={{fontSize:10,color:"#AEAEB2",marginBottom:10,lineHeight:1.4}}>Enter your email to receive your report. We'll also send updates if new research affects your findings.</div>
+            <div style={{fontSize:11,fontWeight:700,color:T.tx,marginBottom:2}}>Download Your PDF Report</div>
+            <div style={{fontSize:10,color:T.txL,marginBottom:10,lineHeight:1.4}}>Enter your email to receive your report. We'll also send updates if new research affects your findings.</div>
             <div style={{display:"flex",gap:6}}>
               <input type="email" value={email} onChange={e=>setEmail(e.target.value)}
                 placeholder="your@email.com"
-                style={{flex:1,padding:"9px 10px",borderRadius:7,border:"1px solid rgba(0,0,0,0.1)",fontSize:12,outline:"none",background:"#fff"}}
+                style={{flex:1,padding:"9px 10px",borderRadius:7,border:"1px solid rgba(0,0,0,0.1)",fontSize:12,outline:"none",background:T.sf}}
                 onKeyDown={e=>{if(e.key==="Enter"&&email.includes("@"))submitEmail()}}
               />
               <button onClick={submitEmail} disabled={!email.includes("@")} style={{
                 padding:"9px 14px",borderRadius:7,border:"none",fontSize:11,fontWeight:700,cursor:email.includes("@")?"pointer":"not-allowed",
-                background:email.includes("@")?"#0071E3":"#ECEAE6",color:email.includes("@")?"#fff":"#AEAEB2",
+                background:email.includes("@")?"#0071E3":T.bgD,color:email.includes("@")?"#fff":T.txL,
               }}>→</button>
             </div>
             <button onClick={()=>setEmailSubmitted(true)} style={{
-              marginTop:8,background:"none",border:"none",color:"#AEAEB2",fontSize:9,cursor:"pointer",textDecoration:"underline",
+              marginTop:8,background:"none",border:"none",color:T.txL,fontSize:9,cursor:"pointer",textDecoration:"underline",
             }}>Skip — download without email</button>
           </>
         ):(
@@ -1646,14 +1646,14 @@ function ReportTab({findings,onGenerateReport,onComplete,joint,onGoToExercises,p
               background:"#0071E3",color:"#fff",fontSize:13,fontWeight:600,cursor:"pointer",
               boxShadow:"0 4px 12px rgba(0,113,227,0.2)",
             }}>Download PDF Report</button>
-            <div style={{fontSize:9,color:"#AEAEB2",marginTop:6}}>Generated instantly in your browser</div>
+            <div style={{fontSize:9,color:T.txL,marginTop:6}}>Generated instantly in your browser</div>
           </>
         )}
       </div>
 
       {/* Answer summary */}
-      <div style={{textAlign:"left",padding:"10px 12px",background:"#FAFAF8",borderRadius:8,border:"1px solid rgba(0,0,0,0.06)"}}>
-        <div style={{fontSize:9,fontWeight:700,textTransform:"uppercase",letterSpacing:1.5,color:"#AEAEB2",marginBottom:8}}>Your Responses</div>
+      <div style={{textAlign:"left",padding:"10px 12px",background:T.sfA,borderRadius:8,border:`1px solid ${T.bd}`}}>
+        <div style={{fontSize:9,fontWeight:700,textTransform:"uppercase",letterSpacing:1.5,color:T.txL,marginBottom:8}}>Your Responses</div>
         {questions.map((q,i)=>{
           const a=answers[q.id];
           let display="—";
@@ -1661,15 +1661,15 @@ function ReportTab({findings,onGenerateReport,onComplete,joint,onGoToExercises,p
           if(q.type==="slider")display=a!=null?`${a}/10`:"—";
           if(q.type==="tags"||q.type==="conditions")display=a?.length>0?a.join(", "):"None selected";
           return(
-            <div key={i} style={{marginBottom:8,paddingBottom:8,borderBottom:i<questions.length-1?"1px solid rgba(0,0,0,0.04)":"none"}}>
-              <div style={{fontSize:10,color:"#AEAEB2",marginBottom:2}}>Q{i+1}</div>
-              <div style={{fontSize:11,color:"#1D1D1F",fontWeight:600,marginBottom:2}}>{q.q}</div>
+            <div key={i} style={{marginBottom:8,paddingBottom:8,borderBottom:i<questions.length-1?`1px solid ${T.bd}`:"none"}}>
+              <div style={{fontSize:10,color:T.txL,marginBottom:2}}>Q{i+1}</div>
+              <div style={{fontSize:11,color:T.tx,fontWeight:600,marginBottom:2}}>{q.q}</div>
               <div style={{fontSize:11,color:"#0071E3"}}>{display}</div>
             </div>
           );
         })}
       </div>
-      <button onClick={()=>{setStep(0);setAnswers({});setEmailSubmitted(false)}} style={{marginTop:10,background:"none",border:"1px solid rgba(0,0,0,0.08)",color:"#AEAEB2",padding:"6px 14px",borderRadius:6,fontSize:10,cursor:"pointer"}}>Retake Assessment</button>
+      <button onClick={()=>{setStep(0);setAnswers({});setEmailSubmitted(false)}} style={{marginTop:10,background:"none",border:`1px solid ${T.bdM}`,color:T.txL,padding:"6px 14px",borderRadius:6,fontSize:10,cursor:"pointer"}}>Retake Assessment</button>
       <div style={{marginTop:12,textAlign:"left"}}><ClinicalBadge /></div>
     </div>
   );
@@ -1680,15 +1680,15 @@ function ReportTab({findings,onGenerateReport,onComplete,joint,onGoToExercises,p
     <div style={{animation:"fadeIn .25s",padding:"8px 0"}}>
       {/* Progress */}
       <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
-        <div style={{flex:1,height:4,background:"#ECEAE6",borderRadius:2,overflow:"hidden"}}>
+        <div style={{flex:1,height:4,background:T.bgD,borderRadius:2,overflow:"hidden"}}>
           <div style={{height:"100%",width:`${(step/total)*100}%`,background:"#0071E3",borderRadius:2,transition:"width .3s"}} />
         </div>
-        <span style={{fontSize:10,color:"#AEAEB2",fontWeight:600,flexShrink:0}}>{step}/{total}</span>
+        <span style={{fontSize:10,color:T.txL,fontWeight:600,flexShrink:0}}>{step}/{total}</span>
       </div>
 
       {/* Question */}
-      <div style={{fontSize:14,fontWeight:700,color:"#1D1D1F",lineHeight:1.5,marginBottom:4,fontFamily:"Georgia,serif"}}>{current.q}</div>
-      <div style={{fontSize:10,color:"#AEAEB2",lineHeight:1.5,marginBottom:14,fontStyle:"italic"}}>{current.why}</div>
+      <div style={{fontSize:14,fontWeight:700,color:T.tx,lineHeight:1.5,marginBottom:4,fontFamily:"Georgia,serif"}}>{current.q}</div>
+      <div style={{fontSize:10,color:T.txL,lineHeight:1.5,marginBottom:14,fontStyle:"italic"}}>{current.why}</div>
 
       {/* ── Yes/No ── */}
       {current.type==="yesno"&&(
@@ -1696,8 +1696,8 @@ function ReportTab({findings,onGenerateReport,onComplete,joint,onGoToExercises,p
           {[true,false].map(v=>(
             <button key={String(v)} onClick={()=>setAnswer(current.id,v)} style={{
               flex:1,padding:"14px 12px",borderRadius:10,border:`2px solid ${val===v?"#0071E3":"rgba(0,0,0,0.08)"}`,
-              background:val===v?"rgba(0,113,227,0.06)":"#fff",cursor:"pointer",
-              fontSize:14,fontWeight:700,color:val===v?"#0071E3":"#6E6E73",transition:"all .15s",
+              background:val===v?"rgba(0,113,227,0.06)":T.sf,cursor:"pointer",
+              fontSize:14,fontWeight:700,color:val===v?T.ac:T.txM,transition:"all .15s",
             }}>{v?"Yes":"No"}</button>
           ))}
         </div>
@@ -1714,15 +1714,15 @@ function ReportTab({findings,onGenerateReport,onComplete,joint,onGoToExercises,p
             />
             <div style={{
               width:40,height:40,borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",
-              background:val!=null?(val<=3?"#E8F5EC":val<=6?"#FFF3E0":"#FEECEF"):"#F5F4F1",
+              background:val!=null?(val<=3?"rgba(45,139,78,0.1)":val<=6?"rgba(196,93,0,0.1)":"rgba(191,16,41,0.1)"):T.bg,
               fontSize:18,fontWeight:800,fontFamily:"monospace",flexShrink:0,
-              color:val!=null?(val<=3?"#2D8B4E":val<=6?"#C45D00":"#BF1029"):"#AEAEB2",
+              color:val!=null?(val<=3?"#2D8B4E":val<=6?"#C45D00":"#BF1029"):T.txL,
               transition:"all .2s",
             }}>{val!=null?val:"—"}</div>
           </div>
           <div style={{display:"flex",justifyContent:"space-between"}}>
             {current.labels.map((l,i)=>(
-              <span key={i} style={{fontSize:9,color:"#AEAEB2",fontWeight:600}}>{l}</span>
+              <span key={i} style={{fontSize:9,color:T.txL,fontWeight:600}}>{l}</span>
             ))}
           </div>
         </div>
@@ -1739,9 +1739,9 @@ function ReportTab({findings,onGenerateReport,onComplete,joint,onGoToExercises,p
                 setAnswer(current.id,sel?cur.filter(x=>x!==opt):[...cur,opt]);
               }} style={{
                 padding:"8px 14px",borderRadius:8,fontSize:11,fontWeight:600,cursor:"pointer",
-                border:`1.5px solid ${sel?"#0071E3":"rgba(0,0,0,0.08)"}`,
-                background:sel?"rgba(0,113,227,0.06)":"#fff",
-                color:sel?"#0071E3":"#6E6E73",transition:"all .15s",
+                border:`1.5px solid ${sel?"#0071E3":T.bdM}`,
+                background:sel?"rgba(0,113,227,0.06)":T.sf,
+                color:sel?T.ac:T.txM,transition:"all .15s",
               }}>{sel?"✓ ":""}{opt}</button>
             );
           })}
@@ -1760,26 +1760,26 @@ function ReportTab({findings,onGenerateReport,onComplete,joint,onGoToExercises,p
                   setAnswer(current.id,sel?cur.filter(x=>x!==opt):[...cur,opt]);
                 }} style={{
                   padding:"6px 11px",borderRadius:7,fontSize:10,fontWeight:600,cursor:"pointer",
-                  border:`1.5px solid ${sel?"#6B3FA0":"rgba(0,0,0,0.06)"}`,
-                  background:sel?"rgba(107,63,160,0.06)":"#fff",
-                  color:sel?"#6B3FA0":"#6E6E73",transition:"all .15s",
+                  border:`1.5px solid ${sel?"#6B3FA0":T.bd}`,
+                  background:sel?"rgba(107,63,160,0.06)":T.sf,
+                  color:sel?"#6B3FA0":T.txM,transition:"all .15s",
                 }}>{sel?"✓ ":""}{opt}</button>
               );
             })}
           </div>
-          <div style={{fontSize:10,color:"#AEAEB2",marginTop:8}}>Select all that apply, or skip if none.</div>
+          <div style={{fontSize:10,color:T.txL,marginTop:8}}>Select all that apply, or skip if none.</div>
         </div>
       )}
 
       {/* Navigation */}
       <div style={{display:"flex",gap:8}}>
         {step>1&&<button onClick={()=>setStep(s=>s-1)} style={{
-          padding:"10px 18px",borderRadius:8,border:"1px solid rgba(0,0,0,0.08)",
-          background:"#fff",color:"#6E6E73",fontSize:12,fontWeight:600,cursor:"pointer",
+          padding:"10px 18px",borderRadius:8,border:`1px solid ${T.bdM}`,
+          background:T.sf,color:T.txM,fontSize:12,fontWeight:600,cursor:"pointer",
         }}>← Back</button>}
         <button onClick={()=>{if(step===total){onComplete?.(answers)}setStep(s=>s+1)}} disabled={!canNext} style={{
           flex:1,padding:"10px 18px",borderRadius:8,border:"none",
-          background:canNext?"#0071E3":"#ECEAE6",color:canNext?"#fff":"#AEAEB2",
+          background:canNext?"#0071E3":T.bgD,color:canNext?"#fff":T.txL,
           fontSize:12,fontWeight:700,cursor:canNext?"pointer":"not-allowed",transition:"all .2s",
         }}>{step===total?"Complete Assessment":"Next →"}</button>
       </div>
@@ -1793,9 +1793,9 @@ function TreatmentsTab({findings,activeTx,setActiveTx,txFinding}){
   const TYPE_ORDER={conservative:0,interventional:1,surgical:2};
   return(
     <div style={{animation:"fadeIn .4s"}}>
-      <div style={{padding:"6px 10px",background:"#E6F5F4",borderRadius:8,border:"1px solid rgba(26,127,122,0.15)",marginBottom:14}}>
+      <div style={{padding:"6px 10px",background:"rgba(26,127,122,0.08)",borderRadius:8,border:"1px solid rgba(26,127,122,0.15)",marginBottom:14}}>
         <div style={{fontSize:10,fontWeight:700,color:"#1A7F7A",marginBottom:2}}>NOT A RECOMMENDATION</div>
-        <div style={{fontSize:11,lineHeight:1.5,color:"#6E6E73"}}>These are options typically discussed for your findings. The right treatment depends on your examination, goals, and your physician's assessment.</div>
+        <div style={{fontSize:11,lineHeight:1.5,color:T.txM}}>These are options typically discussed for your findings. The right treatment depends on your examination, goals, and your physician's assessment.</div>
       </div>
 
       {findings.map(f=>{
@@ -1806,20 +1806,20 @@ function TreatmentsTab({findings,activeTx,setActiveTx,txFinding}){
           <div key={f.id} style={{marginBottom:14}}>
             <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:6}}>
               <span style={{fontSize:9,fontWeight:700,color:sc,background:sc+"12",padding:"2px 7px",borderRadius:4,textTransform:"uppercase",letterSpacing:1}}>{f.sev}</span>
-              <span style={{fontSize:12,fontWeight:700,color:"#1D1D1F",fontFamily:"Georgia,serif"}}>{f.str}</span>
+              <span style={{fontSize:12,fontWeight:700,color:T.tx,fontFamily:"Georgia,serif"}}>{f.str}</span>
             </div>
             {sorted.map((tx,i)=>{
               const isSel=activeTx?.name===tx.name&&txFinding?.id===f.id;
               return(
                 <div key={i} onClick={()=>setActiveTx(tx,f)} style={{
                   padding:"8px 10px",marginBottom:3,borderRadius:7,cursor:"pointer",
-                  border:`1px solid ${isSel?tx.color+"44":"rgba(0,0,0,0.05)"}`,
-                  background:isSel?tx.color+"08":"#fff",transition:"all .15s",
+                  border:`1px solid ${isSel?tx.color+"44":T.bd}`,
+                  background:isSel?tx.color+"08":T.sf,transition:"all .15s",
                   display:"flex",alignItems:"center",justifyContent:"space-between",
                 }}>
                   <div style={{display:"flex",alignItems:"center",gap:6,flex:1,minWidth:0}}>
                     <div style={{width:5,height:5,borderRadius:3,background:tx.color,flexShrink:0}} />
-                    <span style={{fontSize:11.5,fontWeight:600,color:"#1D1D1F",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{tx.name}</span>
+                    <span style={{fontSize:11.5,fontWeight:600,color:T.tx,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{tx.name}</span>
                   </div>
                   <span style={{fontSize:7,fontWeight:700,color:tx.color,background:tx.color+"10",padding:"2px 5px",borderRadius:3,textTransform:"uppercase",letterSpacing:.5,flexShrink:0}}>{tx.type}</span>
                 </div>
@@ -1913,8 +1913,8 @@ function RiskBenefitSection({tx}){
   if(benefits.length<2)benefits.push({text:"Generally well-tolerated by most patients",level:"moderate"});
   if(risks.length<2)risks.push({text:"Individual results vary — discuss your specific situation with your doctor",level:"low"});
 
-  const levelColors={high:"#2D8B4E",moderate:"#C45D00",low:"#6E6E73"};
-  const riskColors={high:"#BF1029",moderate:"#C45D00",low:"#6E6E73"};
+  const levelColors={high:"#2D8B4E",moderate:"#C45D00",low:T.txM};
+  const riskColors={high:"#BF1029",moderate:"#C45D00",low:T.txM};
 
   return(
     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
@@ -1925,7 +1925,7 @@ function RiskBenefitSection({tx}){
           <div key={i} style={{display:"flex",alignItems:"flex-start",gap:6,marginBottom:6}}>
             <div style={{width:6,height:6,borderRadius:3,background:levelColors[b.level],marginTop:5,flexShrink:0}} />
             <div>
-              <div style={{fontSize:11,color:"#1D1D1F",lineHeight:1.45}}>{b.text}</div>
+              <div style={{fontSize:11,color:T.tx,lineHeight:1.45}}>{b.text}</div>
             </div>
           </div>
         ))}
@@ -1937,8 +1937,8 @@ function RiskBenefitSection({tx}){
           <div key={i} style={{display:"flex",alignItems:"flex-start",gap:6,marginBottom:6}}>
             <div style={{width:6,height:6,borderRadius:3,background:riskColors[r.level],marginTop:5,flexShrink:0}} />
             <div>
-              <div style={{fontSize:11,color:"#1D1D1F",lineHeight:1.45}}>{r.text}</div>
-              {r.note&&<div style={{fontSize:9,color:"#AEAEB2",marginTop:1}}>{r.note}</div>}
+              <div style={{fontSize:11,color:T.tx,lineHeight:1.45}}>{r.text}</div>
+              {r.note&&<div style={{fontSize:9,color:T.txL,marginTop:1}}>{r.note}</div>}
             </div>
           </div>
         ))}
@@ -1950,26 +1950,26 @@ function RiskBenefitSection({tx}){
 function TreatmentDetail({tx,finding,onClose,allFindings,paid,onUnlock}){
   if(!tx||!finding)return null;
   if(!paid) return(
-    <div style={{display:"flex",flexDirection:"column",height:"100%",background:"#fff",animation:"slideInRight .3s cubic-bezier(.16,1,.3,1)",overflow:"hidden"}}>
-      <div style={{padding:"16px 18px 12px",borderBottom:"1px solid rgba(0,0,0,0.06)",flexShrink:0}}>
+    <div style={{display:"flex",flexDirection:"column",height:"100%",background:T.sf,animation:"slideInRight .3s cubic-bezier(.16,1,.3,1)",overflow:"hidden"}}>
+      <div style={{padding:"16px 18px 12px",borderBottom:`1px solid ${T.bd}`,flexShrink:0}}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:6}}>
-          <button onClick={()=>onClose("close")} style={{display:"flex",alignItems:"center",gap:4,background:"none",border:"none",color:"#AEAEB2",fontSize:12,cursor:"pointer",padding:0}}>← Back</button>
+          <button onClick={()=>onClose("close")} style={{display:"flex",alignItems:"center",gap:4,background:"none",border:"none",color:T.txL,fontSize:12,cursor:"pointer",padding:0}}>← Back</button>
         </div>
-        <h2 style={{fontSize:18,fontWeight:700,color:"#1D1D1F",margin:0,fontFamily:"Georgia,serif"}}>{tx.name}</h2>
-        <div style={{fontSize:11,color:"#6E6E73",marginTop:2}}>For: {finding.str} — {finding.path}</div>
+        <h2 style={{fontSize:18,fontWeight:700,color:T.tx,margin:0,fontFamily:"Georgia,serif"}}>{tx.name}</h2>
+        <div style={{fontSize:11,color:T.txM,marginTop:2}}>For: {finding.str} — {finding.path}</div>
       </div>
       <LockedPreview onUnlock={onUnlock} features={["Detailed treatment description","Expected timeline and milestones","Pros and considerations analysis","Alternative treatment comparison","Treatment spectrum positioning"]}>
         <div style={{padding:"16px 18px"}}>
-          <div style={{marginBottom:16,padding:"12px 14px",background:"#F5F4F1",borderRadius:10,fontSize:12.5,lineHeight:1.65,color:"#1D1D1F"}}>{tx.desc}</div>
-          <div style={{marginBottom:16,padding:"12px 14px",background:"#E8F5EC",borderRadius:10,borderLeft:"3px solid #2D8B4E",fontSize:12,lineHeight:1.6}}>{tx.timeline}</div>
+          <div style={{marginBottom:16,padding:"12px 14px",background:T.bg,borderRadius:10,fontSize:12.5,lineHeight:1.65,color:T.tx}}>{tx.desc}</div>
+          <div style={{marginBottom:16,padding:"12px 14px",background:"rgba(45,139,78,0.08)",borderRadius:10,borderLeft:"3px solid #2D8B4E",fontSize:12,lineHeight:1.6}}>{tx.timeline}</div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
             <div style={{padding:12,borderRadius:10,background:"rgba(45,139,78,0.05)",border:"1px solid rgba(45,139,78,0.1)"}}>
               <div style={{fontSize:10,fontWeight:700,color:"#2D8B4E",marginBottom:4}}>PROS</div>
-              <div style={{fontSize:11,color:"#6E6E73",lineHeight:1.5}}>{tx.pros}</div>
+              <div style={{fontSize:11,color:T.txM,lineHeight:1.5}}>{tx.pros}</div>
             </div>
             <div style={{padding:12,borderRadius:10,background:"rgba(191,16,41,0.03)",border:"1px solid rgba(191,16,41,0.1)"}}>
               <div style={{fontSize:10,fontWeight:700,color:"#BF1029",marginBottom:4}}>CONSIDERATIONS</div>
-              <div style={{fontSize:11,color:"#6E6E73",lineHeight:1.5}}>{tx.cons}</div>
+              <div style={{fontSize:11,color:T.txM,lineHeight:1.5}}>{tx.cons}</div>
             </div>
           </div>
         </div>
@@ -1984,14 +1984,14 @@ function TreatmentDetail({tx,finding,onClose,allFindings,paid,onUnlock}){
   const timelineSteps = tx.timeline.split(/[.,;]/).filter(s=>s.trim().length>5).map(s=>s.trim());
 
   return(
-    <div style={{display:"flex",flexDirection:"column",height:"100%",background:"#fff",animation:"slideInRight .3s cubic-bezier(.16,1,.3,1)",overflow:"hidden"}}>
+    <div style={{display:"flex",flexDirection:"column",height:"100%",background:T.sf,animation:"slideInRight .3s cubic-bezier(.16,1,.3,1)",overflow:"hidden"}}>
       {/* Header */}
-      <div style={{padding:"16px 18px 12px",borderBottom:"1px solid rgba(0,0,0,0.06)",flexShrink:0}}>
+      <div style={{padding:"16px 18px 12px",borderBottom:`1px solid ${T.bd}`,flexShrink:0}}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:6}}>
-          <button onClick={onClose} style={{display:"flex",alignItems:"center",gap:4,background:"none",border:"none",color:"#AEAEB2",fontSize:12,cursor:"pointer",padding:0}}>← Back</button>
+          <button onClick={onClose} style={{display:"flex",alignItems:"center",gap:4,background:"none",border:"none",color:T.txL,fontSize:12,cursor:"pointer",padding:0}}>← Back</button>
           <span style={{fontSize:9,fontWeight:700,color:tx.color,background:tx.color+"12",padding:"3px 10px",borderRadius:5,textTransform:"uppercase",letterSpacing:1}}>{TYPE_LABELS[tx.type]}</span>
         </div>
-        <h2 style={{fontSize:18,fontWeight:700,color:"#1D1D1F",margin:0,fontFamily:"Georgia,serif"}}>{tx.name}</h2>
+        <h2 style={{fontSize:18,fontWeight:700,color:T.tx,margin:0,fontFamily:"Georgia,serif"}}>{tx.name}</h2>
         <div style={{fontSize:11,color:sc,fontWeight:600,marginTop:2}}>For: {finding.str} — {finding.path}</div>
       </div>
 
@@ -2000,13 +2000,13 @@ function TreatmentDetail({tx,finding,onClose,allFindings,paid,onUnlock}){
 
         {/* Approach spectrum */}
         <div style={{marginBottom:18}}>
-          <div style={{fontSize:9,fontWeight:700,color:"#AEAEB2",textTransform:"uppercase",letterSpacing:1,marginBottom:6}}>Treatment Spectrum</div>
-          <div style={{display:"flex",alignItems:"center",height:32,background:"#F5F4F1",borderRadius:8,overflow:"hidden",position:"relative"}}>
-            <div style={{flex:1,textAlign:"center",fontSize:9,fontWeight:700,color:tx.type==="conservative"?tx.color:"#AEAEB2",background:tx.type==="conservative"?tx.color+"12":"transparent",height:"100%",display:"flex",alignItems:"center",justifyContent:"center",transition:"all .3s"}}>CONSERVATIVE</div>
+          <div style={{fontSize:9,fontWeight:700,color:T.txL,textTransform:"uppercase",letterSpacing:1,marginBottom:6}}>Treatment Spectrum</div>
+          <div style={{display:"flex",alignItems:"center",height:32,background:T.bg,borderRadius:8,overflow:"hidden",position:"relative"}}>
+            <div style={{flex:1,textAlign:"center",fontSize:9,fontWeight:700,color:tx.type==="conservative"?tx.color:T.txL,background:tx.type==="conservative"?tx.color+"12":"transparent",height:"100%",display:"flex",alignItems:"center",justifyContent:"center",transition:"all .3s"}}>CONSERVATIVE</div>
             <div style={{width:1,height:16,background:"rgba(0,0,0,0.08)"}} />
-            <div style={{flex:1,textAlign:"center",fontSize:9,fontWeight:700,color:tx.type==="interventional"?tx.color:"#AEAEB2",background:tx.type==="interventional"?tx.color+"12":"transparent",height:"100%",display:"flex",alignItems:"center",justifyContent:"center",transition:"all .3s"}}>INTERVENTIONAL</div>
+            <div style={{flex:1,textAlign:"center",fontSize:9,fontWeight:700,color:tx.type==="interventional"?tx.color:T.txL,background:tx.type==="interventional"?tx.color+"12":"transparent",height:"100%",display:"flex",alignItems:"center",justifyContent:"center",transition:"all .3s"}}>INTERVENTIONAL</div>
             <div style={{width:1,height:16,background:"rgba(0,0,0,0.08)"}} />
-            <div style={{flex:1,textAlign:"center",fontSize:9,fontWeight:700,color:tx.type==="surgical"?tx.color:"#AEAEB2",background:tx.type==="surgical"?tx.color+"12":"transparent",height:"100%",display:"flex",alignItems:"center",justifyContent:"center",transition:"all .3s"}}>SURGICAL</div>
+            <div style={{flex:1,textAlign:"center",fontSize:9,fontWeight:700,color:tx.type==="surgical"?tx.color:T.txL,background:tx.type==="surgical"?tx.color+"12":"transparent",height:"100%",display:"flex",alignItems:"center",justifyContent:"center",transition:"all .3s"}}>SURGICAL</div>
           </div>
         </div>
 
@@ -2014,16 +2014,16 @@ function TreatmentDetail({tx,finding,onClose,allFindings,paid,onUnlock}){
         <div style={{marginBottom:16}}>
           <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
             <div style={{width:24,height:24,borderRadius:7,background:tx.color+"14",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>📋</div>
-            <h3 style={{fontSize:14,fontWeight:700,color:"#1D1D1F",margin:0}}>What It Involves</h3>
+            <h3 style={{fontSize:14,fontWeight:700,color:T.tx,margin:0}}>What It Involves</h3>
           </div>
-          <div style={{padding:"12px 14px",background:"#F5F4F1",borderRadius:10,fontSize:13,lineHeight:1.7,color:"#1D1D1F"}}>{tx.desc}</div>
+          <div style={{padding:"12px 14px",background:T.bg,borderRadius:10,fontSize:13,lineHeight:1.7,color:T.tx}}>{tx.desc}</div>
         </div>
 
         {/* Risks & Benefits */}
         <div style={{marginBottom:16}}>
           <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
             <div style={{width:24,height:24,borderRadius:7,background:"rgba(0,113,227,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>⚖️</div>
-            <h3 style={{fontSize:14,fontWeight:700,color:"#1D1D1F",margin:0}}>Risks & Benefits</h3>
+            <h3 style={{fontSize:14,fontWeight:700,color:T.tx,margin:0}}>Risks & Benefits</h3>
           </div>
           <RiskBenefitSection tx={tx} />
         </div>
@@ -2032,16 +2032,16 @@ function TreatmentDetail({tx,finding,onClose,allFindings,paid,onUnlock}){
         <div style={{marginBottom:16}}>
           <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
             <div style={{width:24,height:24,borderRadius:7,background:"rgba(45,139,78,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>⏱</div>
-            <h3 style={{fontSize:14,fontWeight:700,color:"#1D1D1F",margin:0}}>Expected Timeline</h3>
+            <h3 style={{fontSize:14,fontWeight:700,color:T.tx,margin:0}}>Expected Timeline</h3>
           </div>
-          <div style={{padding:"12px 14px",background:"#E8F5EC",borderRadius:10,borderLeft:"3px solid #2D8B4E"}}>
+          <div style={{padding:"12px 14px",background:"rgba(45,139,78,0.08)",borderRadius:10,borderLeft:"3px solid #2D8B4E"}}>
             {timelineSteps.map((step,i)=>(
               <div key={i} style={{display:"flex",alignItems:"flex-start",gap:8,marginBottom:i<timelineSteps.length-1?8:0}}>
                 <div style={{display:"flex",flexDirection:"column",alignItems:"center",flexShrink:0,marginTop:2}}>
                   <div style={{width:8,height:8,borderRadius:4,background:"#2D8B4E"}} />
                   {i<timelineSteps.length-1&&<div style={{width:1,height:16,background:"rgba(45,139,78,0.2)",marginTop:2}} />}
                 </div>
-                <div style={{fontSize:12,lineHeight:1.5,color:"#1D1D1F"}}>{step}</div>
+                <div style={{fontSize:12,lineHeight:1.5,color:T.tx}}>{step}</div>
               </div>
             ))}
           </div>
@@ -2051,45 +2051,45 @@ function TreatmentDetail({tx,finding,onClose,allFindings,paid,onUnlock}){
         <div style={{marginBottom:16}}>
           <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
             <div style={{width:24,height:24,borderRadius:7,background:"rgba(0,113,227,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>⚖️</div>
-            <h3 style={{fontSize:14,fontWeight:700,color:"#1D1D1F",margin:0}}>Pros & Considerations</h3>
+            <h3 style={{fontSize:14,fontWeight:700,color:T.tx,margin:0}}>Pros & Considerations</h3>
           </div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
             <div style={{padding:"12px",background:"rgba(45,139,78,0.04)",borderRadius:10,border:"1px solid rgba(45,139,78,0.12)"}}>
               <div style={{fontSize:10,fontWeight:700,color:"#2D8B4E",textTransform:"uppercase",letterSpacing:1,marginBottom:6}}>✓ Advantages</div>
-              <div style={{fontSize:12,lineHeight:1.65,color:"#1D1D1F"}}>{tx.pros}</div>
+              <div style={{fontSize:12,lineHeight:1.65,color:T.tx}}>{tx.pros}</div>
             </div>
             <div style={{padding:"12px",background:"rgba(191,16,41,0.03)",borderRadius:10,border:"1px solid rgba(191,16,41,0.1)"}}>
               <div style={{fontSize:10,fontWeight:700,color:"#BF1029",textTransform:"uppercase",letterSpacing:1,marginBottom:6}}>⚠ Considerations</div>
-              <div style={{fontSize:12,lineHeight:1.65,color:"#1D1D1F"}}>{tx.cons}</div>
+              <div style={{fontSize:12,lineHeight:1.65,color:T.tx}}>{tx.cons}</div>
             </div>
           </div>
         </div>
 
         {/* Other treatments for this finding */}
         {finding.treatments&&finding.treatments.length>1&&<div style={{marginBottom:16}}>
-          <div style={{fontSize:9,fontWeight:700,color:"#AEAEB2",textTransform:"uppercase",letterSpacing:1,marginBottom:8}}>Other Options for {finding.str}</div>
-          <div style={{borderRadius:8,border:"1px solid rgba(0,0,0,0.06)",overflow:"hidden"}}>
+          <div style={{fontSize:9,fontWeight:700,color:T.txL,textTransform:"uppercase",letterSpacing:1,marginBottom:8}}>Other Options for {finding.str}</div>
+          <div style={{borderRadius:8,border:`1px solid ${T.bd}`,overflow:"hidden"}}>
             {finding.treatments.filter(t=>t.name!==tx.name).map((alt,i,arr)=>(
               <div key={i} onClick={()=>onClose("switch",alt,finding)} style={{
                 padding:"8px 10px",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"space-between",
-                borderBottom:i<arr.length-1?"1px solid rgba(0,0,0,0.04)":"none",
+                borderBottom:i<arr.length-1?`1px solid ${T.bd}`:"none",
                 transition:"background .15s",
               }}
-              onMouseEnter={e=>e.currentTarget.style.background="#FAFAF8"}
+              onMouseEnter={e=>e.currentTarget.style.background=T.sfA}
               onMouseLeave={e=>e.currentTarget.style.background="transparent"}
               >
                 <div style={{display:"flex",alignItems:"center",gap:6}}>
                   <div style={{width:5,height:5,borderRadius:3,background:alt.color}} />
-                  <span style={{fontSize:11,fontWeight:500,color:"#1D1D1F"}}>{alt.name}</span>
+                  <span style={{fontSize:11,fontWeight:500,color:T.tx}}>{alt.name}</span>
                 </div>
-                <span style={{color:"#AEAEB2",fontSize:10}}>→</span>
+                <span style={{color:T.txL,fontSize:10}}>→</span>
               </div>
             ))}
           </div>
         </div>}
 
         {/* Disclaimer */}
-        <div style={{padding:"8px 10px",background:"#E6F5F4",borderRadius:8,border:"1px solid rgba(26,127,122,0.12)"}}>
+        <div style={{padding:"8px 10px",background:"rgba(26,127,122,0.08)",borderRadius:8,border:"1px solid rgba(26,127,122,0.12)"}}>
           <div style={{fontSize:10,lineHeight:1.5,color:"#1A7F7A"}}>
             This is general information about this treatment approach. Your physician will recommend a specific plan based on your examination, imaging, goals, and medical history.
           </div>
@@ -2105,7 +2105,7 @@ function TabbedPanel({findings,active,onSel,mob,tab,setTab,activeEx,setActiveEx,
     <>
       <TabBar tab={tab} setTab={setTab} mob={mob} paid={paid} />
       {tab==="findings"&&<Summary findings={findings} active={active} onSel={onSel} mob={mob} />}
-      {tab==="exercises"&&<PTLibrary findings={findings} onSelectFinding={onSel} activeEx={activeEx} setActiveEx={setActiveEx} assessAnswers={assessAnswers} paid={paid} onUnlock={onUnlock} onGoToReport={()=>setTab("report")} joint={joint} recoveryStage={recoveryStage} />}
+      {tab==="exercises"&&<PTLibrary findings={findings} onSelectFinding={onSel} activeEx={activeEx} setActiveEx={setActiveEx} assessAnswers={assessAnswers} paid={paid} onUnlock={onUnlock} onGoToReport={()=>setTab("report")} joint={joint} recoveryStage={recoveryStage} theme={T} />}
       {tab==="treatments"&&<TreatmentsTab findings={findings} activeTx={activeTx} setActiveTx={(tx,f)=>setActiveTx(tx,f)} txFinding={txFinding} />}
       {tab==="report"&&<ReportTab findings={findings} onGenerateReport={onGenerateReport} onComplete={onAssessComplete} joint={joint} onGoToExercises={()=>setTab("exercises")} paid={paid} assessAnswers={assessAnswers} doctorAnswers={doctorAnswers} />}
     </>
@@ -2172,7 +2172,7 @@ function ClinicalBadge({compact}){
           <span key={p.title} style={{fontSize:8,fontWeight:600,color:p.color,background:p.color+"0A",padding:"2px 6px",borderRadius:3}}>{p.title}</span>
         ))}
       </div>
-      <div style={{fontSize:9,color:"#6E6E73",lineHeight:1.4}}>
+      <div style={{fontSize:9,color:T.txM,lineHeight:1.4}}>
         All clinical content — specialist perspectives, treatment options, exercise protocols, and assessment questions — is reviewed and approved by our multidisciplinary advisory panel.
       </div>
     </div>
@@ -2200,7 +2200,7 @@ function PaywallBanner({onUnlock,compact}){
         </div>}
       </div>
       <button onClick={onUnlock} style={{
-        background:"#fff",border:"none",color:"#0071E3",padding:compact?"7px 14px":"11px 22px",
+        background:T.sf,border:"none",color:"#0071E3",padding:compact?"7px 14px":"11px 22px",
         borderRadius:8,fontSize:compact?11:13,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,
         boxShadow:"0 2px 8px rgba(0,0,0,0.15)",
       }}>{PRICE} — Unlock</button>
@@ -2214,7 +2214,7 @@ function LockedSection({title,icon,children,paid,onUnlock,previewLines}){
     <div style={{position:"relative",marginBottom:16}}>
       <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
         <div style={{width:24,height:24,borderRadius:7,background:"rgba(0,0,0,0.04)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>{icon}</div>
-        <h3 style={{fontSize:14,fontWeight:700,color:"#1D1D1F",margin:0}}>{title}</h3>
+        <h3 style={{fontSize:14,fontWeight:700,color:T.tx,margin:0}}>{title}</h3>
         <span style={{fontSize:8,fontWeight:700,color:"#0071E3",background:"rgba(0,113,227,0.08)",padding:"2px 6px",borderRadius:3,textTransform:"uppercase",letterSpacing:1}}>PRO</span>
       </div>
       {/* Blurred preview */}
@@ -2246,15 +2246,15 @@ function LockedPreview({children,onUnlock,features}){
       <div style={{position:"absolute",inset:0,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",
         background:"linear-gradient(transparent 0%, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.92) 60%, rgba(255,255,255,0.98) 100%)",
         padding:"20px 16px",textAlign:"center"}}>
-        <div style={{background:"#fff",borderRadius:14,padding:"24px 22px",boxShadow:"0 8px 32px rgba(0,0,0,0.08)",border:"1px solid rgba(0,0,0,0.06)",maxWidth:300}}>
+        <div style={{background:T.sf,borderRadius:14,padding:"24px 22px",boxShadow:"0 8px 32px rgba(0,0,0,0.08)",border:`1px solid ${T.bd}`,maxWidth:300}}>
           <div style={{fontSize:32,marginBottom:10}}>🔓</div>
-          <div style={{fontSize:16,fontWeight:700,color:"#1D1D1F",marginBottom:6,fontFamily:"Georgia,serif"}}>Unlock Full Access</div>
-          <div style={{fontSize:12,color:"#6E6E73",lineHeight:1.6,marginBottom:14}}>
+          <div style={{fontSize:16,fontWeight:700,color:T.tx,marginBottom:6,fontFamily:"Georgia,serif"}}>Unlock Full Access</div>
+          <div style={{fontSize:12,color:T.txM,lineHeight:1.6,marginBottom:14}}>
             Get the complete picture — everything you need to prepare for your appointment.
           </div>
           <div style={{textAlign:"left",marginBottom:16}}>
             {features.map((f,i)=>(
-              <div key={i} style={{fontSize:11,color:"#6E6E73",padding:"3px 0",display:"flex",alignItems:"center",gap:6}}>
+              <div key={i} style={{fontSize:11,color:T.txM,padding:"3px 0",display:"flex",alignItems:"center",gap:6}}>
                 <span style={{color:"#0071E3",fontSize:11,flexShrink:0}}>✓</span>{f}
               </div>
             ))}
@@ -2264,7 +2264,7 @@ function LockedPreview({children,onUnlock,features}){
             padding:"12px 24px",borderRadius:10,fontSize:14,fontWeight:700,cursor:"pointer",
             boxShadow:"0 4px 16px rgba(0,113,227,0.3)",
           }}>{PRICE} — Unlock Full Report</button>
-          <div style={{fontSize:9,color:"#AEAEB2",marginTop:6}}>One-time payment · Instant access · No subscription</div>
+          <div style={{fontSize:9,color:T.txL,marginTop:6}}>One-time payment · Instant access · No subscription</div>
         </div>
       </div>
     </div>
@@ -2275,13 +2275,13 @@ function LockedTab({title,features,onUnlock}){
   return(
     <div style={{animation:"fadeIn .4s",textAlign:"center",padding:"30px 10px"}}>
       <div style={{fontSize:40,marginBottom:12}}>🔒</div>
-      <div style={{fontSize:17,fontWeight:700,color:"#1D1D1F",marginBottom:6,fontFamily:"Georgia,serif"}}>{title}</div>
-      <div style={{fontSize:12,color:"#AEAEB2",lineHeight:1.6,maxWidth:280,margin:"0 auto 18px"}}>
+      <div style={{fontSize:17,fontWeight:700,color:T.tx,marginBottom:6,fontFamily:"Georgia,serif"}}>{title}</div>
+      <div style={{fontSize:12,color:T.txL,lineHeight:1.6,maxWidth:280,margin:"0 auto 18px"}}>
         Unlock your full personalized report to access this section.
       </div>
       <div style={{textAlign:"left",maxWidth:260,margin:"0 auto 18px"}}>
         {features.map((f,i)=>(
-          <div key={i} style={{fontSize:12,color:"#6E6E73",padding:"5px 0",display:"flex",alignItems:"center",gap:6}}>
+          <div key={i} style={{fontSize:12,color:T.txM,padding:"5px 0",display:"flex",alignItems:"center",gap:6}}>
             <span style={{color:"#0071E3",fontSize:12}}>✓</span>{f}
           </div>
         ))}
@@ -2291,7 +2291,7 @@ function LockedTab({title,features,onUnlock}){
         padding:"12px 32px",borderRadius:10,fontSize:14,fontWeight:700,cursor:"pointer",
         boxShadow:"0 4px 16px rgba(0,113,227,0.3)",
       }}>{PRICE} — Unlock Full Report</button>
-      <div style={{fontSize:10,color:"#AEAEB2",marginTop:8}}>One-time payment · Instant access · No subscription</div>
+      <div style={{fontSize:10,color:T.txL,marginTop:8}}>One-time payment · Instant access · No subscription</div>
     </div>
   );
 }
@@ -2301,11 +2301,11 @@ function FindingDetail({finding,onClose,mob,onSelectTx,paid,onUnlock,doctorAnswe
   if(!finding)return null;
   const sc=T[finding.sev];
   return(
-    <div style={{display:"flex",flexDirection:"column",height:"100%",background:"#fff",animation:"slideInRight .3s cubic-bezier(.16,1,.3,1)",overflow:"hidden"}}>
+    <div style={{display:"flex",flexDirection:"column",height:"100%",background:T.sf,animation:"slideInRight .3s cubic-bezier(.16,1,.3,1)",overflow:"hidden"}}>
       {/* Header */}
-      <div style={{padding:"16px 18px 12px",borderBottom:"1px solid rgba(0,0,0,0.06)",flexShrink:0}}>
+      <div style={{padding:"16px 18px 12px",borderBottom:`1px solid ${T.bd}`,flexShrink:0}}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:6}}>
-          <button onClick={onClose} style={{display:"flex",alignItems:"center",gap:4,background:"none",border:"none",color:"#AEAEB2",fontSize:12,cursor:"pointer",padding:0}}>← Back to findings</button>
+          <button onClick={onClose} style={{display:"flex",alignItems:"center",gap:4,background:"none",border:"none",color:T.txL,fontSize:12,cursor:"pointer",padding:0}}>← Back to findings</button>
           <span style={{fontSize:9,fontWeight:700,color:sc.c,background:sc.bg,border:`1px solid ${sc.bd}`,padding:"3px 10px",borderRadius:5,textTransform:"uppercase",letterSpacing:1}}>{finding.sev}</span>
         </div>
         <h2 style={{fontSize:mob?18:20,fontWeight:700,color:T.tx,margin:0,fontFamily:"Georgia,serif"}}>{finding.str}</h2>
@@ -2318,10 +2318,10 @@ function FindingDetail({finding,onClose,mob,onSelectTx,paid,onUnlock,doctorAnswe
         {/* Severity gauge */}
         <div style={{marginBottom:16}}>
           <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
-            <span style={{fontSize:9,fontWeight:700,color:"#AEAEB2",textTransform:"uppercase",letterSpacing:1}}>Severity</span>
+            <span style={{fontSize:9,fontWeight:700,color:T.txL,textTransform:"uppercase",letterSpacing:1}}>Severity</span>
             <span style={{fontSize:10,fontWeight:600,color:sc.c}}>{Math.round(finding.sc*100)}%</span>
           </div>
-          <div style={{height:6,background:"#ECEAE6",borderRadius:3,overflow:"hidden"}}>
+          <div style={{height:6,background:T.bgD,borderRadius:3,overflow:"hidden"}}>
             <div style={{height:"100%",width:`${finding.sc*100}%`,background:sc.c,borderRadius:3,transition:"width .5s ease"}} />
           </div>
         </div>
@@ -2332,7 +2332,7 @@ function FindingDetail({finding,onClose,mob,onSelectTx,paid,onUnlock,doctorAnswe
             <div style={{width:24,height:24,borderRadius:7,background:sc.bg,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>🔍</div>
             <h3 style={{fontSize:14,fontWeight:700,color:T.tx,margin:0}}>What This Means</h3>
           </div>
-          <div style={{padding:"12px 14px",background:"#F5F4F1",borderRadius:10,fontSize:13,lineHeight:1.7,color:T.tx}}>{finding.desc}</div>
+          <div style={{padding:"12px 14px",background:T.bg,borderRadius:10,fontSize:13,lineHeight:1.7,color:T.tx}}>{finding.desc}</div>
         </div>
 
         {/* What you may feel */}
@@ -2341,20 +2341,20 @@ function FindingDetail({finding,onClose,mob,onSelectTx,paid,onUnlock,doctorAnswe
             <div style={{width:24,height:24,borderRadius:7,background:"rgba(0,113,227,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>💬</div>
             <h3 style={{fontSize:14,fontWeight:700,color:T.tx,margin:0}}>What You May Experience</h3>
           </div>
-          <div style={{padding:"12px 14px",background:"#F5F9FE",borderRadius:10,borderLeft:"3px solid #0071E3",fontSize:12.5,lineHeight:1.65,color:"#6E6E73"}}>{finding.imp}</div>
+          <div style={{padding:"12px 14px",background:T.acS,borderRadius:10,borderLeft:"3px solid #0071E3",fontSize:12.5,lineHeight:1.65,color:T.txM}}>{finding.imp}</div>
         </div>
 
         {/* Clinical context */}
-        <div style={{marginBottom:16,padding:"10px 14px",background:"#FAFAF8",borderRadius:10}}>
-          <div style={{fontSize:9,fontWeight:700,color:"#AEAEB2",textTransform:"uppercase",letterSpacing:1,marginBottom:4}}>Clinical Context</div>
-          <div style={{fontSize:12,lineHeight:1.6,color:"#6E6E73"}}>{finding.ctx}</div>
+        <div style={{marginBottom:16,padding:"10px 14px",background:T.sfA,borderRadius:10}}>
+          <div style={{fontSize:9,fontWeight:700,color:T.txL,textTransform:"uppercase",letterSpacing:1,marginBottom:4}}>Clinical Context</div>
+          <div style={{fontSize:12,lineHeight:1.6,color:T.txM}}>{finding.ctx}</div>
         </div>
 
         {/* Self-assessment — interactive doctor questions (PREMIUM) */}
         {finding.selfAssess&&finding.selfAssess.length>0&&(
         <LockedSection title="Questions Your Doctor Will Ask" icon="🩺" paid={paid} onUnlock={onUnlock} previewLines={4}>
         <div style={{marginBottom:16}}>
-          <div style={{fontSize:11,lineHeight:1.5,color:"#AEAEB2",marginBottom:6}}>
+          <div style={{fontSize:11,lineHeight:1.5,color:T.txL,marginBottom:6}}>
             Answer these questions now — they feed into your personalized assessment and prepare you for your appointment.
           </div>
           {assessComplete&&<div style={{display:"flex",alignItems:"center",gap:6,padding:"6px 10px",background:"rgba(45,139,78,0.06)",borderRadius:6,marginBottom:10,border:"1px solid rgba(45,139,78,0.1)"}}>
@@ -2370,9 +2370,9 @@ function FindingDetail({finding,onClose,mob,onSelectTx,paid,onUnlock,doctorAnswe
               {answeredCount>0&&!assessComplete&&<div style={{marginBottom:10}}>
                 <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:3}}>
                   <span style={{fontSize:9,fontWeight:700,color:"#0071E3",textTransform:"uppercase",letterSpacing:1}}>Assessment Progress</span>
-                  <span style={{fontSize:9,color:"#AEAEB2"}}>{answeredCount}/{totalQ} answered</span>
+                  <span style={{fontSize:9,color:T.txL}}>{answeredCount}/{totalQ} answered</span>
                 </div>
-                <div style={{height:3,background:"#ECEAE6",borderRadius:2,overflow:"hidden"}}>
+                <div style={{height:3,background:T.bgD,borderRadius:2,overflow:"hidden"}}>
                   <div style={{width:`${(answeredCount/totalQ)*100}%`,height:"100%",background:"#0071E3",borderRadius:2,transition:"width .3s"}} />
                 </div>
               </div>}
@@ -2423,15 +2423,15 @@ function FindingDetail({finding,onClose,mob,onSelectTx,paid,onUnlock,doctorAnswe
                       <span style={{fontSize:12.5,lineHeight:1.55,color:T.tx,fontWeight:600}}>{sa.q}</span>
                     </div>
                     {/* Answer controls */}
-                    <div style={{padding:"8px 12px 10px 32px",background:"#fff",borderTop:"1px solid rgba(0,0,0,0.04)"}}>
+                    <div style={{padding:"8px 12px 10px 32px",background:T.sf,borderTop:`1px solid ${T.bd}`}}>
                       {qType==="yesno"&&(
                         <div style={{display:"flex",gap:6,marginBottom:6}}>
                           {[{label:"Yes",val:true},{label:"No",val:false},{label:"Not sure",val:"unsure"}].map(opt=>(
                             <button key={String(opt.val)} onClick={()=>onDoctorAnswer?.(qKey,{val:opt.val,maps:mapsTo})} style={{
                               flex:1,padding:"7px 8px",borderRadius:7,fontSize:11,fontWeight:600,cursor:"pointer",transition:"all .15s",
                               border:ansVal===opt.val?"2px solid #0071E3":"1px solid rgba(0,0,0,0.08)",
-                              background:ansVal===opt.val?"rgba(0,113,227,0.06)":"#fff",
-                              color:ansVal===opt.val?"#0071E3":"#6E6E73",
+                              background:ansVal===opt.val?"rgba(0,113,227,0.06)":T.sf,
+                              color:ansVal===opt.val?T.ac:T.txM,
                             }}>{opt.label}</button>
                           ))}
                         </div>
@@ -2445,7 +2445,7 @@ function FindingDetail({finding,onClose,mob,onSelectTx,paid,onUnlock,doctorAnswe
                             />
                             <span style={{fontSize:14,fontWeight:700,color:"#0071E3",minWidth:20,textAlign:"center"}}>{typeof ansVal==="number"?ansVal:"–"}</span>
                           </div>
-                          <div style={{display:"flex",justifyContent:"space-between",fontSize:8,color:"#AEAEB2",marginTop:2}}>
+                          <div style={{display:"flex",justifyContent:"space-between",fontSize:8,color:T.txL,marginTop:2}}>
                             <span>{isPain?"No pain":"Not at all"}</span><span>Moderate</span><span>{isPain?"Severe":"Extremely"}</span>
                           </div>
                         </div>
@@ -2456,8 +2456,8 @@ function FindingDetail({finding,onClose,mob,onSelectTx,paid,onUnlock,doctorAnswe
                             <button key={opt.val} onClick={()=>onDoctorAnswer?.(qKey,{val:opt.val,maps:mapsTo})} style={{
                               padding:"6px 10px",borderRadius:7,fontSize:10,fontWeight:600,cursor:"pointer",transition:"all .15s",
                               border:ansVal===opt.val?"2px solid #0071E3":"1px solid rgba(0,0,0,0.08)",
-                              background:ansVal===opt.val?"rgba(0,113,227,0.06)":"#fff",
-                              color:ansVal===opt.val?"#0071E3":"#6E6E73",
+                              background:ansVal===opt.val?"rgba(0,113,227,0.06)":T.sf,
+                              color:ansVal===opt.val?T.ac:T.txM,
                             }}>{opt.label}</button>
                           ))}
                         </div>
@@ -2474,7 +2474,7 @@ function FindingDetail({finding,onClose,mob,onSelectTx,paid,onUnlock,doctorAnswe
                               }} style={{
                                 padding:"5px 9px",borderRadius:6,fontSize:10,fontWeight:600,cursor:"pointer",
                                 border:sel?"2px solid #0071E3":"1px solid rgba(0,0,0,0.08)",
-                                background:sel?"rgba(0,113,227,0.06)":"#fff",color:sel?"#0071E3":"#6E6E73",
+                                background:sel?"rgba(0,113,227,0.06)":T.sf,color:sel?T.ac:T.txM,
                               }}>{tag}</button>
                             );
                           })}
@@ -2489,7 +2489,7 @@ function FindingDetail({finding,onClose,mob,onSelectTx,paid,onUnlock,doctorAnswe
                           />
                         </div>
                       )}
-                      <div style={{fontSize:10,lineHeight:1.5,color:"#6E6E73",fontStyle:"italic"}}>
+                      <div style={{fontSize:10,lineHeight:1.5,color:T.txM,fontStyle:"italic"}}>
                         <span style={{color:"#0071E3",fontWeight:600,fontStyle:"normal"}}>Why they ask: </span>{sa.why}
                       </div>
                     </div>
@@ -2524,7 +2524,7 @@ function FindingDetail({finding,onClose,mob,onSelectTx,paid,onUnlock,doctorAnswe
           {finding.lenses.map((l,i)=>(
             <div key={i} style={{padding:"10px 12px",borderRadius:8,marginBottom:6,background:l.color+"06",borderLeft:`3px solid ${l.color}`}}>
               <div style={{fontSize:10,fontWeight:700,color:l.color,marginBottom:3}}>{l.spec}</div>
-              <div style={{fontSize:12,lineHeight:1.6,color:"#6E6E73"}}>{l.text}</div>
+              <div style={{fontSize:12,lineHeight:1.6,color:T.txM}}>{l.text}</div>
             </div>
           ))}
         </div>
@@ -2535,11 +2535,11 @@ function FindingDetail({finding,onClose,mob,onSelectTx,paid,onUnlock,doctorAnswe
         {finding.treatments&&finding.treatments.length>0&&(
         <LockedSection title="Treatment Options" icon="💊" paid={paid} onUnlock={onUnlock} previewLines={3}>
         <div style={{marginBottom:16}}>
-          <div style={{borderRadius:10,border:"1px solid rgba(0,0,0,0.06)",overflow:"hidden"}}>
+          <div style={{borderRadius:10,border:`1px solid ${T.bd}`,overflow:"hidden"}}>
             {finding.treatments.map((tx,i)=>(
               <div key={i} onClick={()=>paid&&onSelectTx?.(tx,finding)} style={{
                 padding:"10px 12px",cursor:paid?"pointer":"default",display:"flex",alignItems:"center",justifyContent:"space-between",
-                borderBottom:i<finding.treatments.length-1?"1px solid rgba(0,0,0,0.04)":"none",
+                borderBottom:i<finding.treatments.length-1?`1px solid ${T.bd}`:"none",
                 transition:"background .15s",
               }}
               onMouseEnter={e=>{if(paid)e.currentTarget.style.background=tx.color+"06"}}
@@ -2551,12 +2551,12 @@ function FindingDetail({finding,onClose,mob,onSelectTx,paid,onUnlock,doctorAnswe
                 </div>
                 <div style={{display:"flex",alignItems:"center",gap:6,flexShrink:0}}>
                   <span style={{fontSize:8,fontWeight:700,color:tx.color,background:tx.color+"10",padding:"2px 6px",borderRadius:3,textTransform:"uppercase",letterSpacing:.5}}>{tx.type}</span>
-                  <span style={{color:"#AEAEB2",fontSize:11}}>→</span>
+                  <span style={{color:T.txL,fontSize:11}}>→</span>
                 </div>
               </div>
             ))}
           </div>
-          <div style={{fontSize:10,color:"#AEAEB2",marginTop:6,marginLeft:32}}>Tap to explore details, timeline, and comparison</div>
+          <div style={{fontSize:10,color:T.txL,marginTop:6,marginLeft:32}}>Tap to explore details, timeline, and comparison</div>
         </div>
         </LockedSection>
         )}
@@ -2565,9 +2565,9 @@ function FindingDetail({finding,onClose,mob,onSelectTx,paid,onUnlock,doctorAnswe
         {finding.questions&&finding.questions.length>0&&(
         <LockedSection title="Questions for Your Doctor" icon="❓" paid={paid} onUnlock={onUnlock} previewLines={2}>
         <div style={{marginBottom:16}}>
-          <div style={{padding:"10px 14px",background:"#FAFAF8",borderRadius:10,border:"1px solid rgba(0,0,0,0.04)"}}>
+          <div style={{padding:"10px 14px",background:T.sfA,borderRadius:10,border:`1px solid ${T.bd}`}}>
             {finding.questions.map((q,i)=>(
-              <div key={i} style={{display:"flex",gap:8,padding:"6px 0",borderBottom:i<finding.questions.length-1?"1px solid rgba(0,0,0,0.04)":"none"}}>
+              <div key={i} style={{display:"flex",gap:8,padding:"6px 0",borderBottom:i<finding.questions.length-1?`1px solid ${T.bd}`:"none"}}>
                 <span style={{color:"#C45D00",fontSize:11,flexShrink:0,marginTop:1}}>□</span>
                 <span style={{fontSize:12,lineHeight:1.5,color:T.tx}}>{q}</span>
               </div>
@@ -2584,7 +2584,7 @@ function FindingDetail({finding,onClose,mob,onSelectTx,paid,onUnlock,doctorAnswe
         <ClinicalBadge />
 
         {/* Disclaimer */}
-        <div style={{padding:"8px 10px",background:"#E6F5F4",borderRadius:8,border:"1px solid rgba(26,127,122,0.12)",marginTop:10}}>
+        <div style={{padding:"8px 10px",background:"rgba(26,127,122,0.08)",borderRadius:8,border:"1px solid rgba(26,127,122,0.12)",marginTop:10}}>
           <div style={{fontSize:10,lineHeight:1.5,color:"#1A7F7A"}}>
             This content is reviewed by our clinical advisory panel for accuracy. Your treating physician will provide recommendations specific to your situation.
           </div>
@@ -2602,12 +2602,12 @@ const PHASE_TM={1:"Weeks 1-2",2:"Weeks 3-6",3:"Weeks 7-12"};
 function ExerciseDetail({ex,onClose,mob,paid,onUnlock}){
   if(!ex)return null;
   if(!paid) return(
-    <div style={{display:"flex",flexDirection:"column",height:"100%",background:"#fff",animation:"slideInRight .3s cubic-bezier(.16,1,.3,1)",overflow:"hidden"}}>
-      <div style={{padding:"16px 18px 12px",borderBottom:"1px solid rgba(0,0,0,0.06)",flexShrink:0}}>
+    <div style={{display:"flex",flexDirection:"column",height:"100%",background:T.sf,animation:"slideInRight .3s cubic-bezier(.16,1,.3,1)",overflow:"hidden"}}>
+      <div style={{padding:"16px 18px 12px",borderBottom:`1px solid ${T.bd}`,flexShrink:0}}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:6}}>
-          <button onClick={onClose} style={{display:"flex",alignItems:"center",gap:4,background:"none",border:"none",color:"#AEAEB2",fontSize:12,cursor:"pointer",padding:0}}>← Back</button>
+          <button onClick={onClose} style={{display:"flex",alignItems:"center",gap:4,background:"none",border:"none",color:T.txL,fontSize:12,cursor:"pointer",padding:0}}>← Back</button>
         </div>
-        <h2 style={{fontSize:mob?18:20,fontWeight:700,color:"#1D1D1F",margin:0,fontFamily:"Georgia,serif"}}>{ex.name}</h2>
+        <h2 style={{fontSize:mob?18:20,fontWeight:700,color:T.tx,margin:0,fontFamily:"Georgia,serif"}}>{ex.name}</h2>
       </div>
       <LockedPreview onUnlock={onUnlock} features={["Step-by-step exercise instructions","Video demonstration","Safety guidelines and contraindications","Recommended sets, reps, and frequency","Clinical rationale for each exercise"]}>
         <ExerciseDetailContent ex={ex} mob={mob} />
@@ -2617,20 +2617,20 @@ function ExerciseDetail({ex,onClose,mob,paid,onUnlock}){
   const pc=PHASE_CLR[ex.phase];
   return(
     <div style={{
-      display:"flex",flexDirection:"column",height:"100%",background:"#fff",
+      display:"flex",flexDirection:"column",height:"100%",background:T.sf,
       animation:"slideInRight .3s cubic-bezier(.16,1,.3,1)",overflow:"hidden",
     }}>
       {/* Header */}
-      <div style={{padding:"16px 18px 12px",borderBottom:"1px solid rgba(0,0,0,0.06)",flexShrink:0}}>
+      <div style={{padding:"16px 18px 12px",borderBottom:`1px solid ${T.bd}`,flexShrink:0}}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:6}}>
-          <button onClick={onClose} style={{display:"flex",alignItems:"center",gap:4,background:"none",border:"none",color:"#AEAEB2",fontSize:12,cursor:"pointer",padding:0}}>
+          <button onClick={onClose} style={{display:"flex",alignItems:"center",gap:4,background:"none",border:"none",color:T.txL,fontSize:12,cursor:"pointer",padding:0}}>
             ← Back to exercises
           </button>
           <span style={{fontSize:9,fontWeight:700,color:pc,background:pc+"14",padding:"3px 10px",borderRadius:5,textTransform:"uppercase",letterSpacing:1}}>
             {PHASE_TM[ex.phase]}
           </span>
         </div>
-        <h2 style={{fontSize:mob?18:20,fontWeight:700,color:"#1D1D1F",margin:0,fontFamily:"Georgia,serif"}}>{ex.name}</h2>
+        <h2 style={{fontSize:mob?18:20,fontWeight:700,color:T.tx,margin:0,fontFamily:"Georgia,serif"}}>{ex.name}</h2>
         <div style={{fontSize:11,color:pc,fontWeight:600,marginTop:2}}>{PHASE_NM[ex.phase]}</div>
       </div>
 
@@ -2661,15 +2661,15 @@ function ExerciseDetail({ex,onClose,mob,paid,onUnlock}){
         <div style={{marginBottom:16}}>
           <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
             <div style={{width:24,height:24,borderRadius:7,background:pc+"14",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>📋</div>
-            <h3 style={{fontSize:14,fontWeight:700,color:"#1D1D1F",margin:0}}>How to Perform</h3>
+            <h3 style={{fontSize:14,fontWeight:700,color:T.tx,margin:0}}>How to Perform</h3>
           </div>
-          <div style={{padding:"12px 14px",background:"#F5F4F1",borderRadius:10,fontSize:13,lineHeight:1.7,color:"#1D1D1F"}}>
+          <div style={{padding:"12px 14px",background:T.bg,borderRadius:10,fontSize:13,lineHeight:1.7,color:T.tx}}>
             {ex.desc}
           </div>
           {/* Why this exercise */}
           <div style={{padding:"10px 14px",background:pc+"08",borderRadius:10,borderLeft:`3px solid ${pc}`,marginTop:8}}>
             <div style={{fontSize:10,fontWeight:700,color:pc,textTransform:"uppercase",letterSpacing:1,marginBottom:3}}>Why this exercise matters</div>
-            <div style={{fontSize:12,lineHeight:1.6,color:"#1D1D1F"}}>{ex.why}</div>
+            <div style={{fontSize:12,lineHeight:1.6,color:T.tx}}>{ex.why}</div>
           </div>
         </div>
 
@@ -2677,21 +2677,21 @@ function ExerciseDetail({ex,onClose,mob,paid,onUnlock}){
         <div style={{marginBottom:16}}>
           <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
             <div style={{width:24,height:24,borderRadius:7,background:pc+"14",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>🔄</div>
-            <h3 style={{fontSize:14,fontWeight:700,color:"#1D1D1F",margin:0}}>Reps & Circuit</h3>
+            <h3 style={{fontSize:14,fontWeight:700,color:T.tx,margin:0}}>Reps & Circuit</h3>
           </div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-            <div style={{padding:"14px",background:"#F5F9FE",borderRadius:10,textAlign:"center"}}>
-              <div style={{fontSize:9,fontWeight:700,color:"#AEAEB2",textTransform:"uppercase",letterSpacing:1,marginBottom:4}}>Prescription</div>
+            <div style={{padding:"14px",background:T.acS,borderRadius:10,textAlign:"center"}}>
+              <div style={{fontSize:9,fontWeight:700,color:T.txL,textTransform:"uppercase",letterSpacing:1,marginBottom:4}}>Prescription</div>
               <div style={{fontSize:15,fontWeight:700,color:"#0071E3"}}>{ex.rx}</div>
             </div>
-            <div style={{padding:"14px",background:"#F5F9FE",borderRadius:10,textAlign:"center"}}>
-              <div style={{fontSize:9,fontWeight:700,color:"#AEAEB2",textTransform:"uppercase",letterSpacing:1,marginBottom:4}}>Tempo</div>
+            <div style={{padding:"14px",background:T.acS,borderRadius:10,textAlign:"center"}}>
+              <div style={{fontSize:9,fontWeight:700,color:T.txL,textTransform:"uppercase",letterSpacing:1,marginBottom:4}}>Tempo</div>
               <div style={{fontSize:15,fontWeight:700,color:"#0071E3"}}>{ex.duration}</div>
             </div>
           </div>
           {/* Targets */}
-          <div style={{marginTop:10,padding:"10px 14px",background:"#FAFAF8",borderRadius:10}}>
-            <div style={{fontSize:9,fontWeight:700,color:"#AEAEB2",textTransform:"uppercase",letterSpacing:1,marginBottom:6}}>Addresses these findings</div>
+          <div style={{marginTop:10,padding:"10px 14px",background:T.sfA,borderRadius:10}}>
+            <div style={{fontSize:9,fontWeight:700,color:T.txL,textTransform:"uppercase",letterSpacing:1,marginBottom:6}}>Addresses these findings</div>
             <div style={{display:"flex",flexWrap:"wrap",gap:4}}>
               {(ex.finding||"").split(" / ").map((f,i)=>(
                 <span key={i} style={{fontSize:10,padding:"3px 9px",borderRadius:5,background:"rgba(0,113,227,0.06)",color:"#0071E3",fontWeight:600}}>{f}</span>
@@ -2704,12 +2704,12 @@ function ExerciseDetail({ex,onClose,mob,paid,onUnlock}){
         <div style={{marginBottom:16}}>
           <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
             <div style={{width:24,height:24,borderRadius:7,background:"rgba(191,16,41,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>⚠️</div>
-            <h3 style={{fontSize:14,fontWeight:700,color:"#1D1D1F",margin:0}}>Safety & Precautions</h3>
+            <h3 style={{fontSize:14,fontWeight:700,color:T.tx,margin:0}}>Safety & Precautions</h3>
           </div>
           <div style={{padding:"12px 14px",borderRadius:10,border:"1px solid rgba(191,16,41,0.12)",background:"rgba(191,16,41,0.03)"}}>
-            <div style={{fontSize:12.5,lineHeight:1.65,color:"#6E6E73"}}>{ex.avoid}</div>
+            <div style={{fontSize:12.5,lineHeight:1.65,color:T.txM}}>{ex.avoid}</div>
           </div>
-          <div style={{marginTop:8,padding:"10px 14px",background:"#E6F5F4",borderRadius:10,border:"1px solid rgba(26,127,122,0.15)"}}>
+          <div style={{marginTop:8,padding:"10px 14px",background:"rgba(26,127,122,0.08)",borderRadius:10,border:"1px solid rgba(26,127,122,0.15)"}}>
             <div style={{fontSize:11,lineHeight:1.5,color:"#1A7F7A"}}>
               <strong>Always discuss with your PT</strong> before starting or progressing this exercise. Your therapist will modify intensity based on your specific examination and tolerance.
             </div>
@@ -2730,20 +2730,20 @@ function ExerciseDetailContent({ex,mob}){
         <span style={{color:"rgba(255,255,255,0.5)",fontSize:12}}>Video Demonstration</span>
       </div>
       <div style={{marginBottom:16}}>
-        <h3 style={{fontSize:14,fontWeight:700,color:"#1D1D1F",marginBottom:8}}>How to Perform</h3>
-        <div style={{padding:"12px 14px",background:"#F5F4F1",borderRadius:10,fontSize:12.5,lineHeight:1.65,color:"#1D1D1F"}}>{ex.desc}</div>
+        <h3 style={{fontSize:14,fontWeight:700,color:T.tx,marginBottom:8}}>How to Perform</h3>
+        <div style={{padding:"12px 14px",background:T.bg,borderRadius:10,fontSize:12.5,lineHeight:1.65,color:T.tx}}>{ex.desc}</div>
       </div>
       <div style={{marginBottom:16}}>
-        <h3 style={{fontSize:14,fontWeight:700,color:"#1D1D1F",marginBottom:8}}>Why This Exercise</h3>
-        <div style={{padding:"12px 14px",background:pc+"08",borderRadius:10,fontSize:12.5,lineHeight:1.65,color:"#6E6E73"}}>{ex.why}</div>
+        <h3 style={{fontSize:14,fontWeight:700,color:T.tx,marginBottom:8}}>Why This Exercise</h3>
+        <div style={{padding:"12px 14px",background:pc+"08",borderRadius:10,fontSize:12.5,lineHeight:1.65,color:T.txM}}>{ex.why}</div>
       </div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-        <div style={{padding:14,background:"#F5F9FE",borderRadius:10,textAlign:"center"}}>
-          <div style={{fontSize:9,fontWeight:700,color:"#AEAEB2",textTransform:"uppercase",letterSpacing:1,marginBottom:4}}>Prescription</div>
+        <div style={{padding:14,background:T.acS,borderRadius:10,textAlign:"center"}}>
+          <div style={{fontSize:9,fontWeight:700,color:T.txL,textTransform:"uppercase",letterSpacing:1,marginBottom:4}}>Prescription</div>
           <div style={{fontSize:15,fontWeight:700,color:"#0071E3"}}>{ex.rx}</div>
         </div>
-        <div style={{padding:14,background:"#F5F9FE",borderRadius:10,textAlign:"center"}}>
-          <div style={{fontSize:9,fontWeight:700,color:"#AEAEB2",textTransform:"uppercase",letterSpacing:1,marginBottom:4}}>Tempo</div>
+        <div style={{padding:14,background:T.acS,borderRadius:10,textAlign:"center"}}>
+          <div style={{fontSize:9,fontWeight:700,color:T.txL,textTransform:"uppercase",letterSpacing:1,marginBottom:4}}>Tempo</div>
           <div style={{fontSize:15,fontWeight:700,color:"#0071E3"}}>{ex.duration}</div>
         </div>
       </div>
@@ -2796,12 +2796,12 @@ function ResizableSplit({left,right,show,minPct=25,maxPct=75,defaultPct=50}){
       <div style={{width:`${pct}%`,flexShrink:0,position:"relative",overflow:"hidden"}}>{left}</div>
       {/* Drag handle */}
       <div onMouseDown={onMouseDown} onTouchStart={onTouchStart} style={{
-        width:6,flexShrink:0,cursor:"col-resize",background:"#fff",borderLeft:"1px solid rgba(0,0,0,0.06)",
-        borderRight:"1px solid rgba(0,0,0,0.06)",display:"flex",alignItems:"center",justifyContent:"center",
+        width:6,flexShrink:0,cursor:"col-resize",background:T.sf,borderLeft:"1px solid rgba(0,0,0,0.06)",
+        borderRight:`1px solid ${T.bd}`,display:"flex",alignItems:"center",justifyContent:"center",
         position:"relative",zIndex:5,transition:"background .15s",
       }}
-      onMouseEnter={e=>e.currentTarget.style.background="rgba(0,113,227,0.06)"}
-      onMouseLeave={e=>{if(!dragging.current)e.currentTarget.style.background="#fff"}}
+      onMouseEnter={e=>e.currentTarget.style.background=T.acS}
+      onMouseLeave={e=>{if(!dragging.current)e.currentTarget.style.background=T.sf}}
       >
         <div style={{width:2,height:32,borderRadius:1,background:"rgba(0,0,0,0.12)"}} />
       </div>
@@ -3073,7 +3073,7 @@ export default function App(){
             <div
               style={{
                 height:paid?10:28,flexShrink:0,background:T.sf,
-                borderTop:"1px solid rgba(0,0,0,0.06)",borderBottom:"1px solid rgba(0,0,0,0.06)",
+                borderTop:`1px solid ${T.bd}`,borderBottom:`1px solid ${T.bd}`,
                 display:"flex",alignItems:"center",justifyContent:"center",
                 touchAction:"none",zIndex:5,gap:8,
               }}
@@ -3098,7 +3098,7 @@ export default function App(){
             <div style={{flex:1,overflow:"auto",padding:"0 16px 16px"}}>
               {hasDetail ? mobDetailContent
                : tab==="findings" ? <Summary findings={findings} active={active} onSel={togSel} mob={true} />
-               : tab==="exercises" ? <PTLibrary findings={findings} onSelectFinding={togSel} activeEx={activeEx} setActiveEx={setActiveEx} assessAnswers={assessAnswers} paid={paid} onUnlock={startCheckout} onGoToReport={()=>onTabChange("report")} joint={joint} recoveryStage={recoveryStage} />
+               : tab==="exercises" ? <PTLibrary findings={findings} onSelectFinding={togSel} activeEx={activeEx} setActiveEx={setActiveEx} assessAnswers={assessAnswers} paid={paid} onUnlock={startCheckout} onGoToReport={()=>onTabChange("report")} joint={joint} recoveryStage={recoveryStage} theme={T} />
                : tab==="treatments" ? <TreatmentsTab findings={findings} activeTx={activeTx} setActiveTx={selectTx} txFinding={txFinding} />
                : tab==="report" ? <ReportTab findings={findings} onGenerateReport={(f,a,j)=>generateReport(f,j,recoveryStage)} onComplete={(a)=>{setAssessAnswers(a);setShowReportPreview(true)}} joint={joint} onGoToExercises={()=>onTabChange("exercises")} paid={paid} assessAnswers={assessAnswers} doctorAnswers={doctorAnswers} />
                : null}
@@ -3139,11 +3139,11 @@ export default function App(){
               {paid&&<div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10,padding:"6px 10px",background:"rgba(45,139,78,0.06)",borderRadius:8,border:"1px solid rgba(45,139,78,0.1)"}}>
                 <span style={{fontSize:11,color:"#2D8B4E",fontWeight:600}}>✓ Pro Unlocked</span>
                 <button onClick={()=>setPaid(false)} style={{
-                  background:"transparent",border:"1px solid rgba(0,0,0,0.08)",color:"#AEAEB2",
+                  background:"transparent",border:`1px solid ${T.bdM}`,color:T.txL,
                   padding:"4px 10px",borderRadius:5,fontSize:9,fontWeight:600,cursor:"pointer",
                 }}>Lock</button>
               </div>}
-              <TabbedPanel findings={findings} active={active} onSel={togSel} mob={false} tab={tab} setTab={onTabChange} activeEx={activeEx} setActiveEx={setActiveEx} activeTx={activeTx} setActiveTx={selectTx} txFinding={txFinding} paid={paid} onUnlock={startCheckout} assessAnswers={assessAnswers} onAssessComplete={(a)=>{setAssessAnswers(a);setShowReportPreview(true)}} onGenerateReport={(f,a,j)=>generateReport(f,j,recoveryStage)} joint={joint} doctorAnswers={doctorAnswers} recoveryStage={recoveryStage} />
+              <TabbedPanel findings={findings} active={active} onSel={togSel} mob={false} tab={tab} setTab={onTabChange} activeEx={activeEx} setActiveEx={setActiveEx} activeTx={activeTx} setActiveTx={selectTx} txFinding={txFinding} paid={paid} onUnlock={startCheckout} assessAnswers={assessAnswers} onAssessComplete={(a)=>{setAssessAnswers(a);setShowReportPreview(true)}} onGenerateReport={(f,a,j)=>generateReport(f,j,recoveryStage)} joint={joint} doctorAnswers={doctorAnswers} recoveryStage={recoveryStage} theme={T} />
             </>}
           </div>
         </div>
@@ -3159,7 +3159,7 @@ export default function App(){
               <div style={{position:"absolute",top:14,right:14,fontSize:10,color:T.txF,pointerEvents:"none"}}>{explorerInfo?"Tap structures to explore":"Drag to rotate · Scroll to zoom"}</div>
               {explorerInfo&&<AnatomyExplorerCard structureName={explorerInfo} onClose={()=>setExplorerInfo(null)} joint={joint} />}
               {phase==="input"&&<div style={{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",textAlign:"center",pointerEvents:"none"}}><div style={{fontSize:48,marginBottom:14,opacity:.15}}>🦴</div><div style={{fontSize:15,color:T.txL,fontWeight:500}}>Your 3D joint model</div><div style={{fontSize:12,color:T.txF,marginTop:6}}>Paste an MRI report to see findings visualized</div></div>}
-              {phase==="summary"&&!detailFinding&&!activeEx&&!activeTx&&!showReportPreview&&<div style={{position:"absolute",bottom:20,left:20,right:20,maxWidth:440,background:paid?"#fff":"linear-gradient(135deg,#0071E3 0%,#0059B3 100%)",borderRadius:11,padding:"14px 18px",boxShadow:"0 4px 20px rgba(0,0,0,.08)",border:paid?`1px solid ${T.bd}`:"none",display:"flex",alignItems:"center",justifyContent:"space-between",zIndex:10,animation:"slideUp .5s cubic-bezier(.16,1,.3,1)"}}><div><div style={{fontSize:13,fontWeight:600,color:paid?T.tx:"#fff"}}>{paid?"Your full report is ready":"Unlock detailed analysis"}</div><div style={{fontSize:11,color:paid?T.txL:"rgba(255,255,255,0.8)",marginTop:2}}>{paid?"Specialist perspectives, exercises, questions":"Specialist insights, exercise guides, treatment deep-dives"}</div></div><button onClick={paid?()=>generateReport(findings,joint,recoveryStage):startCheckout} style={{background:paid?T.ac:"#fff",border:"none",color:paid?"#fff":"#0071E3",padding:"9px 18px",borderRadius:8,fontSize:12,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,marginLeft:14,boxShadow:paid?"none":"0 2px 8px rgba(0,0,0,0.15)"}}>{paid?"Download PDF":`${PRICE} — Unlock Pro`}</button></div>}
+              {phase==="summary"&&!detailFinding&&!activeEx&&!activeTx&&!showReportPreview&&<div style={{position:"absolute",bottom:20,left:20,right:20,maxWidth:440,background:paid?T.sf:"linear-gradient(135deg,#0071E3 0%,#0059B3 100%)",borderRadius:11,padding:"14px 18px",boxShadow:"0 4px 20px rgba(0,0,0,.08)",border:paid?`1px solid ${T.bd}`:"none",display:"flex",alignItems:"center",justifyContent:"space-between",zIndex:10,animation:"slideUp .5s cubic-bezier(.16,1,.3,1)"}}><div><div style={{fontSize:13,fontWeight:600,color:paid?T.tx:"#fff"}}>{paid?"Your full report is ready":"Unlock detailed analysis"}</div><div style={{fontSize:11,color:paid?T.txL:"rgba(255,255,255,0.8)",marginTop:2}}>{paid?"Specialist perspectives, exercises, questions":"Specialist insights, exercise guides, treatment deep-dives"}</div></div><button onClick={paid?()=>generateReport(findings,joint,recoveryStage):startCheckout} style={{background:paid?T.ac:"#fff",border:"none",color:paid?"#fff":"#0071E3",padding:"9px 18px",borderRadius:8,fontSize:12,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,marginLeft:14,boxShadow:paid?"none":"0 2px 8px rgba(0,0,0,0.15)"}}>{paid?"Download PDF":`${PRICE} — Unlock Pro`}</button></div>}
             </div>
           }
           right={
