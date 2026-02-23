@@ -2,7 +2,7 @@ import jsPDF from "jspdf";
 
 /* ═══════════════════════════════════════════════════════════════
    CLEARSCAN REPORT GENERATOR v3
-   Multi-specialist knee MRI report with illustrated exercise pages
+   Multi-specialist MRI report with illustrated exercise pages
    ═══════════════════════════════════════════════════════════════ */
 
 /* ═══════ PALETTE ═══════ */
@@ -47,7 +47,7 @@ function header(d){
   box(d,ML,8,6,6,P.blue,null,1.2);
   d.setFontSize(9);d.setFont("helvetica","bold");d.setTextColor(255,255,255);d.text("C",ML+1.6,12.5);
   txt(d,"ClearScan",ML+8,12.5,{sz:10,st:"bold"});
-  txt(d,"Knee MRI Findings Guide",ML+30,12.5,{sz:8,c:P.txL});
+  txt(d,"MRI Findings Guide",ML+30,12.5,{sz:8,c:P.txL});
   const dt=new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"});
   txt(d,dt,W-MR,12.5,{sz:8,c:P.txL,align:"right"});
   line(d,ML,16,W-MR,16,P.bd,0.4);
@@ -403,7 +403,7 @@ export function generateReport(findings) {
 
   // Title with accent
   box(d, ML, y, 3, 12, P.blue);
-  txt(d, "Your Knee MRI", ML+7, y+4, {sz:26, st:"bold"});
+  txt(d, "Your MRI Report", ML+7, y+4, {sz:26, st:"bold"});
   txt(d, "Explained", ML+7, y+11, {sz:26, st:"bold"});
   y += 18;
   txt(d, "A guide to understanding your findings before you see your specialist", ML+7, y, {sz:11, c:P.txM});

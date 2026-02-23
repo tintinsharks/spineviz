@@ -343,7 +343,7 @@ export default function PTLibrary({ findings, onSelectFinding, activeEx, setActi
     }
     if (hasObesity) {
       if (ex.id === "slr" || ex.id === "qs") custom.notes.push("Excellent starting exercise — builds strength without joint loading.");
-      if (ex.id === "plyo") custom.notes.push("⚠️ Progress gradually to reduce joint stress. Body weight management can significantly reduce knee load.");
+      if (ex.id === "plyo") custom.notes.push("⚠️ Progress gradually to reduce joint stress. Body weight management can significantly reduce joint load.");
     }
     if (hasRA) {
       custom.notes.push("Monitor joint response carefully. Skip on flare days. Water-based alternatives may be beneficial.");
@@ -351,7 +351,7 @@ export default function PTLibrary({ findings, onSelectFinding, activeEx, setActi
 
     // Instability-based
     if (hasInstability && ex.targets.includes("acl")) {
-      if (ex.phase === 1) custom.notes.push("Critical for your knee stability. Prioritize this exercise.");
+      if (ex.phase === 1) custom.notes.push("Critical for your joint stability. Prioritize this exercise.");
       if (ex.id === "slb") custom.notes.push("⭐ Especially important given your reported instability. Progress slowly through difficulty levels.");
     }
 

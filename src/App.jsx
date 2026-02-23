@@ -1580,7 +1580,7 @@ export default function App(){
 
   const inputUI=(pad)=>(
     <>
-      <h2 style={{fontSize:mob?20:24,fontWeight:700,color:T.tx,margin:"0 0 6px",fontFamily:"Georgia,serif"}}>Understand Your Knee MRI</h2>
+      <h2 style={{fontSize:mob?20:24,fontWeight:700,color:T.tx,margin:"0 0 6px",fontFamily:"Georgia,serif"}}>Understand Your MRI</h2>
       <p style={{fontSize:mob?13:14,color:T.txL,margin:"0 0 18px",lineHeight:1.55}}>Paste the Impression section from your MRI report. We support <strong>knee</strong>, <strong>shoulder</strong>, and <strong>hip</strong> — we'll auto-detect the joint and visualize each finding in 3D.</p>
       {err&&<div style={{padding:"10px 12px",background:"rgba(191,16,41,0.06)",border:"1px solid rgba(191,16,41,0.15)",borderRadius:8,marginBottom:12,fontSize:12,lineHeight:1.5,color:"#BF1029"}}>{err}</div>}
       <textarea value={text} onChange={e=>{setText(e.target.value);setErr(null)}} placeholder="Paste your MRI impression here..." style={{flex:1,minHeight:mob?120:160,background:T.bgD,border:`1px solid ${err?"rgba(191,16,41,0.3)":T.bd}`,borderRadius:12,padding:14,color:T.tx,fontSize:13,fontFamily:"'SF Mono',Consolas,monospace",lineHeight:1.7,resize:"none"}} />
@@ -1598,7 +1598,7 @@ export default function App(){
       <div style={{display:"flex",alignItems:"center",gap:mob?8:12}}>
         <div style={{width:mob?26:30,height:mob?26:30,borderRadius:mob?7:9,background:"linear-gradient(135deg,#0071E3,#5BA3F5)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:mob?13:15,fontWeight:800,color:"#fff"}}>C</div>
         <span style={{fontSize:mob?15:16,fontWeight:700,color:T.tx}}>ClearScan</span>
-        {!mob&&<span style={{fontSize:11,color:T.txL,fontWeight:500,marginLeft:4}}>Knee MRI Interpreter</span>}
+        {!mob&&<span style={{fontSize:11,color:T.txL,fontWeight:500,marginLeft:4}}>MRI Interpreter</span>}
       </div>
       <div style={{display:"flex",alignItems:"center",gap:6}}>
         {phase==="summary"&&findings&&<button onClick={hBtn} style={{background:showH?T.ac:T.sf,border:`1px solid ${showH?T.ac:T.bdM}`,color:showH?"#fff":T.txM,padding:mob?"5px 10px":"6px 14px",borderRadius:7,fontSize:11,fontWeight:500,cursor:"pointer",transition:"all .2s"}}>{showH?"✓ Healthy":"Compare Healthy"}</button>}
