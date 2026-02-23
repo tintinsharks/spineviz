@@ -240,7 +240,7 @@ const PHASE_NAMES = { 1: "Phase 1: Early Recovery", 2: "Phase 2: Building Streng
 const PHASE_TIME = { 1: "Weeks 1-2", 2: "Weeks 3-6", 3: "Weeks 7-12" };
 const PHASE_COLOR = { 1: "#0071E3", 2: "#2D8B4E", 3: "#6B3FA0" };
 
-export default function PTLibrary({ findings, onSelectFinding, activeEx, setActiveEx, assessAnswers, paid, onUnlock, onGoToReport, joint }) {
+export default function PTLibrary({ findings, onSelectFinding, activeEx, setActiveEx, assessAnswers, paid, onUnlock, onGoToReport, joint, recoveryStage }) {
   const [viewMode, setViewMode] = useState("byPhase");
   const [activePhase, setActivePhase] = useState(null);
 
@@ -442,24 +442,43 @@ export default function PTLibrary({ findings, onSelectFinding, activeEx, setActi
     );
   };
 
-  // ── By Phase View ──
+  // ── By Phase View (stage-aware) ──
   const byPhaseView = () => (
     <div>
       {[1, 2, 3].map(phase => {
         const phaseExs = customizedExercises.filter(ex => ex.phase === phase);
         if (phaseExs.length === 0) return null;
-        const isActive = activePhase === null || activePhase === phase;
+        const isCurrent = currentExPhase === phase;
+        const isPast = currentExPhase != null && phase < currentExPhase;
+        const isFuture = currentExPhase != null && phase > currentExPhase;
+        // Auto-expand current phase when stage is set, otherwise use toggle
+        const isActive = currentExPhase
+          ? (isCurrent || (activePhase === phase))
+          : (activePhase === null || activePhase === phase);
+        const stageLabel = isCurrent ? "CURRENT" : isPast ? "COMPLETED" : isFuture ? "UPCOMING" : null;
+        const stageBg = isCurrent ? "rgba(26,127,122,0.08)" : isPast ? "rgba(45,139,78,0.06)" : isFuture ? "rgba(0,0,0,0.03)" : null;
+        const stageColor = isCurrent ? "#1A7F7A" : isPast ? "#2D8B4E" : "#AEAEB2";
         return (
-          <div key={phase} style={{ marginBottom: 14, opacity: isActive ? 1 : 0.5, transition: "opacity .2s" }}>
+          <div key={phase} style={{ marginBottom: 14, opacity: isFuture ? 0.45 : isPast ? 0.65 : 1, transition: "opacity .2s" }}>
             <div onClick={() => setActivePhase(p => p === phase ? null : phase)}
-              style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8, cursor: "pointer" }}>
+              style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8, cursor: "pointer",
+                padding: isCurrent ? "8px 10px" : "0", background: isCurrent ? "rgba(26,127,122,0.04)" : "transparent",
+                borderRadius: 8, border: isCurrent ? "1px solid rgba(26,127,122,0.15)" : "1px solid transparent",
+              }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <div style={{ width: 8, height: 8, borderRadius: 4, background: PHASE_COLOR[phase] }} />
-                <span style={{ fontSize: 13, fontWeight: 700, color: "#1D1D1F" }}>{PHASE_NAMES[phase]}</span>
+                <div style={{ width: 8, height: 8, borderRadius: 4, background: isPast ? "#2D8B4E" : PHASE_COLOR[phase] }} />
+                <span style={{ fontSize: 13, fontWeight: 700, color: isFuture ? "#AEAEB2" : "#1D1D1F", textDecoration: isPast ? "line-through" : "none" }}>{PHASE_NAMES[phase]}</span>
+                {stageLabel && <span style={{ fontSize: 7, fontWeight: 800, color: stageColor, background: stageBg, padding: "2px 6px", borderRadius: 3 }}>{stageLabel}</span>}
               </div>
-              <span style={{ fontSize: 10, color: PHASE_COLOR[phase], fontWeight: 600 }}>{PHASE_TIME[phase]}</span>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <span style={{ fontSize: 10, color: PHASE_COLOR[phase], fontWeight: 600 }}>{PHASE_TIME[phase]}</span>
+                <span style={{ fontSize: 10, color: "#AEAEB2" }}>{phaseExs.length} ex</span>
+              </div>
             </div>
             {isActive && phaseExs.map(ex => <ExCard key={ex.id} ex={ex} />)}
+            {!isActive && <div style={{ fontSize: 10, color: "#AEAEB2", padding: "0 0 0 16px", cursor: "pointer" }} onClick={() => setActivePhase(phase)}>
+              {phaseExs.length} exercises · tap to expand
+            </div>}
           </div>
         );
       })}
@@ -495,8 +514,48 @@ export default function PTLibrary({ findings, onSelectFinding, activeEx, setActi
   const priorityCount = customizedExercises.filter(e => e.priority).length;
   const activePhases = [...new Set(customizedExercises.map(e => e.phase))].length;
 
+  // ── Recovery stage → exercise phase mapping ──
+  // Timeline stages vary (3/4/6 phases), exercise phases are always 1/2/3
+  // Map: early stages → phase 1, middle → phase 2, late → phase 3
+  const stageToExPhase = (stageIdx, totalStages) => {
+    if (totalStages <= 3) return stageIdx + 1; // direct 1:1
+    if (totalStages === 4) return stageIdx <= 0 ? 1 : stageIdx <= 2 ? 2 : 3;
+    // 6-phase: 0-1 → 1, 2-3 → 2, 4-5 → 3
+    return stageIdx <= 1 ? 1 : stageIdx <= 3 ? 2 : 3;
+  };
+
+  const currentExPhase = recoveryStage
+    ? stageToExPhase(recoveryStage.index, 6) // assume 6-phase for severe, adjust if needed
+    : null;
+
+  // Count exercises per category relative to stage
+  const currentPhaseExs = currentExPhase ? customizedExercises.filter(e => e.phase === currentExPhase) : [];
+  const pastPhaseExs = currentExPhase ? customizedExercises.filter(e => e.phase < currentExPhase) : [];
+  const futurePhaseExs = currentExPhase ? customizedExercises.filter(e => e.phase > currentExPhase) : [];
+
   return (
     <div style={{ animation: "fadeIn .4s" }}>
+      {/* Recovery stage banner */}
+      {recoveryStage && (
+        <div style={{ padding: "10px 12px", background: "rgba(26,127,122,0.06)", borderRadius: 10, border: "1px solid rgba(26,127,122,0.15)", marginBottom: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#1A7F7A", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 11, fontWeight: 800, flexShrink: 0 }}>{recoveryStage.week}</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "#1A7F7A", textTransform: "uppercase", letterSpacing: .5 }}>Your current stage</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#1D1D1F" }}>{recoveryStage.title} · Week {recoveryStage.week}</div>
+            </div>
+            <div style={{ textAlign: "right" }}>
+              <div style={{ fontSize: 16, fontWeight: 800, color: "#1A7F7A", fontFamily: "monospace" }}>{currentPhaseExs.length}</div>
+              <div style={{ fontSize: 8, fontWeight: 600, color: "#AEAEB2", textTransform: "uppercase" }}>exercises now</div>
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
+            {pastPhaseExs.length > 0 && <span style={{ fontSize: 9, padding: "2px 7px", borderRadius: 4, background: "rgba(26,127,122,0.08)", color: "#1A7F7A", fontWeight: 600 }}>✓ {pastPhaseExs.length} completed-phase exercises</span>}
+            {futurePhaseExs.length > 0 && <span style={{ fontSize: 9, padding: "2px 7px", borderRadius: 4, background: "rgba(0,0,0,0.03)", color: "#AEAEB2", fontWeight: 600 }}>{futurePhaseExs.length} upcoming</span>}
+          </div>
+        </div>
+      )}
+
       {/* Personalization summary */}
       <div style={{ padding: "10px 12px", background: "rgba(0,113,227,0.04)", borderRadius: 8, border: "1px solid rgba(0,113,227,0.08)", marginBottom: 10 }}>
         <div style={{ fontSize: 10, fontWeight: 700, color: "#0071E3", marginBottom: 4 }}>PERSONALIZED TO YOUR ASSESSMENT</div>

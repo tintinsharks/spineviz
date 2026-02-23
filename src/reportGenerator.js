@@ -388,7 +388,7 @@ const EXERCISES = {
 /* ═══════════════════════════════════════════════════════════════
    MAIN REPORT GENERATOR
    ═══════════════════════════════════════════════════════════════ */
-export function generateReport(findings, joint) {
+export function generateReport(findings, joint, recoveryStage) {
   const j = joint || "knee";
   const jLabel = j === "knee" ? "Knee" : j === "shoulder" ? "Shoulder" : j === "hip" ? "Hip" : "Joint";
   const d = new jsPDF({ unit:"mm", format:"letter" });
@@ -603,21 +603,57 @@ export function generateReport(findings, joint) {
   });
 
   // ═══════════════════════════════════════════
-  // EXERCISE PAGES — FROM FINDINGS EXERCISES
+  // EXERCISE PAGES — STAGE-AWARE
   // ═══════════════════════════════════════════
-  // Collect unique exercises from findings' treatments that mention PT
-  // Use the static EXERCISES data but filter to relevant
-  Object.values(EXERCISES).forEach(phase => {
+  // Map recovery stage to exercise phase (1/2/3)
+  const stageToPhase = (idx) => {
+    if (idx == null) return null;
+    if (idx <= 1) return 1; // early → Phase 1
+    if (idx <= 3) return 2; // middle → Phase 2
+    return 3;               // late → Phase 3
+  };
+  const currentPhaseNum = recoveryStage ? stageToPhase(recoveryStage.index) : null;
+  const phaseKeys = Object.keys(EXERCISES);
+
+  // If stage is set, show current phase first and prominently
+  if (recoveryStage) {
+    y = newPg(d);
+    box(d, ML, y, PW, 12, P.tealBg, P.teal, 2);
+    txt(d, `Your Current Stage: ${recoveryStage.title} (Week ${recoveryStage.week})`, ML+5, y+7.5, {sz:11, st:"bold", c:P.teal});
+    y += 16;
+    txt(d, "Exercises below are prioritized for your current recovery phase. Previous phases are included for reference.", ML, y, {sz:9, c:P.txM, mw:PW, lh:3.5});
+    y += 8;
+  }
+
+  phaseKeys.forEach((key, ki) => {
+    const phase = EXERCISES[key];
+    const phaseNum = ki + 1;
+    const isCurrent = currentPhaseNum === phaseNum;
+    const isPast = currentPhaseNum != null && phaseNum < currentPhaseNum;
+    const isFuture = currentPhaseNum != null && phaseNum > currentPhaseNum;
+
     y = newPg(d);
 
-    // Phase header
-    box(d, ML, y, PW, 14, phase.color === P.blue ? P.bluePale : phase.color === P.green ? P.greenBg : P.purpleBg, phase.color, 2);
+    // Phase header with stage indicator
+    const headerBg = isCurrent ? P.tealBg : phase.color === P.blue ? P.bluePale : phase.color === P.green ? P.greenBg : P.purpleBg;
+    const headerBorder = isCurrent ? P.teal : phase.color;
+    box(d, ML, y, PW, 14, headerBg, headerBorder, 2);
     txt(d, phase.name, ML+5, y+5.5, {sz:14, st:"bold", c:P.tx});
-    txt(d, phase.timeline, W-MR-5, y+5.5, {sz:11, st:"bold", c:phase.color, align:"right"});
+
+    // Stage label
+    if (isCurrent) {
+      txt(d, "★ YOUR CURRENT PHASE", W-MR-5, y+5.5, {sz:8, st:"bold", c:P.teal, align:"right"});
+    } else if (isPast) {
+      txt(d, "✓ COMPLETED", W-MR-5, y+5.5, {sz:8, st:"bold", c:P.green, align:"right"});
+    } else if (isFuture) {
+      txt(d, "UPCOMING", W-MR-5, y+5.5, {sz:8, st:"bold", c:P.txL, align:"right"});
+    } else {
+      txt(d, phase.timeline, W-MR-5, y+5.5, {sz:11, st:"bold", c:phase.color, align:"right"});
+    }
     txt(d, "Goal: "+phase.goal, ML+5, y+10.5, {sz:8, c:P.txM});
     y += 19;
 
-    if (phase.color === P.blue) {
+    if (phaseNum === 1) {
       box(d, ML, y, PW, 10, P.tealBg, P.teal, 1.5);
       txt(d, "Discuss all exercises with your PT before beginning. Do not start without clearance.", ML+4, y+4, {sz:8, st:"bold", c:P.teal, mw:PW-8});
       y += 14;
@@ -634,7 +670,7 @@ export function generateReport(findings, joint) {
       if (col === 0) { y = checkPg(d, y, cardH + 4); }
       const cx = ML + col * (cardW + gap);
       const cy = y;
-      exerciseCard(d, cx, cy, cardW, cardH, ex, phase.color);
+      exerciseCard(d, cx, cy, cardW, cardH, ex, isCurrent ? P.teal : phase.color);
     });
     y += cardH + 6;
   });

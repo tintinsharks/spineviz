@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import * as THREE from "three";
 import * as Tone from "tone";
 import { generateReport } from "./reportGenerator";
@@ -533,12 +533,138 @@ function BlurReport(){return(
     <div style={{position:"absolute",inset:0,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",background:"rgba(255,255,255,.75)",backdropFilter:"blur(2px)"}}>
       <div style={{fontSize:13,fontWeight:600,color:T.tx,marginBottom:4}}>Unlock Your Full Report</div>
       <div style={{fontSize:11,color:T.txM,marginBottom:10,textAlign:"center",maxWidth:220,lineHeight:1.4}}>Personalized exercises, timeline, and treatment comparison</div>
-      <button onClick={()=>generateReport(findings)} style={{background:T.ac,border:"none",color:"#fff",padding:"9px 22px",borderRadius:8,fontSize:12,fontWeight:600,cursor:"pointer"}}>Download Full Report (PDF)</button>
+      <button onClick={()=>generateReport(findings,joint,recoveryStage)} style={{background:T.ac,border:"none",color:"#fff",padding:"9px 22px",borderRadius:8,fontSize:12,fontWeight:600,cursor:"pointer"}}>Download Full Report (PDF)</button>
     </div>
   </div>
 )}
 
 /* ═══════════════════ TRUST ═══════════════════ */
+/* ═══════════════════ RECOVERY TIMELINE VISUAL ═══════════════════ */
+function RecoveryTimeline({finding,joint,selected,onSelect}){
+  const teal="#1A7F7A";
+
+  // Build phases from finding data — parse treatments + timeline text
+  const buildPhases=()=>{
+    const phases=[];
+    const j=joint||"knee";
+    const sev=finding.sev||"moderate";
+    const hasSurgical=finding.treatments?.some(t=>t.type==="surgical");
+
+    // Generic phases based on severity and joint
+    if(sev==="severe"||hasSurgical){
+      if(j==="shoulder"){
+        phases.push({week:"0",label:"Phase 1",icon:"🏥",title:"Protection",items:["Immobilization in sling","Pain & swelling management","Gentle pendulum exercises"]});
+        phases.push({week:"2",label:"Phase 2",icon:"🤲",title:"Early Motion",items:["Assisted range of motion","Scapular activation","Light isometrics"]});
+        phases.push({week:"6",label:"Phase 3",icon:"💪",title:"Strengthening",items:["Active range of motion","Rotator cuff strengthening","Scapular stabilization"]});
+        phases.push({week:"12",label:"Phase 4",icon:"🏃",title:"Advanced Strengthening",items:["Resistance training","Functional movements","Sport-specific preparation"]});
+        phases.push({week:"20",label:"Phase 5",icon:"⚡",title:"Return to Activity",items:["Full overhead activities","Return to sport protocol","Maintenance program"]});
+        phases.push({week:"26",label:"Phase 6",icon:"🏁",title:"Full Recovery",items:["Strength normalized","Full unrestricted activity","Quality of life maximized"]});
+      } else {
+        phases.push({week:"0",label:"Phase 1",icon:"🏥",title:"Acute Recovery",items:["Surgery recovery / Protection","Non weight-bearing","Pain & swelling management"]});
+        phases.push({week:"1",label:"Phase 2",icon:"🚶",title:"Early Mobility",items:["Partial weight-bearing","Light strength & flexibility","Quad activation exercises"]});
+        phases.push({week:"3",label:"Phase 3",icon:"🚴",title:"Progressive Loading",items:["Light cycling","Moderate strength & flexibility","Light balance exercises","Assisted functional activity"]});
+        phases.push({week:"6",label:"Phase 4",icon:"🏋️",title:"Functional Training",items:["Full weight-bearing","Unassisted functional activity","Machine-based resistance training","Continued mobility exercises"]});
+        phases.push({week:"12",label:"Phase 5",icon:"🏃",title:"Return to Activity",items:["Return to full work duties","Return to recreational activity","Continued rehabilitation"]});
+        phases.push({week:"26",label:"Phase 6",icon:"🏁",title:"Full Recovery",items:[`${j==="knee"?"Knee":"Joint"} strength normalized`,"Flexibility exceeds pre-surgical levels","Quality of life maximized"]});
+      }
+    } else if(sev==="moderate"){
+      if(j==="shoulder"){
+        phases.push({week:"0",label:"Phase 1",icon:"🛡️",title:"Protection & Rest",items:["Activity modification","Ice & anti-inflammatory","Gentle pendulum exercises"]});
+        phases.push({week:"2",label:"Phase 2",icon:"🤲",title:"Restore Motion",items:["Assisted stretching","Isometric strengthening","Scapular exercises"]});
+        phases.push({week:"6",label:"Phase 3",icon:"💪",title:"Strengthening",items:["Progressive resistance","Rotator cuff program","Functional movements"]});
+        phases.push({week:"12",label:"Phase 4",icon:"🏁",title:"Return to Normal",items:["Full activity resumption","Maintenance exercises","Reassess if symptoms persist"]});
+      } else {
+        phases.push({week:"0",label:"Phase 1",icon:"🛡️",title:"Protect & Reduce",items:["RICE protocol","Activity modification","Gentle range of motion"]});
+        phases.push({week:"2",label:"Phase 2",icon:"🚶",title:"Progressive Loading",items:["Gradual strengthening","Balance training","Low-impact cardio"]});
+        phases.push({week:"6",label:"Phase 3",icon:"🏋️",title:"Functional Strength",items:["Progressive resistance","Dynamic stability exercises","Return to light activity"]});
+        phases.push({week:"12",label:"Phase 4",icon:"🏁",title:"Return to Normal",items:["Full activity resumption","Sport-specific training","Maintenance program"]});
+      }
+    } else {
+      phases.push({week:"0",label:"Phase 1",icon:"🛡️",title:"Activity Modification",items:["Avoid aggravating activities","Ice if symptomatic","Gentle stretching"]});
+      phases.push({week:"2",label:"Phase 2",icon:"💪",title:"Strengthening",items:["Targeted strengthening","Flexibility exercises","Monitor symptoms"]});
+      phases.push({week:"6",label:"Phase 3",icon:"🏁",title:"Full Activity",items:["Return to all activities","Maintenance exercises","Follow up if symptomatic"]});
+    }
+    return phases;
+  };
+
+  const phases=buildPhases();
+  const selIdx=selected?.index??null;
+
+  return(
+    <div style={{position:"relative",padding:"0 0 0 2px"}}>
+      {/* Instruction */}
+      {!selected&&<div style={{marginBottom:8,padding:"6px 10px",background:"rgba(0,113,227,0.04)",borderRadius:6,border:"1px solid rgba(0,113,227,0.08)"}}>
+        <div style={{fontSize:10,color:"#0071E3",fontWeight:600}}>👆 Tap your current phase to personalize exercises & report</div>
+      </div>}
+      {selected&&<div style={{marginBottom:8,padding:"6px 10px",background:"rgba(26,127,122,0.04)",borderRadius:6,border:"1px solid rgba(26,127,122,0.12)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+        <div style={{fontSize:10,color:teal,fontWeight:600}}>✓ Phase {selected.index+1}: {selected.title} — exercises & report personalized</div>
+        <button onClick={()=>onSelect?.(null)} style={{background:"none",border:"none",fontSize:10,color:"#AEAEB2",cursor:"pointer",textDecoration:"underline"}}>Clear</button>
+      </div>}
+
+      {/* Vertical line */}
+      <div style={{position:"absolute",left:17,top:selected?56:64,bottom:16,width:3,background:`linear-gradient(180deg, ${teal} 0%, ${teal}40 100%)`,borderRadius:2}} />
+
+      {phases.map((ph,i)=>{
+        const isSel=selIdx===i;
+        const isPast=selIdx!=null&&i<selIdx;
+        const isFuture=selIdx!=null&&i>selIdx;
+        return(
+        <div key={i}
+          onClick={()=>onSelect?.({index:i,week:ph.week,label:ph.label,title:ph.title})}
+          style={{display:"flex",gap:12,position:"relative",cursor:"pointer",opacity:isFuture?.5:1,transition:"opacity .2s"}}
+        >
+          {/* Left — week badge */}
+          <div style={{display:"flex",flexDirection:"column",alignItems:"center",width:32,flexShrink:0,zIndex:1}}>
+            <div style={{
+              width:32,height:32,borderRadius:"50%",
+              background:isSel?teal:isPast?"rgba(26,127,122,0.15)":i===phases.length-1?teal:"#fff",
+              border:`3px solid ${isSel?teal:isPast?teal+"80":teal}`,
+              display:"flex",alignItems:"center",justifyContent:"center",
+              fontSize:11,fontWeight:800,color:isSel||i===phases.length-1?"#fff":isPast?teal:teal,
+              boxShadow:isSel?"0 0 0 4px rgba(26,127,122,0.2)":"0 2px 6px rgba(26,127,122,0.15)",
+              transition:"all .2s",
+            }}>{isPast?"✓":ph.week}</div>
+            {i<phases.length-1&&<div style={{flex:1,minHeight:8}} />}
+          </div>
+
+          {/* Right — content card */}
+          <div style={{
+            flex:1,padding:"10px 12px",marginBottom:12,
+            background:isSel?"rgba(26,127,122,0.08)":isPast?"rgba(26,127,122,0.02)":"#FAFAF8",
+            borderRadius:10,
+            border:isSel?`2px solid ${teal}`:`1px solid ${isPast?"rgba(26,127,122,0.1)":"rgba(0,0,0,0.05)"}`,
+            transition:"all .2s",
+          }}>
+            <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:4}}>
+              <span style={{fontSize:16}}>{ph.icon}</span>
+              <div style={{flex:1}}>
+                <div style={{fontSize:9,fontWeight:700,color:isSel?teal:"#AEAEB2",textTransform:"uppercase",letterSpacing:.8}}>{ph.label} · Week {ph.week}</div>
+                <div style={{fontSize:12,fontWeight:700,color:"#1D1D1F"}}>{ph.title}</div>
+              </div>
+              {isSel&&<span style={{fontSize:9,fontWeight:700,color:"#fff",background:teal,padding:"2px 8px",borderRadius:4}}>YOU ARE HERE</span>}
+            </div>
+            <div style={{paddingLeft:2}}>
+              {ph.items.map((item,j)=>(
+                <div key={j} style={{display:"flex",alignItems:"flex-start",gap:6,marginBottom:2}}>
+                  <span style={{color:isSel?teal:isPast?teal+"80":"#AEAEB2",fontSize:10,marginTop:2,flexShrink:0}}>{isPast?"✓":"•"}</span>
+                  <span style={{fontSize:11,color:isPast?"#AEAEB2":isSel?"#1D1D1F":"#6E6E73",lineHeight:1.4,textDecoration:isPast?"line-through":"none"}}>{item}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        );
+      })}
+
+      {/* Text summary */}
+      <div style={{marginTop:4,padding:"8px 10px",background:"rgba(26,127,122,0.03)",borderRadius:6,border:"1px solid rgba(26,127,122,0.08)"}}>
+        <div style={{fontSize:10,color:teal,fontWeight:600,marginBottom:2}}>Timeline summary</div>
+        <div style={{fontSize:10,color:"#6E6E73",lineHeight:1.5}}>{finding.timeline}</div>
+      </div>
+    </div>
+  );
+}
+
 function Trust(){return(
   <div style={{padding:"10px 14px",background:T.sfA,borderRadius:8,border:`1px solid ${T.bd}`,marginTop:12}}>
     <div style={{fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:1.5,color:T.txL,marginBottom:6}}>Methodology</div>
@@ -847,16 +973,36 @@ function getIntakeQuestions(findings, joint){
   return qs;
 }
 
-function ReportTab({findings,onGenerateReport,onComplete,joint,onGoToExercises,paid}){
-  const[step,setStep]=useState(0);
-  const[answers,setAnswers]=useState({});
-  const[email,setEmail]=useState("");
-  const[emailSubmitted,setEmailSubmitted]=useState(false);
+function ReportTab({findings,onGenerateReport,onComplete,joint,onGoToExercises,paid,assessAnswers:existingAnswers,doctorAnswers}){
   const questions=getIntakeQuestions(findings||[],joint);
   const total=questions.length;
+  const alreadyComplete=existingAnswers!=null;
+  const[step,setStep]=useState(alreadyComplete?total+1:0);
+  const[answers,setAnswers]=useState(alreadyComplete?existingAnswers:{});
+  const[email,setEmail]=useState("");
+  const[emailSubmitted,setEmailSubmitted]=useState(false);
 
   const setAnswer=(id,val)=>setAnswers(p=>({...p,[id]:val}));
   const current=questions[step-1];
+
+  const submitEmail=()=>{
+    if(!email.includes("@"))return;
+    setEmailSubmitted(true);
+    // Fire and forget — don't block the UI
+    fetch("/api/capture-email",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        email,
+        joint:joint||"knee",
+        findings:(findings||[]).map(f=>({str:f.str,path:f.path,sev:f.sev})),
+        goals:answers.goals||[],
+        painLevel:answers.pain??null,
+        paid:!!paid,
+        timestamp:new Date().toISOString(),
+      }),
+    }).catch(()=>{}); // silently fail — email is already captured in UI
+  };
   const canNext=step===0||
     (current?.type==="yesno"&&answers[current.id]!=null)||
     (current?.type==="slider"&&answers[current.id]!=null)||
@@ -882,20 +1028,57 @@ function ReportTab({findings,onGenerateReport,onComplete,joint,onGoToExercises,p
     </div>
   );
 
+  // Count doctor question answers for this assessment
+  const docAnswerCount=Object.keys(doctorAnswers||{}).length;
+
   // ─── Intro ───
   if(step===0) return(
     <div style={{animation:"fadeIn .4s",textAlign:"center",padding:"16px 0"}}>
       <div style={{fontSize:36,marginBottom:10}}>📋</div>
       <div style={{fontSize:16,fontWeight:700,color:"#1D1D1F",marginBottom:4,fontFamily:"Georgia,serif"}}>Build Your Report</div>
       <div style={{fontSize:12,color:"#6E6E73",lineHeight:1.6,maxWidth:280,margin:"0 auto 14px"}}>
-        Answer {total} quick questions so we can personalize your report to your specific situation, goals, and medical history.
+        Personalize your report with a quick assessment. Two ways to complete it:
       </div>
+
+      {/* Dual-path explanation */}
+      <div style={{maxWidth:300,margin:"0 auto 14px",textAlign:"left"}}>
+        <div style={{display:"flex",gap:8,marginBottom:8,padding:"8px 10px",background:"rgba(0,113,227,0.03)",borderRadius:8,border:"1px solid rgba(0,113,227,0.08)"}}>
+          <span style={{fontSize:16,flexShrink:0}}>⚡</span>
+          <div>
+            <div style={{fontSize:11,fontWeight:700,color:"#0071E3"}}>Quick Assessment</div>
+            <div style={{fontSize:10,color:"#6E6E73",lineHeight:1.4,marginTop:1}}>{total} questions, ~30 seconds</div>
+          </div>
+        </div>
+        <div style={{display:"flex",gap:8,padding:"8px 10px",background:"rgba(45,139,78,0.03)",borderRadius:8,border:"1px solid rgba(45,139,78,0.08)"}}>
+          <span style={{fontSize:16,flexShrink:0}}>🩺</span>
+          <div>
+            <div style={{fontSize:11,fontWeight:700,color:"#2D8B4E"}}>Doctor Questions</div>
+            <div style={{fontSize:10,color:"#6E6E73",lineHeight:1.4,marginTop:1}}>Answer questions in each finding's detail panel — auto-completes when you answer 3+</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Progress from doctor questions */}
+      {docAnswerCount>0&&(
+        <div style={{maxWidth:300,margin:"0 auto 12px",padding:"8px 12px",background:docAnswerCount>=3?"rgba(45,139,78,0.04)":"rgba(0,113,227,0.04)",borderRadius:8,border:`1px solid ${docAnswerCount>=3?"rgba(45,139,78,0.12)":"rgba(0,113,227,0.08)"}`}}>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:4}}>
+            <span style={{fontSize:10,fontWeight:700,color:docAnswerCount>=3?"#2D8B4E":"#0071E3"}}>Doctor Questions Progress</span>
+            <span style={{fontSize:10,color:"#AEAEB2"}}>{docAnswerCount} answered</span>
+          </div>
+          <div style={{height:3,background:"#ECEAE6",borderRadius:2,overflow:"hidden"}}>
+            <div style={{width:`${Math.min(100,(docAnswerCount/3)*100)}%`,height:"100%",background:docAnswerCount>=3?"#2D8B4E":"#0071E3",borderRadius:2,transition:"width .3s"}} />
+          </div>
+          {docAnswerCount<3&&<div style={{fontSize:9,color:"#6E6E73",marginTop:4}}>Answer {3-docAnswerCount} more across any finding to auto-complete</div>}
+          {docAnswerCount>=3&&<div style={{fontSize:9,color:"#2D8B4E",marginTop:4,fontWeight:600}}>✓ Enough answers to auto-complete! Assessment will finalize automatically.</div>}
+        </div>
+      )}
+
       <ClinicalBadges />
       <button onClick={()=>setStep(1)} style={{
         background:"#0071E3",border:"none",color:"#fff",padding:"11px 32px",borderRadius:10,
         fontSize:14,fontWeight:600,cursor:"pointer",boxShadow:"0 4px 12px rgba(0,113,227,0.2)",
-      }}>Start Assessment</button>
-      <div style={{fontSize:10,color:"#AEAEB2",marginTop:10}}>Takes about 30 seconds</div>
+      }}>Start Quick Assessment</button>
+      <div style={{fontSize:10,color:"#AEAEB2",marginTop:10}}>Or keep answering doctor questions in finding details</div>
     </div>
   );
 
@@ -934,9 +1117,9 @@ function ReportTab({findings,onGenerateReport,onComplete,joint,onGoToExercises,p
               <input type="email" value={email} onChange={e=>setEmail(e.target.value)}
                 placeholder="your@email.com"
                 style={{flex:1,padding:"9px 10px",borderRadius:7,border:"1px solid rgba(0,0,0,0.1)",fontSize:12,outline:"none",background:"#fff"}}
-                onKeyDown={e=>{if(e.key==="Enter"&&email.includes("@")){setEmailSubmitted(true)}}}
+                onKeyDown={e=>{if(e.key==="Enter"&&email.includes("@"))submitEmail()}}
               />
-              <button onClick={()=>{if(email.includes("@"))setEmailSubmitted(true)}} disabled={!email.includes("@")} style={{
+              <button onClick={submitEmail} disabled={!email.includes("@")} style={{
                 padding:"9px 14px",borderRadius:7,border:"none",fontSize:11,fontWeight:700,cursor:email.includes("@")?"pointer":"not-allowed",
                 background:email.includes("@")?"#0071E3":"#ECEAE6",color:email.includes("@")?"#fff":"#AEAEB2",
               }}>→</button>
@@ -1284,14 +1467,14 @@ function TreatmentDetail({tx,finding,onClose,allFindings,paid,onUnlock}){
 }
 
 /* ═══════════════════ TABBED PANEL ═══════════════════ */
-function TabbedPanel({findings,active,onSel,mob,tab,setTab,activeEx,setActiveEx,activeTx,setActiveTx,txFinding,paid,onUnlock,assessAnswers,onAssessComplete,onGenerateReport,joint}){
+function TabbedPanel({findings,active,onSel,mob,tab,setTab,activeEx,setActiveEx,activeTx,setActiveTx,txFinding,paid,onUnlock,assessAnswers,onAssessComplete,onGenerateReport,joint,doctorAnswers,recoveryStage}){
   return(
     <>
       <TabBar tab={tab} setTab={setTab} mob={mob} paid={paid} />
       {tab==="findings"&&<Summary findings={findings} active={active} onSel={onSel} mob={mob} />}
-      {tab==="exercises"&&<PTLibrary findings={findings} onSelectFinding={onSel} activeEx={activeEx} setActiveEx={setActiveEx} assessAnswers={assessAnswers} paid={paid} onUnlock={onUnlock} onGoToReport={()=>setTab("report")} joint={joint} />}
+      {tab==="exercises"&&<PTLibrary findings={findings} onSelectFinding={onSel} activeEx={activeEx} setActiveEx={setActiveEx} assessAnswers={assessAnswers} paid={paid} onUnlock={onUnlock} onGoToReport={()=>setTab("report")} joint={joint} recoveryStage={recoveryStage} />}
       {tab==="treatments"&&<TreatmentsTab findings={findings} activeTx={activeTx} setActiveTx={(tx,f)=>setActiveTx(tx,f)} txFinding={txFinding} />}
-      {tab==="report"&&<ReportTab findings={findings} onGenerateReport={onGenerateReport} onComplete={onAssessComplete} joint={joint} onGoToExercises={()=>setTab("exercises")} paid={paid} />}
+      {tab==="report"&&<ReportTab findings={findings} onGenerateReport={onGenerateReport} onComplete={onAssessComplete} joint={joint} onGoToExercises={()=>setTab("exercises")} paid={paid} assessAnswers={assessAnswers} doctorAnswers={doctorAnswers} />}
     </>
   );
 }
@@ -1481,7 +1664,7 @@ function LockedTab({title,features,onUnlock}){
 }
 
 /* ═══════════════════ FINDING DETAIL PANE ═══════════════════ */
-function FindingDetail({finding,onClose,mob,onSelectTx,paid,onUnlock}){
+function FindingDetail({finding,onClose,mob,onSelectTx,paid,onUnlock,doctorAnswers,onDoctorAnswer,assessComplete,joint,recoveryStage,onRecoveryStage}){
   if(!finding)return null;
   const sc=T[finding.sev];
   return(
@@ -1534,40 +1717,171 @@ function FindingDetail({finding,onClose,mob,onSelectTx,paid,onUnlock}){
           <div style={{fontSize:12,lineHeight:1.6,color:"#6E6E73"}}>{finding.ctx}</div>
         </div>
 
-        {/* Self-assessment — clinical intake questions (PREMIUM) */}
+        {/* Self-assessment — interactive doctor questions (PREMIUM) */}
         {finding.selfAssess&&finding.selfAssess.length>0&&(
         <LockedSection title="Questions Your Doctor Will Ask" icon="🩺" paid={paid} onUnlock={onUnlock} previewLines={4}>
         <div style={{marginBottom:16}}>
-          <div style={{fontSize:11,lineHeight:1.5,color:"#AEAEB2",marginBottom:10}}>
-            Think about your answers before your appointment — these are the same questions a specialist would ask to evaluate this finding.
+          <div style={{fontSize:11,lineHeight:1.5,color:"#AEAEB2",marginBottom:6}}>
+            Answer these questions now — they feed into your personalized assessment and prepare you for your appointment.
           </div>
-          {finding.selfAssess.map((sa,i)=>(
-            <div key={i} style={{marginBottom:8,borderRadius:8,border:"1px solid rgba(0,0,0,0.06)",overflow:"hidden"}}>
-              <div style={{padding:"10px 12px",background:"#F5F9FE",display:"flex",gap:8,alignItems:"flex-start"}}>
-                <span style={{color:"#0071E3",fontSize:13,fontWeight:700,flexShrink:0,marginTop:1,fontFamily:"monospace"}}>{i+1}</span>
-                <span style={{fontSize:12.5,lineHeight:1.55,color:T.tx,fontWeight:600}}>{sa.q}</span>
-              </div>
-              <div style={{padding:"8px 12px 8px 32px",background:"#fff",fontSize:11,lineHeight:1.5,color:"#6E6E73",fontStyle:"italic",borderTop:"1px solid rgba(0,0,0,0.04)"}}>
-                <span style={{color:"#0071E3",fontWeight:600,fontStyle:"normal"}}>Why they ask: </span>{sa.why}
-              </div>
-            </div>
-          ))}
+          {assessComplete&&<div style={{display:"flex",alignItems:"center",gap:6,padding:"6px 10px",background:"rgba(45,139,78,0.06)",borderRadius:6,marginBottom:10,border:"1px solid rgba(45,139,78,0.1)"}}>
+            <span style={{fontSize:11}}>✅</span>
+            <span style={{fontSize:10,fontWeight:600,color:"#2D8B4E"}}>Assessment complete — your answers are personalizing your exercises and report</span>
+          </div>}
+          {(()=>{
+            const fId=finding.id||finding.str;
+            const answeredCount=finding.selfAssess.filter((_,i)=>doctorAnswers?.[`${fId}_${i}`]!=null).length;
+            const totalQ=finding.selfAssess.length;
+            return(
+              <>
+              {answeredCount>0&&!assessComplete&&<div style={{marginBottom:10}}>
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:3}}>
+                  <span style={{fontSize:9,fontWeight:700,color:"#0071E3",textTransform:"uppercase",letterSpacing:1}}>Assessment Progress</span>
+                  <span style={{fontSize:9,color:"#AEAEB2"}}>{answeredCount}/{totalQ} answered</span>
+                </div>
+                <div style={{height:3,background:"#ECEAE6",borderRadius:2,overflow:"hidden"}}>
+                  <div style={{width:`${(answeredCount/totalQ)*100}%`,height:"100%",background:"#0071E3",borderRadius:2,transition:"width .3s"}} />
+                </div>
+              </div>}
+              {finding.selfAssess.map((sa,i)=>{
+                const qKey=`${fId}_${i}`;
+                const ans=doctorAnswers?.[qKey];
+                const ansVal=ans?.val;
+                // ── Smart question type + assessment mapping ──
+                const q=sa.q;
+                const ql=q.toLowerCase();
+                // Pain severity → slider 0-10
+                const isPain=/pain|hurt|ach|sore|discomfort|tender/i.test(q)&&/worse|level|rate|how (bad|much|severe)|scale|reproduce/i.test(q);
+                // Pain location → pick area
+                const isLocation=/where.*pain|point.*spot|which (side|part|area)|location/i.test(q);
+                // Activity / sport question → multi-select tags
+                const isActivity=/what activit|what sport|which sport|important to you.*sport|play.*sport/i.test(q);
+                // Frequency / how often
+                const isFreq=/how often|how frequent|how many times|episodes/i.test(q);
+                // Severity scale (non-pain)
+                const isScale=/on a scale|rate.*confidence|how (confident|stable|comfortable|limited)/i.test(q);
+
+                let qType="yesno"; // default
+                if(isPain||isScale)qType="slider";
+                else if(isLocation)qType="location";
+                else if(isActivity)qType="tags";
+                else if(isFreq)qType="frequency";
+
+                // Assessment field mapping
+                let mapsTo="instability"; // default
+                if(isPain)mapsTo="pain";
+                else if(isActivity)mapsTo="goals";
+                else if(/prior|previous|inject|therap|surgery|treatment/i.test(q))mapsTo="prior";
+                else if(/give.?way|buckle|unstable|slip|dislocate|shift|trust/i.test(q))mapsTo="instability";
+                else if(/swell|stiff|lock|catch|click|pop|snap|grind/i.test(q))mapsTo="symptoms";
+                else if(/walk|stair|run|squat|bend|straighten|overhead|reach|raise|lift/i.test(q))mapsTo="function";
+
+                // Frequency options
+                const freqOpts=[{label:"Never",val:0},{label:"Rarely",val:1},{label:"Sometimes",val:2},{label:"Often",val:3},{label:"Daily",val:4}];
+                // Activity tags based on joint
+                const actTags=joint==="shoulder"
+                  ?["Overhead Sports","Throwing","Weightlifting","Swimming","Yoga","CrossFit","Desk Work","Daily Activities"]
+                  :["Running","Cutting/Pivoting","Weightlifting","Hiking","Cycling","Swimming","Walking","Desk Work"];
+
+                return(
+                  <div key={i} style={{marginBottom:8,borderRadius:8,border:`1px solid ${ansVal!=null?"rgba(0,113,227,0.15)":"rgba(0,0,0,0.06)"}`,overflow:"hidden",transition:"border-color .2s"}}>
+                    <div style={{padding:"10px 12px",background:ansVal!=null?"rgba(0,113,227,0.02)":"#F5F9FE",display:"flex",gap:8,alignItems:"flex-start"}}>
+                      <span style={{color:ansVal!=null?"#2D8B4E":"#0071E3",fontSize:13,fontWeight:700,flexShrink:0,marginTop:1,fontFamily:"monospace"}}>{ansVal!=null?"✓":i+1}</span>
+                      <span style={{fontSize:12.5,lineHeight:1.55,color:T.tx,fontWeight:600}}>{sa.q}</span>
+                    </div>
+                    {/* Answer controls */}
+                    <div style={{padding:"8px 12px 10px 32px",background:"#fff",borderTop:"1px solid rgba(0,0,0,0.04)"}}>
+                      {qType==="yesno"&&(
+                        <div style={{display:"flex",gap:6,marginBottom:6}}>
+                          {[{label:"Yes",val:true},{label:"No",val:false},{label:"Not sure",val:"unsure"}].map(opt=>(
+                            <button key={String(opt.val)} onClick={()=>onDoctorAnswer?.(qKey,{val:opt.val,maps:mapsTo})} style={{
+                              flex:1,padding:"7px 8px",borderRadius:7,fontSize:11,fontWeight:600,cursor:"pointer",transition:"all .15s",
+                              border:ansVal===opt.val?"2px solid #0071E3":"1px solid rgba(0,0,0,0.08)",
+                              background:ansVal===opt.val?"rgba(0,113,227,0.06)":"#fff",
+                              color:ansVal===opt.val?"#0071E3":"#6E6E73",
+                            }}>{opt.label}</button>
+                          ))}
+                        </div>
+                      )}
+                      {qType==="slider"&&(
+                        <div style={{marginBottom:6}}>
+                          <div style={{display:"flex",alignItems:"center",gap:8}}>
+                            <input type="range" min={0} max={10} step={1} value={typeof ansVal==="number"?ansVal:5}
+                              onChange={e=>onDoctorAnswer?.(qKey,{val:parseInt(e.target.value),maps:mapsTo})}
+                              style={{flex:1,accentColor:"#0071E3"}}
+                            />
+                            <span style={{fontSize:14,fontWeight:700,color:"#0071E3",minWidth:20,textAlign:"center"}}>{typeof ansVal==="number"?ansVal:"–"}</span>
+                          </div>
+                          <div style={{display:"flex",justifyContent:"space-between",fontSize:8,color:"#AEAEB2",marginTop:2}}>
+                            <span>{isPain?"No pain":"Not at all"}</span><span>Moderate</span><span>{isPain?"Severe":"Extremely"}</span>
+                          </div>
+                        </div>
+                      )}
+                      {qType==="frequency"&&(
+                        <div style={{display:"flex",gap:4,marginBottom:6,flexWrap:"wrap"}}>
+                          {freqOpts.map(opt=>(
+                            <button key={opt.val} onClick={()=>onDoctorAnswer?.(qKey,{val:opt.val,maps:mapsTo})} style={{
+                              padding:"6px 10px",borderRadius:7,fontSize:10,fontWeight:600,cursor:"pointer",transition:"all .15s",
+                              border:ansVal===opt.val?"2px solid #0071E3":"1px solid rgba(0,0,0,0.08)",
+                              background:ansVal===opt.val?"rgba(0,113,227,0.06)":"#fff",
+                              color:ansVal===opt.val?"#0071E3":"#6E6E73",
+                            }}>{opt.label}</button>
+                          ))}
+                        </div>
+                      )}
+                      {qType==="tags"&&(
+                        <div style={{display:"flex",gap:4,flexWrap:"wrap",marginBottom:6}}>
+                          {actTags.map(tag=>{
+                            const sel=Array.isArray(ansVal)?ansVal.includes(tag):false;
+                            return(
+                              <button key={tag} onClick={()=>{
+                                const cur=Array.isArray(ansVal)?[...ansVal]:[];
+                                const next=sel?cur.filter(t=>t!==tag):[...cur,tag];
+                                onDoctorAnswer?.(qKey,{val:next,maps:"goals"});
+                              }} style={{
+                                padding:"5px 9px",borderRadius:6,fontSize:10,fontWeight:600,cursor:"pointer",
+                                border:sel?"2px solid #0071E3":"1px solid rgba(0,0,0,0.08)",
+                                background:sel?"rgba(0,113,227,0.06)":"#fff",color:sel?"#0071E3":"#6E6E73",
+                              }}>{tag}</button>
+                            );
+                          })}
+                        </div>
+                      )}
+                      {qType==="location"&&(
+                        <div style={{display:"flex",gap:6,marginBottom:6}}>
+                          <input type="text" placeholder="e.g. inner knee, front of shoulder..."
+                            value={typeof ansVal==="string"?ansVal:""}
+                            onChange={e=>onDoctorAnswer?.(qKey,{val:e.target.value,maps:"symptoms"})}
+                            style={{flex:1,padding:"7px 10px",borderRadius:7,border:"1px solid rgba(0,0,0,0.1)",fontSize:11,outline:"none"}}
+                          />
+                        </div>
+                      )}
+                      <div style={{fontSize:10,lineHeight:1.5,color:"#6E6E73",fontStyle:"italic"}}>
+                        <span style={{color:"#0071E3",fontWeight:600,fontStyle:"normal"}}>Why they ask: </span>{sa.why}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+              </>
+            );
+          })()}
           <div style={{padding:"8px 10px",background:"rgba(0,113,227,0.04)",borderRadius:6,marginTop:6}}>
             <div style={{fontSize:10,lineHeight:1.5,color:"#0071E3"}}>
-              <strong>Tip:</strong> Write down your answers and bring them to your appointment.
+              <strong>Tip:</strong> Your answers here feed directly into your personalized exercise plan and report. Answer at least 3 questions across any findings to auto-complete your assessment.
             </div>
           </div>
         </div>
         </LockedSection>
         )}
 
-        {/* Expected timeline */}
+        {/* Expected timeline — visual */}
         {finding.timeline&&<div style={{marginBottom:16}}>
-          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
             <div style={{width:24,height:24,borderRadius:7,background:"rgba(45,139,78,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>⏱</div>
-            <h3 style={{fontSize:14,fontWeight:700,color:T.tx,margin:0}}>Expected Timeline</h3>
+            <h3 style={{fontSize:14,fontWeight:700,color:T.tx,margin:0}}>Recovery Timeline</h3>
           </div>
-          <div style={{padding:"12px 14px",background:"#E8F5EC",borderRadius:10,borderLeft:"3px solid #2D8B4E",fontSize:12,lineHeight:1.6,color:"#1D1D1F"}}>{finding.timeline}</div>
+          <RecoveryTimeline finding={finding} joint={joint} selected={recoveryStage} onSelect={onRecoveryStage} />
         </div>}
 
         {/* Specialist perspectives (PREMIUM) */}
@@ -1881,6 +2195,47 @@ export default function App(){
   const[paid,setPaid]=useState(false);
   const[checkingPayment,setCheckingPayment]=useState(false);
   const[assessAnswers,setAssessAnswers]=useState(null);
+  const[recoveryStage,setRecoveryStage]=useState(null); // {index, week, label, title}
+  const[doctorAnswers,setDoctorAnswers]=useState({}); // keyed by "findingId_qIndex"
+
+  // Derive assessment from doctor question answers
+  const derivedAssess=useMemo(()=>{
+    const keys=Object.keys(doctorAnswers);
+    if(keys.length<3)return null; // need at least 3 answers
+    const da={};
+    // Instability-related answers (give way, buckle, slip, dislocate)
+    const instKeys=keys.filter(k=>doctorAnswers[k]?.maps==="instability");
+    if(instKeys.length>0) da.instability=instKeys.some(k=>doctorAnswers[k].val===true);
+    // Pain-related answers (sliders)
+    const painKeys=keys.filter(k=>doctorAnswers[k]?.maps==="pain"&&typeof doctorAnswers[k].val==="number");
+    if(painKeys.length>0) da.pain=Math.round(painKeys.reduce((s,k)=>s+(doctorAnswers[k].val||0),0)/painKeys.length);
+    // Activity/goals (tag arrays)
+    const goalKeys=keys.filter(k=>doctorAnswers[k]?.maps==="goals"&&Array.isArray(doctorAnswers[k].val));
+    if(goalKeys.length>0) da.goals=[...new Set(goalKeys.flatMap(k=>doctorAnswers[k].val))];
+    // Prior treatment
+    const priorKeys=keys.filter(k=>doctorAnswers[k]?.maps==="prior");
+    if(priorKeys.length>0) da.prior=priorKeys.some(k=>doctorAnswers[k].val===true);
+    // Symptom answers (clicking, locking, catching) → infer pain if not set
+    const sympKeys=keys.filter(k=>doctorAnswers[k]?.maps==="symptoms");
+    if(sympKeys.length>0&&!da.pain) {
+      const positiveSymps=sympKeys.filter(k=>doctorAnswers[k].val===true).length;
+      da.pain=Math.min(10,positiveSymps*3+3); // rough inference
+    }
+    // Function answers (walking, stairs, overhead) → infer instability if not set
+    const funcKeys=keys.filter(k=>doctorAnswers[k]?.maps==="function");
+    if(funcKeys.length>0&&da.instability==null) {
+      da.instability=funcKeys.some(k=>doctorAnswers[k].val===false||doctorAnswers[k].val==="unsure");
+    }
+    // Auto-complete if we have at least 2 distinct assessment fields covered
+    const answered=Object.keys(da).length;
+    if(answered>=2&&keys.length>=3)return da;
+    return null;
+  },[doctorAnswers]);
+
+  // Auto-set assessAnswers from doctor questions if not already set via ReportTab
+  useEffect(()=>{
+    if(!assessAnswers&&derivedAssess){setAssessAnswers(derivedAssess)}
+  },[derivedAssess,assessAnswers]);
   const[joint,setJoint]=useState(null); // "knee"|"shoulder"|"hip"|null // null = not completed
   useEffect(()=>{const c=()=>setMob(window.innerWidth<768);c();window.addEventListener("resize",c);return()=>window.removeEventListener("resize",c)},[]);
 
@@ -1969,7 +2324,7 @@ export default function App(){
     return()=>clearInterval(iv);
   },[ri,phase,findings]);
 
-  const reset=()=>{setPhase("input");setFindings(null);setRi(-1);setActive(null);setShowH(false);setText("");setTab("findings");setActiveEx(null);setDetailFinding(null);setActiveTx(null);setTxFinding(null);setErr(null);setAssessAnswers(null);setJoint(null);setTourProgress(0)};
+  const reset=()=>{setPhase("input");setFindings(null);setRi(-1);setActive(null);setShowH(false);setText("");setTab("findings");setActiveEx(null);setDetailFinding(null);setActiveTx(null);setTxFinding(null);setErr(null);setAssessAnswers(null);setRecoveryStage(null);setDoctorAnswers({});setJoint(null);setTourProgress(0)};
   const togSel=f=>{
     const deselecting = active?.id===f.id;
     setActive(deselecting?null:f);
@@ -2050,7 +2405,7 @@ export default function App(){
     : activeTx
     ? <TreatmentDetail tx={activeTx} finding={txFinding} onClose={handleTxClose} allFindings={findings} paid={paid} onUnlock={startCheckout} />
     : detailFinding
-    ? <FindingDetail finding={detailFinding} onClose={()=>{setDetailFinding(null);setActive(null)}} mob={true} onSelectTx={selectTx} paid={paid} onUnlock={startCheckout} />
+    ? <FindingDetail finding={detailFinding} onClose={()=>{setDetailFinding(null);setActive(null)}} mob={true} onSelectTx={selectTx} paid={paid} onUnlock={startCheckout} doctorAnswers={doctorAnswers} onDoctorAnswer={(k,v)=>setDoctorAnswers(p=>({...p,[k]:v}))} assessComplete={!!assessAnswers} joint={joint} recoveryStage={recoveryStage} onRecoveryStage={setRecoveryStage} />
     : null;
 
   if(mob)return(
@@ -2095,9 +2450,9 @@ export default function App(){
             <div style={{flex:1,overflow:"auto",padding:"0 16px 16px"}}>
               {hasDetail ? mobDetailContent
                : tab==="findings" ? <Summary findings={findings} active={active} onSel={togSel} mob={true} />
-               : tab==="exercises" ? <PTLibrary findings={findings} onSelectFinding={togSel} activeEx={activeEx} setActiveEx={setActiveEx} assessAnswers={assessAnswers} paid={paid} onUnlock={startCheckout} onGoToReport={()=>onTabChange("report")} joint={joint} />
+               : tab==="exercises" ? <PTLibrary findings={findings} onSelectFinding={togSel} activeEx={activeEx} setActiveEx={setActiveEx} assessAnswers={assessAnswers} paid={paid} onUnlock={startCheckout} onGoToReport={()=>onTabChange("report")} joint={joint} recoveryStage={recoveryStage} />
                : tab==="treatments" ? <TreatmentsTab findings={findings} activeTx={activeTx} setActiveTx={selectTx} txFinding={txFinding} />
-               : tab==="report" ? <ReportTab findings={findings} onGenerateReport={(f,a,j)=>generateReport(f,j)} onComplete={(a)=>setAssessAnswers(a)} joint={joint} onGoToExercises={()=>onTabChange("exercises")} paid={paid} />
+               : tab==="report" ? <ReportTab findings={findings} onGenerateReport={(f,a,j)=>generateReport(f,j,recoveryStage)} onComplete={(a)=>setAssessAnswers(a)} joint={joint} onGoToExercises={()=>onTabChange("exercises")} paid={paid} assessAnswers={assessAnswers} doctorAnswers={doctorAnswers} />
                : null}
             </div>
           </div>}
@@ -2130,7 +2485,7 @@ export default function App(){
                   padding:"4px 10px",borderRadius:5,fontSize:9,fontWeight:600,cursor:"pointer",
                 }}>Lock</button>
               </div>}
-              <TabbedPanel findings={findings} active={active} onSel={togSel} mob={false} tab={tab} setTab={onTabChange} activeEx={activeEx} setActiveEx={setActiveEx} activeTx={activeTx} setActiveTx={selectTx} txFinding={txFinding} paid={paid} onUnlock={startCheckout} assessAnswers={assessAnswers} onAssessComplete={(a)=>setAssessAnswers(a)} onGenerateReport={(f,a,j)=>generateReport(f,j)} joint={joint} />
+              <TabbedPanel findings={findings} active={active} onSel={togSel} mob={false} tab={tab} setTab={onTabChange} activeEx={activeEx} setActiveEx={setActiveEx} activeTx={activeTx} setActiveTx={selectTx} txFinding={txFinding} paid={paid} onUnlock={startCheckout} assessAnswers={assessAnswers} onAssessComplete={(a)=>setAssessAnswers(a)} onGenerateReport={(f,a,j)=>generateReport(f,j,recoveryStage)} joint={joint} doctorAnswers={doctorAnswers} recoveryStage={recoveryStage} />
             </>}
           </div>
         </div>
@@ -2146,7 +2501,7 @@ export default function App(){
               {active&&phase==="summary"&&!detailFinding&&!activeEx&&!activeTx&&<div style={{position:"absolute",top:14,left:180,background:T.sf,padding:"7px 14px",borderRadius:9,boxShadow:"0 2px 12px rgba(0,0,0,.05)",fontSize:13,fontWeight:600,color:T.tx,zIndex:10,animation:"fadeIn .3s"}}>{active.str} <span style={{color:T[active.sev].c,fontSize:11,marginLeft:6}}>● {active.path}</span></div>}
               <div style={{position:"absolute",top:14,right:14,fontSize:10,color:T.txF,pointerEvents:"none"}}>Drag to rotate · Scroll to zoom</div>
               {phase==="input"&&<div style={{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",textAlign:"center",pointerEvents:"none"}}><div style={{fontSize:48,marginBottom:14,opacity:.15}}>🦴</div><div style={{fontSize:15,color:T.txL,fontWeight:500}}>Your 3D joint model</div><div style={{fontSize:12,color:T.txF,marginTop:6}}>Paste an MRI report to see findings visualized</div></div>}
-              {phase==="summary"&&!detailFinding&&!activeEx&&!activeTx&&<div style={{position:"absolute",bottom:20,left:20,right:20,maxWidth:440,background:paid?"#fff":"linear-gradient(135deg,#0071E3 0%,#0059B3 100%)",borderRadius:11,padding:"14px 18px",boxShadow:"0 4px 20px rgba(0,0,0,.08)",border:paid?`1px solid ${T.bd}`:"none",display:"flex",alignItems:"center",justifyContent:"space-between",zIndex:10,animation:"slideUp .5s cubic-bezier(.16,1,.3,1)"}}><div><div style={{fontSize:13,fontWeight:600,color:paid?T.tx:"#fff"}}>{paid?"Your full report is ready":"Unlock detailed analysis"}</div><div style={{fontSize:11,color:paid?T.txL:"rgba(255,255,255,0.8)",marginTop:2}}>{paid?"Specialist perspectives, exercises, questions":"Specialist insights, exercise guides, treatment deep-dives"}</div></div><button onClick={paid?()=>generateReport(findings):startCheckout} style={{background:paid?T.ac:"#fff",border:"none",color:paid?"#fff":"#0071E3",padding:"9px 18px",borderRadius:8,fontSize:12,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,marginLeft:14,boxShadow:paid?"none":"0 2px 8px rgba(0,0,0,0.15)"}}>{paid?"Download PDF":`${PRICE} — Unlock Pro`}</button></div>}
+              {phase==="summary"&&!detailFinding&&!activeEx&&!activeTx&&<div style={{position:"absolute",bottom:20,left:20,right:20,maxWidth:440,background:paid?"#fff":"linear-gradient(135deg,#0071E3 0%,#0059B3 100%)",borderRadius:11,padding:"14px 18px",boxShadow:"0 4px 20px rgba(0,0,0,.08)",border:paid?`1px solid ${T.bd}`:"none",display:"flex",alignItems:"center",justifyContent:"space-between",zIndex:10,animation:"slideUp .5s cubic-bezier(.16,1,.3,1)"}}><div><div style={{fontSize:13,fontWeight:600,color:paid?T.tx:"#fff"}}>{paid?"Your full report is ready":"Unlock detailed analysis"}</div><div style={{fontSize:11,color:paid?T.txL:"rgba(255,255,255,0.8)",marginTop:2}}>{paid?"Specialist perspectives, exercises, questions":"Specialist insights, exercise guides, treatment deep-dives"}</div></div><button onClick={paid?()=>generateReport(findings,joint,recoveryStage):startCheckout} style={{background:paid?T.ac:"#fff",border:"none",color:paid?"#fff":"#0071E3",padding:"9px 18px",borderRadius:8,fontSize:12,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,marginLeft:14,boxShadow:paid?"none":"0 2px 8px rgba(0,0,0,0.15)"}}>{paid?"Download PDF":`${PRICE} — Unlock Pro`}</button></div>}
             </div>
           }
           right={
@@ -2154,7 +2509,7 @@ export default function App(){
               ? <ExerciseDetail ex={activeEx} onClose={()=>setActiveEx(null)} mob={false} paid={paid} onUnlock={startCheckout} />
               : activeTx
               ? <TreatmentDetail tx={activeTx} finding={txFinding} onClose={handleTxClose} allFindings={findings} paid={paid} onUnlock={startCheckout} />
-              : <FindingDetail finding={detailFinding} onClose={()=>{setDetailFinding(null);setActive(null)}} mob={false} onSelectTx={selectTx} paid={paid} onUnlock={startCheckout} />
+              : <FindingDetail finding={detailFinding} onClose={()=>{setDetailFinding(null);setActive(null)}} mob={false} onSelectTx={selectTx} paid={paid} onUnlock={startCheckout} doctorAnswers={doctorAnswers} onDoctorAnswer={(k,v)=>setDoctorAnswers(p=>({...p,[k]:v}))} assessComplete={!!assessAnswers} joint={joint} recoveryStage={recoveryStage} onRecoveryStage={setRecoveryStage} />
           }
         />
       </div>
