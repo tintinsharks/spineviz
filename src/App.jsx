@@ -425,26 +425,98 @@ function Gauge({score,sev}){const s=T[sev];return(
 )}
 
 /* ═══════════════════ NARRATIVE CARD ═══════════════════ */
-function NCard({f,i,n,onN,onP,mob}){if(!f)return null;const s=T[f.sev];return(
-  <div key={f.id} style={{position:"absolute",bottom:mob?0:20,left:mob?0:20,width:mob?"100%":"min(450px,calc(100%-40px))",background:T.sf,borderRadius:mob?"14px 14px 0 0":14,boxShadow:"0 -4px 40px rgba(0,0,0,.08)",padding:mob?"18px 18px 26px":"18px 22px",zIndex:20,borderTop:mob?`3px solid ${s.c}`:"none",borderLeft:mob?"none":`4px solid ${s.c}`,animation:"slideUp .4s cubic-bezier(.16,1,.3,1)"}}>
-    <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
-      <span style={{fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:1.5,color:s.c,background:s.bg,border:`1px solid ${s.bd}`,padding:"3px 9px",borderRadius:5}}>{f.sev}</span>
-      <span style={{fontSize:11,color:T.txL,fontFamily:"monospace"}}>{i+1}/{n}</span>
+/* ═══════════════════ ANALYZING SPLASH ═══════════════════ */
+function AnalyzingSplash({joint,mob}){
+  const jLabel=joint==="shoulder"?"Shoulder":joint==="hip"?"Hip":"Knee";
+  const steps=["Parsing MRI impression","Identifying structures","Classifying pathology","Mapping severity","Building 3D model"];
+  const[step,setStep]=useState(0);
+  useEffect(()=>{const t=setInterval(()=>setStep(s=>s<steps.length-1?s+1:s),400);return()=>clearInterval(t)},[]);
+  return(
+    <div style={{position:"absolute",inset:0,zIndex:25,background:"radial-gradient(ellipse at 50% 40%,rgba(250,249,247,0.97),rgba(245,244,241,0.98))",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",animation:"fadeIn .3s"}}>
+      {/* Animated boxes and connectors */}
+      <div style={{position:"relative",width:mob?260:340,height:mob?140:160,marginBottom:20}}>
+        {/* Flow boxes */}
+        {steps.map((s,i)=>{
+          const isActive=i<=step;
+          const isCurrent=i===step;
+          const cols=mob?2:3;
+          const row=Math.floor(i/cols);
+          const col=i%cols;
+          const bw=mob?110:100;const bh=36;const gx=mob?14:16;const gy=14;
+          const x=col*(bw+gx);
+          const y=row*(bh+gy+10);
+          return(
+            <div key={i}>
+              <div style={{
+                position:"absolute",left:x,top:y,width:bw,height:bh,
+                borderRadius:8,
+                background:isCurrent?"rgba(0,113,227,0.08)":isActive?"rgba(45,139,78,0.06)":"rgba(0,0,0,0.02)",
+                border:`1.5px solid ${isCurrent?"rgba(0,113,227,0.3)":isActive?"rgba(45,139,78,0.15)":"rgba(0,0,0,0.06)"}`,
+                display:"flex",alignItems:"center",justifyContent:"center",gap:5,padding:"0 8px",
+                transition:"all .4s cubic-bezier(.16,1,.3,1)",
+                opacity:isActive?1:0.35,
+                transform:isCurrent?"scale(1.04)":"scale(1)",
+              }}>
+                <span style={{fontSize:11,fontWeight:isCurrent?700:500,color:isCurrent?"#0071E3":isActive?"#2D8B4E":"#AEAEB2",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{isActive&&i<step?"✓ ":""}{s}</span>
+              </div>
+              {/* Arrow connector */}
+              {i<steps.length-1&&(i+1)%cols!==0&&<div style={{
+                position:"absolute",left:x+bw+2,top:y+bh/2-1,width:gx-4,height:2,
+                background:i<step?"rgba(45,139,78,0.25)":"rgba(0,0,0,0.06)",
+                transition:"background .4s",
+              }}><div style={{position:"absolute",right:-2,top:-3,fontSize:8,color:i<step?"#2D8B4E":"#AEAEB2"}}>›</div></div>}
+            </div>
+          );
+        })}
+      </div>
+      {/* Status text */}
+      <div style={{textAlign:"center"}}>
+        <div style={{fontSize:mob?14:16,fontWeight:700,color:"#1D1D1F",marginBottom:4}}>Generating {jLabel} Model</div>
+        <div style={{fontSize:12,color:"#6E6E73",display:"flex",alignItems:"center",gap:6,justifyContent:"center"}}>
+          <div style={{width:14,height:14,border:"2px solid #ECEAE6",borderTopColor:"#0071E3",borderRadius:"50%",animation:"spin .7s linear infinite"}} />
+          <span>{steps[step]}...</span>
+        </div>
+      </div>
     </div>
-    <h3 style={{fontSize:17,fontWeight:700,color:T.tx,margin:"0 0 2px",fontFamily:"Georgia,serif"}}>{f.str}</h3>
-    <div style={{fontSize:13,fontWeight:600,color:s.c,marginBottom:6}}>{f.path}</div>
-    <Gauge score={f.sc} sev={f.sev} />
-    <p style={{fontSize:13.5,lineHeight:1.65,color:T.txM,margin:"10px 0 8px"}}>{f.desc}</p>
-    <div style={{fontSize:12,lineHeight:1.55,color:T.txL,padding:"7px 11px",background:"rgba(0,0,0,.02)",borderRadius:7,borderLeft:`3px solid ${s.bd}`,marginBottom:12}}>
-      <strong style={{color:T.txM}}>What you may feel: </strong>{f.imp}
+  );
+}
+
+/* ═══════════════════ FINDING TOOLTIP (auto-tour) ═══════════════════ */
+function FindingTooltip({f,i,n,mob,progress}){
+  if(!f)return null;
+  const s=T[f.sev];
+  return(
+    <div key={f.id} style={{
+      position:"absolute",bottom:mob?0:24,left:mob?0:"50%",
+      transform:mob?"none":"translateX(-50%)",
+      width:mob?"100%":"min(400px,calc(100%-60px))",
+      background:"rgba(255,255,255,0.95)",backdropFilter:"blur(16px)",
+      borderRadius:mob?"14px 14px 0 0":12,
+      boxShadow:"0 -4px 30px rgba(0,0,0,.1)",
+      padding:mob?"14px 16px 20px":"14px 18px",
+      zIndex:20,borderTop:`3px solid ${s.c}`,
+      animation:"slideUp .4s cubic-bezier(.16,1,.3,1)",
+    }}>
+      {/* Progress bar */}
+      <div style={{position:"absolute",top:0,left:0,right:0,height:3,borderRadius:"12px 12px 0 0",overflow:"hidden"}}>
+        <div style={{height:"100%",background:s.c,width:`${progress}%`,transition:"width .1s linear"}} />
+      </div>
+      <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
+        <span style={{fontSize:9,fontWeight:700,textTransform:"uppercase",letterSpacing:1.2,color:s.c,background:s.bg,border:`1px solid ${s.bd}`,padding:"2px 7px",borderRadius:4}}>{f.sev}</span>
+        <span style={{fontSize:10,color:T.txL,fontFamily:"monospace"}}>{i+1} of {n}</span>
+        <div style={{marginLeft:"auto",display:"flex",gap:3}}>
+          {Array.from({length:n}).map((_,di)=>(
+            <div key={di} style={{width:di===i?12:6,height:4,borderRadius:2,background:di===i?s.c:di<i?"rgba(0,0,0,0.15)":"rgba(0,0,0,0.06)",transition:"all .3s"}} />
+          ))}
+        </div>
+      </div>
+      <h3 style={{fontSize:16,fontWeight:700,color:T.tx,margin:"0 0 2px",fontFamily:"Georgia,serif"}}>{f.str}</h3>
+      <div style={{fontSize:12,fontWeight:600,color:s.c,marginBottom:4}}>{f.path}</div>
+      <Gauge score={f.sc} sev={f.sev} />
+      <p style={{fontSize:12.5,lineHeight:1.6,color:T.txM,margin:"8px 0 0",display:"-webkit-box",WebkitLineClamp:3,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{f.desc}</p>
     </div>
-    <p style={{fontSize:12,color:T.txL,fontStyle:"italic",margin:"0 0 12px",lineHeight:1.5}}>{f.ctx}</p>
-    <div style={{display:"flex",gap:8,justifyContent:"flex-end"}}>
-      {i>0&&<button onClick={onP} style={{padding:"7px 14px",borderRadius:7,border:`1px solid ${T.bd}`,background:T.sf,color:T.txM,fontSize:12,cursor:"pointer"}}>←</button>}
-      <button onClick={onN} style={{padding:"7px 18px",borderRadius:7,border:"none",background:T.ac,color:"#fff",fontSize:13,fontWeight:600,cursor:"pointer"}}>{i<n-1?"Next Finding →":"View Summary"}</button>
-    </div>
-  </div>
-)}
+  );
+}
 
 /* ═══════════════════ BLURRED REPORT ═══════════════════ */
 function BlurReport(){return(
@@ -478,39 +550,103 @@ function Trust(){return(
 function SpecialistFinder({joint,mob}){
   const[open,setOpen]=useState(false);
   const[zip,setZip]=useState("");
-  const[searched,setSearched]=useState(false);
+  const[loading,setLoading]=useState(false);
+  const[physicians,setPhysicians]=useState(null);
+  const[pts,setPts]=useState(null);
+  const[err,setErr]=useState(null);
 
   const jLabel=joint==="shoulder"?"Shoulder":"Knee";
+  const docQuery=`orthopedic ${jLabel.toLowerCase()} surgeon sports medicine doctor`;
+  const ptQuery=`orthopedic physical therapist sports rehabilitation`;
 
-  const physicianSearches=[
-    {icon:"🦴",label:`Orthopedic ${jLabel} Surgeon`,query:`orthopedic ${jLabel.toLowerCase()} surgeon`},
-    {icon:"⚕️",label:"Sports Medicine Physician",query:"sports medicine doctor"},
-    {icon:"💊",label:"Pain Management Specialist",query:"pain management doctor"},
-  ];
-  const ptSearches=[
-    {icon:"🏋️",label:"Orthopedic Physical Therapist",query:"orthopedic physical therapist"},
-    {icon:"🤸",label:"Sports Rehab PT",query:"sports rehabilitation physical therapy"},
-  ];
+  const fetchResults=async(query)=>{
+    try{
+      const r=await fetch(`/api/places?query=${encodeURIComponent(query+" near "+zip)}`);
+      const d=await r.json();
+      if(d.fallback)return{fallback:true,results:[]};
+      return{results:d.results||[],fallback:false};
+    }catch(e){return{results:[],fallback:false,error:true}}
+  };
 
-  const doSearch=()=>{if(zip.length>=5)setSearched(true)};
-  const mapsLink=(query)=>`https://www.google.com/maps/search/${encodeURIComponent(`${query} near ${zip}`)}`;
+  const search=async()=>{
+    if(zip.length<5)return;
+    setLoading(true);setErr(null);setPhysicians(null);setPts(null);
+    const[docRes,ptRes]=await Promise.all([fetchResults(docQuery),fetchResults(ptQuery)]);
+    if(docRes.fallback||ptRes.fallback){
+      // API key not configured — use Maps links as fallback
+      setPhysicians({fallback:true});
+      setPts({fallback:true});
+    }else{
+      setPhysicians(docRes);
+      setPts(ptRes);
+    }
+    setLoading(false);
+  };
 
-  const ResultLink=({icon,label,query})=>(
-    <a href={mapsLink(query)} target="_blank" rel="noopener noreferrer" style={{
-      display:"flex",alignItems:"center",gap:8,padding:"8px 10px",
-      borderRadius:8,border:"1px solid rgba(0,0,0,0.05)",background:"#fff",
-      textDecoration:"none",marginBottom:5,transition:"background .15s",
-    }}
-    onMouseEnter={e=>e.currentTarget.style.background="rgba(0,113,227,0.03)"}
-    onMouseLeave={e=>e.currentTarget.style.background="#fff"}
-    >
-      <span style={{fontSize:14,flexShrink:0}}>{icon}</span>
-      <div style={{flex:1,minWidth:0}}>
-        <div style={{fontSize:11,fontWeight:600,color:"#1D1D1F",lineHeight:1.3}}>{label}</div>
-        <div style={{fontSize:9,color:"#AEAEB2",marginTop:1}}>Google Maps · sorted by reviews</div>
+  const Stars=({rating})=>{
+    const full=Math.floor(rating);const half=rating-full>=0.3;
+    return <span style={{fontSize:10,letterSpacing:-1}}>{[...Array(5)].map((_,i)=><span key={i} style={{color:i<full?"#F5A623":i===full&&half?"#F5A623":"#E0E0E0"}}>{i<full?"★":i===full&&half?"★":"☆"}</span>)}</span>;
+  };
+
+  const ProviderCard=({p})=>{
+    const mUrl=`https://www.google.com/maps/place/?q=place_id:${p.placeId}`;
+    return(
+      <a href={mUrl} target="_blank" rel="noopener noreferrer" style={{
+        display:"block",padding:"8px 10px",borderRadius:8,border:"1px solid rgba(0,0,0,0.05)",
+        marginBottom:4,textDecoration:"none",transition:"background .15s",cursor:"pointer",
+      }}
+      onMouseEnter={e=>e.currentTarget.style.background="rgba(0,113,227,0.02)"}
+      onMouseLeave={e=>e.currentTarget.style.background="transparent"}
+      >
+        <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:6}}>
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{fontSize:11,fontWeight:700,color:"#1D1D1F",lineHeight:1.3,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.name}</div>
+            <div style={{fontSize:9,color:"#AEAEB2",marginTop:2,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.address}</div>
+          </div>
+          <div style={{textAlign:"right",flexShrink:0}}>
+            <div style={{display:"flex",alignItems:"center",gap:3}}>
+              <span style={{fontSize:11,fontWeight:700,color:"#1D1D1F"}}>{p.rating}</span>
+              <Stars rating={p.rating} />
+            </div>
+            <div style={{fontSize:9,color:"#AEAEB2"}}>{p.reviews.toLocaleString()} reviews</div>
+          </div>
+        </div>
+        {p.open!=null&&<div style={{marginTop:3}}><span style={{fontSize:8,fontWeight:700,color:p.open?"#2D8B4E":"#BF1029",background:p.open?"rgba(45,139,78,0.06)":"rgba(191,16,41,0.06)",padding:"1px 5px",borderRadius:3}}>{p.open?"Open now":"Closed"}</span></div>}
+      </a>
+    );
+  };
+
+  const FallbackLinks=({type})=>{
+    const specs=type==="doc"
+      ?[{icon:"🦴",label:`Orthopedic ${jLabel} Surgeon`,q:`orthopedic ${jLabel.toLowerCase()} surgeon`},{icon:"⚕️",label:"Sports Medicine",q:"sports medicine doctor"},{icon:"💊",label:"Pain Management",q:"pain management doctor"}]
+      :[{icon:"🏋️",label:"Orthopedic PT",q:"orthopedic physical therapist"},{icon:"🤸",label:"Sports Rehab PT",q:"sports rehabilitation physical therapy"}];
+    return specs.map((s,i)=>(
+      <a key={i} href={`https://www.google.com/maps/search/${encodeURIComponent(s.q+" near "+zip)}`} target="_blank" rel="noopener noreferrer" style={{
+        display:"flex",alignItems:"center",gap:8,padding:"8px 10px",borderRadius:7,border:"1px solid rgba(0,0,0,0.05)",textDecoration:"none",marginBottom:4,
+      }}>
+        <span style={{fontSize:13}}>{s.icon}</span>
+        <span style={{fontSize:11,fontWeight:600,color:"#1D1D1F",flex:1}}>{s.label}</span>
+        <span style={{fontSize:10,color:"#0071E3"}}>Maps →</span>
+      </a>
+    ));
+  };
+
+  const ResultColumn=({title,icon,iconBg,data,type})=>(
+    <div style={{flex:1,minWidth:0,display:"flex",flexDirection:"column"}}>
+      <div style={{display:"flex",alignItems:"center",gap:5,padding:"0 2px",marginBottom:6,flexShrink:0}}>
+        <div style={{width:20,height:20,borderRadius:5,background:iconBg,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11}}>{icon}</div>
+        <span style={{fontSize:11,fontWeight:700,color:"#1D1D1F"}}>{title}</span>
+        {data&&!data.fallback&&data.results?.length>0&&<span style={{fontSize:9,color:"#AEAEB2",marginLeft:"auto"}}>{data.results.length} found</span>}
       </div>
-      <span style={{fontSize:12,color:"#0071E3",flexShrink:0}}>→</span>
-    </a>
+      <div style={{flex:1,overflow:"auto",paddingRight:2}}>
+        {data?.fallback
+          ?<FallbackLinks type={type} />
+          :data?.results?.length>0
+            ?data.results.map((p,i)=><ProviderCard key={i} p={p} />)
+            :<div style={{fontSize:10,color:"#AEAEB2",padding:"12px 4px",textAlign:"center"}}>No results found nearby. Try a different ZIP code.</div>
+        }
+      </div>
+    </div>
   );
 
   if(!open)return(
@@ -526,7 +662,8 @@ function SpecialistFinder({joint,mob}){
     </button>
   );
 
-  const panelW=mob?290:540;
+  const panelW=mob?"calc(100% - 16px)":580;
+  const hasResults=physicians||pts;
 
   return(
     <div style={{
@@ -534,61 +671,62 @@ function SpecialistFinder({joint,mob}){
       width:panelW,maxWidth:"calc(100% - 16px)",
       background:"#fff",borderRadius:12,
       boxShadow:"0 8px 32px rgba(0,0,0,0.12)",border:"1px solid rgba(0,0,0,0.06)",
-      animation:"fadeIn .25s",overflow:"hidden",
+      animation:"fadeIn .25s",overflow:"hidden",display:"flex",flexDirection:"column",
+      maxHeight:mob?"80vh":"70vh",
     }}>
       {/* Header */}
-      <div style={{padding:"12px 14px 10px",borderBottom:"1px solid rgba(0,0,0,0.06)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+      <div style={{padding:"12px 14px 10px",borderBottom:"1px solid rgba(0,0,0,0.06)",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0}}>
         <div style={{display:"flex",alignItems:"center",gap:6}}>
           <span style={{fontSize:16}}>🩺</span>
           <span style={{fontSize:13,fontWeight:700,color:"#1D1D1F"}}>Find a Specialist</span>
+          {hasResults&&<span style={{fontSize:9,color:"#AEAEB2",background:"rgba(0,0,0,0.03)",padding:"2px 6px",borderRadius:3}}>within 10 mi of {zip}</span>}
         </div>
-        <button onClick={()=>{setOpen(false);setSearched(false)}} style={{background:"none",border:"none",fontSize:16,color:"#AEAEB2",cursor:"pointer",padding:"2px 4px"}}>✕</button>
+        <button onClick={()=>{setOpen(false)}} style={{background:"none",border:"none",fontSize:16,color:"#AEAEB2",cursor:"pointer",padding:"2px 4px"}}>✕</button>
       </div>
 
       {/* Zip input */}
-      <div style={{padding:"10px 14px",borderBottom:searched?"1px solid rgba(0,0,0,0.06)":"none"}}>
+      <div style={{padding:"10px 14px",borderBottom:hasResults?"1px solid rgba(0,0,0,0.06)":"none",flexShrink:0}}>
         <div style={{display:"flex",gap:6}}>
           <input type="text" value={zip} onChange={e=>setZip(e.target.value.replace(/\D/g,"").slice(0,5))}
             placeholder="Enter ZIP code" maxLength={5}
-            onKeyDown={e=>{if(e.key==="Enter")doSearch()}}
+            onKeyDown={e=>{if(e.key==="Enter")search()}}
             style={{flex:1,padding:"9px 10px",borderRadius:7,border:"1px solid rgba(0,0,0,0.1)",fontSize:13,outline:"none",letterSpacing:1,fontFamily:"monospace"}}
           />
-          <button onClick={doSearch} disabled={zip.length<5} style={{
+          <button onClick={search} disabled={zip.length<5||loading} style={{
             padding:"9px 16px",borderRadius:7,border:"none",fontSize:12,fontWeight:700,
-            background:zip.length>=5?"#0071E3":"#ECEAE6",color:zip.length>=5?"#fff":"#AEAEB2",
-            cursor:zip.length>=5?"pointer":"not-allowed",whiteSpace:"nowrap",
-          }}>Search</button>
+            background:zip.length>=5&&!loading?"#0071E3":"#ECEAE6",color:zip.length>=5&&!loading?"#fff":"#AEAEB2",
+            cursor:zip.length>=5&&!loading?"pointer":"not-allowed",whiteSpace:"nowrap",
+          }}>{loading?"Searching...":"Search"}</button>
         </div>
-        {!searched&&<div style={{fontSize:10,color:"#AEAEB2",marginTop:6,lineHeight:1.4}}>Enter your ZIP code to find top-rated specialists within 10 miles, sorted by patient reviews.</div>}
+        {!hasResults&&!loading&&<div style={{fontSize:10,color:"#AEAEB2",marginTop:6,lineHeight:1.4}}>Enter your ZIP code to find top-rated {jLabel.toLowerCase()} specialists and physical therapists within 10 miles, ranked by patient reviews.</div>}
       </div>
 
-      {/* Split results */}
-      {searched&&(
-        <div style={{display:"flex",flexDirection:mob?"column":"row",maxHeight:mob?360:320,overflow:"auto"}}>
-          {/* LEFT — Physicians */}
-          <div style={{flex:1,padding:"10px 12px",borderRight:mob?"none":"1px solid rgba(0,0,0,0.06)",borderBottom:mob?"1px solid rgba(0,0,0,0.06)":"none",minWidth:0}}>
-            <div style={{display:"flex",alignItems:"center",gap:5,marginBottom:8}}>
-              <div style={{width:20,height:20,borderRadius:5,background:"rgba(0,113,227,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11}}>👨‍⚕️</div>
-              <span style={{fontSize:11,fontWeight:700,color:"#1D1D1F"}}>Physicians</span>
-            </div>
-            {physicianSearches.map((s,i)=><ResultLink key={i} {...s} />)}
-          </div>
+      {/* Loading */}
+      {loading&&(
+        <div style={{padding:"30px 14px",textAlign:"center",flexShrink:0}}>
+          <div style={{width:24,height:24,border:"3px solid #ECEAE6",borderTopColor:"#0071E3",borderRadius:"50%",animation:"spin .8s linear infinite",margin:"0 auto 10px"}} />
+          <div style={{fontSize:11,color:"#6E6E73"}}>Finding top-rated specialists near {zip}...</div>
+        </div>
+      )}
 
+      {/* Split results */}
+      {hasResults&&!loading&&(
+        <div style={{display:"flex",flexDirection:mob?"column":"row",flex:1,overflow:"hidden",minHeight:0}}>
+          {/* LEFT — Physicians */}
+          <div style={{flex:1,padding:"10px 10px",borderRight:mob?"none":"1px solid rgba(0,0,0,0.06)",borderBottom:mob?"1px solid rgba(0,0,0,0.06)":"none",display:"flex",flexDirection:"column",overflow:"hidden",minWidth:0}}>
+            <ResultColumn title="Physicians" icon="👨‍⚕️" iconBg="rgba(0,113,227,0.08)" data={physicians} type="doc" />
+          </div>
           {/* RIGHT — Physical Therapists */}
-          <div style={{flex:1,padding:"10px 12px",minWidth:0}}>
-            <div style={{display:"flex",alignItems:"center",gap:5,marginBottom:8}}>
-              <div style={{width:20,height:20,borderRadius:5,background:"rgba(26,127,122,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11}}>🏋️</div>
-              <span style={{fontSize:11,fontWeight:700,color:"#1D1D1F"}}>Physical Therapists</span>
-            </div>
-            {ptSearches.map((s,i)=><ResultLink key={i} {...s} />)}
+          <div style={{flex:1,padding:"10px 10px",display:"flex",flexDirection:"column",overflow:"hidden",minWidth:0}}>
+            <ResultColumn title="Physical Therapists" icon="🏋️" iconBg="rgba(26,127,122,0.08)" data={pts} type="pt" />
           </div>
         </div>
       )}
 
       {/* Footer */}
-      {searched&&(
-        <div style={{padding:"8px 14px",borderTop:"1px solid rgba(0,0,0,0.04)",background:"#FAFAF8"}}>
-          <div style={{fontSize:9,color:"#AEAEB2",lineHeight:1.4}}>Results from Google Maps, sorted by relevance and reviews. ClearScan does not endorse any specific provider.</div>
+      {hasResults&&!loading&&(
+        <div style={{padding:"6px 14px",borderTop:"1px solid rgba(0,0,0,0.04)",background:"#FAFAF8",flexShrink:0}}>
+          <div style={{fontSize:8,color:"#AEAEB2",lineHeight:1.4}}>Ranked by Google rating and review count. ClearScan does not endorse any provider. Click a listing to view on Google Maps.</div>
         </div>
       )}
     </div>
@@ -1731,6 +1869,7 @@ export default function App(){
   const[phase,setPhase]=useState("input");
   const[findings,setFindings]=useState(null);
   const[ri,setRi]=useState(-1);
+  const[tourProgress,setTourProgress]=useState(0);
   const[active,setActive]=useState(null);
   const[showH,setShowH]=useState(false);
   const[mob,setMob]=useState(false);
@@ -1782,7 +1921,7 @@ export default function App(){
 
     if(isDemo){
       setJoint("knee");
-      setTimeout(()=>{pTrans();setFindings(DEMO_FD);setPhase("revealing");setRi(0)},2000);
+      setTimeout(()=>{pTrans();setFindings(DEMO_FD);setPhase("revealing");setRi(0)},2800);
     } else {
       try {
         // Detect joint type
@@ -1814,12 +1953,23 @@ export default function App(){
     }
   },[text]);
 
+  // Auto-tour: advance through findings on timer
   useEffect(()=>{
-    if(phase==="revealing"&&findings&&ri>=0&&ri<findings.length){setActive(findings[ri]);pRev(ri)}
-    if(phase==="revealing"&&findings&&ri>=findings.length){setPhase("summary");setActive(null)}
+    if(phase!=="revealing"||!findings||ri<0)return;
+    if(ri>=findings.length){setPhase("summary");setActive(null);setTourProgress(0);return}
+    setActive(findings[ri]);pRev(ri);setTourProgress(0);
+    const DWELL=3000; // ms per finding
+    const TICK=30;
+    let elapsed=0;
+    const iv=setInterval(()=>{
+      elapsed+=TICK;
+      setTourProgress(Math.min(100,(elapsed/DWELL)*100));
+      if(elapsed>=DWELL){clearInterval(iv);setRi(r=>r+1)}
+    },TICK);
+    return()=>clearInterval(iv);
   },[ri,phase,findings]);
 
-  const reset=()=>{setPhase("input");setFindings(null);setRi(-1);setActive(null);setShowH(false);setText("");setTab("findings");setActiveEx(null);setDetailFinding(null);setActiveTx(null);setTxFinding(null);setErr(null);setAssessAnswers(null);setJoint(null)};
+  const reset=()=>{setPhase("input");setFindings(null);setRi(-1);setActive(null);setShowH(false);setText("");setTab("findings");setActiveEx(null);setDetailFinding(null);setActiveTx(null);setTxFinding(null);setErr(null);setAssessAnswers(null);setJoint(null);setTourProgress(0)};
   const togSel=f=>{
     const deselecting = active?.id===f.id;
     setActive(deselecting?null:f);
@@ -1912,8 +2062,8 @@ export default function App(){
           <div style={{height:`${mobSplit}%`,position:"relative",flexShrink:0,overflow:"hidden"}}>
             <JointCanvas findings={findings} active={active} phase={phase} showH={showH} joint={joint} />
             {phase==="summary"&&<SpecialistFinder joint={joint} mob={true} />}
-            {phase==="revealing"&&<NCard f={active} i={ri} n={findings?.length||0} onN={()=>setRi(i=>i+1)} onP={()=>setRi(i=>Math.max(0,i-1))} mob={true} />}
-            {phase==="analyzing"&&<div style={{position:"absolute",inset:0,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",background:"rgba(245,244,241,.6)"}}><div style={{width:28,height:28,border:`3px solid ${T.bgD}`,borderTopColor:T.ac,borderRadius:"50%",animation:"spin .8s linear infinite"}} /><span style={{fontSize:13,color:T.txM,marginTop:10}}>Analyzing...</span></div>}
+            {phase==="revealing"&&<FindingTooltip f={active} i={ri} n={findings?.length||0} mob={true} progress={tourProgress} />}
+            {phase==="analyzing"&&<AnalyzingSplash joint={joint} mob={true} />}
           </div>
           {/* Vertical drag handle */}
           {phase==="summary"&&findings&&(
@@ -1961,10 +2111,9 @@ export default function App(){
     <div style={{width:"100%",height:"100vh",background:T.bg,display:"flex",flexDirection:"column",overflow:"hidden"}}>
       {styles}{hdr}
       <div style={{flex:1,display:"flex",overflow:"hidden"}}>
-        <div style={{width:phase==="revealing"?0:(phase==="input"?400:360),borderRight:phase==="revealing"?"none":`1px solid ${T.bd}`,display:"flex",flexDirection:"column",flexShrink:0,background:T.sf,transition:"width .5s cubic-bezier(.16,1,.3,1)",overflow:"hidden"}}>
+        <div style={{width:phase==="revealing"||phase==="analyzing"?0:(phase==="input"?400:360),borderRight:phase==="revealing"||phase==="analyzing"?"none":`1px solid ${T.bd}`,display:"flex",flexDirection:"column",flexShrink:0,background:T.sf,transition:"width .5s cubic-bezier(.16,1,.3,1)",overflow:"hidden"}}>
           <div style={{padding:"22px 20px",display:"flex",flexDirection:"column",flex:1,overflow:"auto",minWidth:phase==="input"?400:360}}>
             {phase==="input"&&inputUI()}
-            {phase==="analyzing"&&<div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:12}}><div style={{width:32,height:32,border:`3px solid ${T.bgD}`,borderTopColor:T.ac,borderRadius:"50%",animation:"spin .8s linear infinite"}} /><span style={{fontSize:14,color:T.txM,fontWeight:500}}>Analyzing your MRI report...</span><span style={{fontSize:12,color:T.txL}}>Building your visualization</span></div>}
             {phase==="summary"&&findings&&<>
               {!paid&&<div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10,padding:"6px 10px",background:"linear-gradient(135deg,rgba(0,113,227,0.06),rgba(0,89,179,0.04))",borderRadius:8,border:"1px solid rgba(0,113,227,0.1)"}}>
                 <span style={{fontSize:11,color:"#0071E3",fontWeight:600}}>Preview Mode</span>
@@ -1991,7 +2140,8 @@ export default function App(){
           left={
             <div style={{width:"100%",height:"100%",position:"relative",background:`radial-gradient(ellipse at 50% 40%,#faf9f7 0%,${T.bg} 100%)`}}>
               <JointCanvas findings={findings} active={active} phase={phase} showH={showH} joint={joint} />
-              {phase==="revealing"&&<NCard f={active} i={ri} n={findings?.length||0} onN={()=>setRi(i=>i+1)} onP={()=>setRi(i=>Math.max(0,i-1))} mob={false} />}
+              {phase==="analyzing"&&<AnalyzingSplash joint={joint} mob={false} />}
+              {phase==="revealing"&&<FindingTooltip f={active} i={ri} n={findings?.length||0} mob={false} progress={tourProgress} />}
               {phase==="summary"&&<SpecialistFinder joint={joint} mob={false} />}
               {active&&phase==="summary"&&!detailFinding&&!activeEx&&!activeTx&&<div style={{position:"absolute",top:14,left:180,background:T.sf,padding:"7px 14px",borderRadius:9,boxShadow:"0 2px 12px rgba(0,0,0,.05)",fontSize:13,fontWeight:600,color:T.tx,zIndex:10,animation:"fadeIn .3s"}}>{active.str} <span style={{color:T[active.sev].c,fontSize:11,marginLeft:6}}>● {active.path}</span></div>}
               <div style={{position:"absolute",top:14,right:14,fontSize:10,color:T.txF,pointerEvents:"none"}}>Drag to rotate · Scroll to zoom</div>
