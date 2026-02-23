@@ -281,12 +281,90 @@ function buildKnee(){
   return g;
 }
 
+function buildShoulder(){
+  const g=new THREE.Group();
+  const mk=(geo,col,n,p,r,s,op)=>{const mt=new THREE.MeshStandardMaterial({color:col,roughness:.4,metalness:.02,transparent:op!=null,opacity:op??1});const m=new THREE.Mesh(geo,mt);if(p)m.position.set(...p);if(r)m.rotation.set(...r);if(s)m.scale.set(...s);m.name=n;g.add(m);return m;};
+
+  // Scapula body (flat triangular plate)
+  const scapGeo=new THREE.BoxGeometry(1.4,1.8,.08);
+  mk(scapGeo,T.hBone,"scapula_body",[-0.3,0.4,-0.6],[0,0.15,0]);
+
+  // Glenoid (socket face)
+  const glenGeo=new THREE.SphereGeometry(.32,20,16);glenGeo.scale(.8,1,.5);
+  mk(glenGeo,T.hBone,"glenoid",[0.15,0.5,-.15],[0,0.2,0]);
+
+  // Acromion (shelf over top)
+  const acromGeo=new THREE.BoxGeometry(.8,.08,.35);
+  mk(acromGeo,T.hBone,"acromion",[0,1.35,0.05],[0,0,-0.08]);
+
+  // Clavicle
+  const clavCurve=new THREE.QuadraticBezierCurve3(new THREE.Vector3(-0.7,1.4,0.1),new THREE.Vector3(0.1,1.5,0.15),new THREE.Vector3(0.8,1.35,0));
+  mk(new THREE.TubeGeometry(clavCurve,20,.06,10),T.hBone,"clavicle");
+
+  // AC joint (small sphere at acromion-clavicle junction)
+  mk(new THREE.SphereGeometry(.07,10,8),T.hLig,"ac_joint",[0.05,1.38,0.05]);
+
+  // Humeral head (ball)
+  const hh=new THREE.SphereGeometry(.48,24,20);hh.scale(1,.95,.9);
+  mk(hh,T.hBone,"humeral_head",[0.35,0.55,0.2]);
+
+  // Humeral shaft
+  mk(new THREE.CylinderGeometry(.14,.12,2.8,16),T.hBone,"humerus",[0.4,-1.0,0.25],[0,0,0.06]);
+
+  // Labrum (ring around glenoid)
+  mk(new THREE.TorusGeometry(.3,.045,12,32),T.hCart,"labrum",[0.15,0.5,-.05],[0,0.2,0],null,.8);
+
+  // Capsule (transparent shell around joint)
+  const capGeo=new THREE.SphereGeometry(.65,20,16);capGeo.scale(1.1,1,.9);
+  mk(capGeo,0xd8d0c8,"capsule",[0.25,0.5,0.05],null,null,.12);
+
+  // Supraspinatus (tendon over top of humeral head)
+  const supCurve=new THREE.QuadraticBezierCurve3(new THREE.Vector3(-0.4,1.0,-0.3),new THREE.Vector3(0.0,1.1,0.0),new THREE.Vector3(0.35,0.95,0.15));
+  mk(new THREE.TubeGeometry(supCurve,20,.055,10),T.hLig,"supraspinatus");
+
+  // Infraspinatus (tendon on back)
+  const infCurve=new THREE.QuadraticBezierCurve3(new THREE.Vector3(-0.5,0.5,-0.6),new THREE.Vector3(-0.1,0.6,-0.3),new THREE.Vector3(0.3,0.55,0.0));
+  mk(new THREE.TubeGeometry(infCurve,20,.05,10),T.hLig,"infraspinatus");
+
+  // Subscapularis (tendon on front)
+  const subCurve=new THREE.QuadraticBezierCurve3(new THREE.Vector3(-0.3,0.3,0.0),new THREE.Vector3(0.0,0.45,0.25),new THREE.Vector3(0.3,0.5,0.35));
+  mk(new THREE.TubeGeometry(subCurve,20,.05,10),T.hLig,"subscapularis");
+
+  // Teres minor (tendon below infraspinatus)
+  const tmCurve=new THREE.QuadraticBezierCurve3(new THREE.Vector3(-0.4,0.1,-0.5),new THREE.Vector3(-0.05,0.2,-0.2),new THREE.Vector3(0.3,0.3,0.05));
+  mk(new THREE.TubeGeometry(tmCurve,20,.04,10),T.hLig,"teres_minor");
+
+  // Biceps tendon (long head — through groove)
+  const bicCurve=new THREE.QuadraticBezierCurve3(new THREE.Vector3(0.15,0.85,-.05),new THREE.Vector3(0.38,0.6,0.3),new THREE.Vector3(0.42,-0.1,0.35));
+  mk(new THREE.TubeGeometry(bicCurve,20,.025,8),0xc8b8a8,"biceps_tendon");
+
+  // Effusion (fluid in joint — hidden by default)
+  const efGeo=new THREE.SphereGeometry(.4,16,12);efGeo.scale(.9,.7,.7);
+  mk(efGeo,T.hFlu,"effusion",[0.25,0.5,0.1],null,null,0);
+
+  return g;
+}
+
+const JOINT_BUILDERS = { knee: buildKnee, shoulder: buildShoulder };
+const JOINT_DEFAULTS = {
+  knee:     { pos:[3.5,1.5,3.5], tgt:[0,.2,0], sumPos:[3,1.2,3], sumTgt:[0,.1,0] },
+  shoulder: { pos:[3,2,3.5],     tgt:[0.1,0.5,0], sumPos:[2.5,1.5,3], sumTgt:[0.1,0.5,0] },
+};
+
 /* ═══════════════════ 3D CANVAS ═══════════════════ */
-function KneeCanvas({findings,active,phase,showH}){
-  const ref=useRef(),rr=useRef({}),cm=useRef({pos:new THREE.Vector3(3.5,1.5,3.5),tgt:new THREE.Vector3(0,.2,0),pT:new THREE.Vector3(3.5,1.5,3.5),tT:new THREE.Vector3(0,.2,0)}),ob=useRef({ry:0,rx:0,dn:false,lx:0,ly:0});
+function JointCanvas({findings,active,phase,showH,joint}){
+  const ref=useRef(),rr=useRef({}),cm=useRef(null),ob=useRef({ry:0,rx:0,dn:false,lx:0,ly:0});
+  const currentJoint=useRef(null);
 
   useEffect(()=>{
-    const el=ref.current;if(!el)return;let W=el.clientWidth,H=el.clientHeight;
+    const el=ref.current;if(!el)return;
+    const j=joint||"knee";
+    const def=JOINT_DEFAULTS[j]||JOINT_DEFAULTS.knee;
+
+    // Init camera manager
+    cm.current={pos:new THREE.Vector3(...def.pos),tgt:new THREE.Vector3(...def.tgt),pT:new THREE.Vector3(...def.pos),tT:new THREE.Vector3(...def.tgt)};
+
+    let W=el.clientWidth,H=el.clientHeight;
     const r=new THREE.WebGLRenderer({antialias:true});r.setSize(W,H);r.setPixelRatio(Math.min(devicePixelRatio,2));
     r.toneMapping=THREE.ACESFilmicToneMapping;r.toneMappingExposure=1.15;r.setClearColor(0xf5f4f1);el.appendChild(r.domElement);
     const sc=new THREE.Scene();sc.fog=new THREE.Fog(0xf5f4f1,10,22);
@@ -297,10 +375,13 @@ function KneeCanvas({findings,active,phase,showH}){
     sc.add(new THREE.DirectionalLight(0xf0e8e0,.25).position.set(0,-2,-4));
     const gm=new THREE.Mesh(new THREE.PlaneGeometry(20,20),new THREE.MeshStandardMaterial({color:0xeceae6,roughness:1}));
     gm.rotation.x=-Math.PI/2;gm.position.y=-3.2;sc.add(gm);
-    const knee=buildKnee();sc.add(knee);
-    const ms={};knee.traverse(c=>{if(c.isMesh){ms[c.name]=c;c.userData.oC=c.material.color.clone();c.userData.oO=c.material.opacity;c.userData.oE=c.material.emissive?.clone()||new THREE.Color(0)}});
+
+    const builder=JOINT_BUILDERS[j]||JOINT_BUILDERS.knee;
+    const model=builder();sc.add(model);currentJoint.current=j;
+
+    const ms={};model.traverse(c=>{if(c.isMesh){ms[c.name]=c;c.userData.oC=c.material.color.clone();c.userData.oO=c.material.opacity;c.userData.oE=c.material.emissive?.clone()||new THREE.Color(0)}});
     rr.current={r,sc,ca,ms};
-    const o=ob.current;
+    const o=ob.current;o.ry=0;o.rx=0;
     const pd=e=>{o.dn=true;o.lx=e.clientX??e.touches?.[0]?.clientX;o.ly=e.clientY??e.touches?.[0]?.clientY};
     const pm=e=>{if(!o.dn)return;const cx=e.clientX??e.touches?.[0]?.clientX,cy=e.clientY??e.touches?.[0]?.clientY;o.ry+=(cx-o.lx)*.005;o.rx=Math.max(-.5,Math.min(.5,o.rx+(cy-o.ly)*.003));o.lx=cx;o.ly=cy};
     const pu=()=>{o.dn=false};
@@ -310,9 +391,15 @@ function KneeCanvas({findings,active,phase,showH}){
     window.addEventListener("resize",onR);
     let raf;const anim=()=>{raf=requestAnimationFrame(anim);const c2=cm.current;if(!o.dn)o.ry+=.0006;const rad=c2.pT.length();const op=new THREE.Vector3(Math.sin(o.ry)*rad*Math.cos(o.rx),c2.pT.y+Math.sin(o.rx)*rad*.5,Math.cos(o.ry)*rad*Math.cos(o.rx));c2.pos.lerp(op,.04);c2.tgt.lerp(c2.tT,.04);ca.position.copy(c2.pos);ca.lookAt(c2.tgt);r.render(sc,ca)};anim();
     return()=>{cancelAnimationFrame(raf);window.removeEventListener("resize",onR);r.dispose();if(el.contains(r.domElement))el.removeChild(r.domElement)};
-  },[]);
+  },[joint]);
 
-  useEffect(()=>{const c2=cm.current;if(active?.cam){c2.pT.set(...active.cam.p);c2.tT.set(...active.cam.t)}else if(phase==="summary"){c2.pT.set(3,1.2,3);c2.tT.set(0,.1,0)}else{c2.pT.set(3.5,1.5,3.5);c2.tT.set(0,.2,0)}},[active,phase]);
+  useEffect(()=>{
+    const c2=cm.current;if(!c2)return;
+    const j=joint||"knee";const def=JOINT_DEFAULTS[j]||JOINT_DEFAULTS.knee;
+    if(active?.cam){c2.pT.set(...active.cam.p);c2.tT.set(...active.cam.t)}
+    else if(phase==="summary"){c2.pT.set(...def.sumPos);c2.tT.set(...def.sumTgt)}
+    else{c2.pT.set(...def.pos);c2.tT.set(...def.tgt)}
+  },[active,phase,joint]);
 
   useEffect(()=>{
     const{ms}=rr.current;if(!ms)return;
@@ -1599,6 +1686,7 @@ export default function App(){
         <div style={{width:mob?26:30,height:mob?26:30,borderRadius:mob?7:9,background:"linear-gradient(135deg,#0071E3,#5BA3F5)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:mob?13:15,fontWeight:800,color:"#fff"}}>C</div>
         <span style={{fontSize:mob?15:16,fontWeight:700,color:T.tx}}>ClearScan</span>
         {!mob&&<span style={{fontSize:11,color:T.txL,fontWeight:500,marginLeft:4}}>MRI Interpreter</span>}
+        {joint&&phase!=="input"&&<span style={{fontSize:9,fontWeight:700,color:"#0071E3",background:"rgba(0,113,227,0.07)",padding:"3px 8px",borderRadius:4,marginLeft:6,textTransform:"uppercase",letterSpacing:.5}}>{joint==="knee"?"🦵 Knee":joint==="shoulder"?"💪 Shoulder":joint==="hip"?"🦴 Hip":joint}</span>}
       </div>
       <div style={{display:"flex",alignItems:"center",gap:6}}>
         {phase==="summary"&&findings&&<button onClick={hBtn} style={{background:showH?T.ac:T.sf,border:`1px solid ${showH?T.ac:T.bdM}`,color:showH?"#fff":T.txM,padding:mob?"5px 10px":"6px 14px",borderRadius:7,fontSize:11,fontWeight:500,cursor:"pointer",transition:"all .2s"}}>{showH?"✓ Healthy":"Compare Healthy"}</button>}
@@ -1654,7 +1742,7 @@ export default function App(){
         <div ref={mobContainerRef} style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden",position:"relative"}}>
           {/* 3D Viewport */}
           <div style={{height:`${mobSplit}%`,position:"relative",flexShrink:0,overflow:"hidden"}}>
-            <KneeCanvas findings={findings} active={active} phase={phase} showH={showH} />
+            <JointCanvas findings={findings} active={active} phase={phase} showH={showH} joint={joint} />
             {phase==="revealing"&&<NCard f={active} i={ri} n={findings?.length||0} onN={()=>setRi(i=>i+1)} onP={()=>setRi(i=>Math.max(0,i-1))} mob={true} />}
             {phase==="analyzing"&&<div style={{position:"absolute",inset:0,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",background:"rgba(245,244,241,.6)"}}><div style={{width:28,height:28,border:`3px solid ${T.bgD}`,borderTopColor:T.ac,borderRadius:"50%",animation:"spin .8s linear infinite"}} /><span style={{fontSize:13,color:T.txM,marginTop:10}}>Analyzing...</span></div>}
           </div>
@@ -1733,7 +1821,7 @@ export default function App(){
           defaultPct={50} minPct={30} maxPct={70}
           left={
             <div style={{width:"100%",height:"100%",position:"relative",background:`radial-gradient(ellipse at 50% 40%,#faf9f7 0%,${T.bg} 100%)`}}>
-              <KneeCanvas findings={findings} active={active} phase={phase} showH={showH} />
+              <JointCanvas findings={findings} active={active} phase={phase} showH={showH} joint={joint} />
               {phase==="revealing"&&<NCard f={active} i={ri} n={findings?.length||0} onN={()=>setRi(i=>i+1)} onP={()=>setRi(i=>Math.max(0,i-1))} mob={false} />}
               {active&&phase==="summary"&&!detailFinding&&!activeEx&&!activeTx&&<div style={{position:"absolute",top:14,left:14,background:T.sf,padding:"7px 14px",borderRadius:9,boxShadow:"0 2px 12px rgba(0,0,0,.05)",fontSize:13,fontWeight:600,color:T.tx,zIndex:10,animation:"fadeIn .3s"}}>{active.str} <span style={{color:T[active.sev].c,fontSize:11,marginLeft:6}}>● {active.path}</span></div>}
               <div style={{position:"absolute",top:14,right:14,fontSize:10,color:T.txF,pointerEvents:"none"}}>Drag to rotate · Scroll to zoom</div>
