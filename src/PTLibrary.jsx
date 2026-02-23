@@ -460,7 +460,7 @@ export default function PTLibrary({ findings, onSelectFinding, activeEx, setActi
       {/* Attribution */}
       <div style={{ padding: "8px 10px", background: "#FAFAF8", borderRadius: 6, marginTop: 12 }}>
         <div style={{ fontSize: 9, fontWeight: 600, color: "#AEAEB2" }}>
-          Exercise protocols designed by the ClearScan Physical Therapy Advisory Team following AAOS and APTA clinical guidelines.
+          Exercise protocols reviewed by the ClearScan Clinical Advisory Panel (Orthopedics, PM&R, Physical Therapy) following AAOS and APTA guidelines.
         </div>
       </div>
     </div>

@@ -96,9 +96,9 @@ const CONTENT = {
     imp: "Instability during cutting, pivoting, or sudden stops. Walking and cycling typically unaffected.",
     ctx: "About 200,000 ACL injuries occur annually in the US. Treatment depends on your activity goals — many return to full activity with structured rehabilitation.",
     lenses: [
-      { spec: "Sports Medicine Ortho", color: "#0071E3", text: "The decision between surgical reconstruction and conservative management depends heavily on your activity goals. For patients wanting to return to cutting/pivoting sports, reconstruction is generally recommended. For straight-line activities, structured PT may restore functional stability without surgery." },
-      { spec: "Pain Medicine", color: "#6B3FA0", text: "The ACL itself is often not the primary pain generator after the acute phase. Much of the ongoing pain may come from associated bone bruising, effusion, and altered biomechanics. If pain persists beyond expectations, there may be interventional options worth discussing." },
-      { spec: "Physiatry / Rehab", color: "#2D8B4E", text: "Regardless of whether surgery is pursued, early rehabilitation focusing on quad activation, ROM restoration, and swelling control is universally recommended. \"Prehab\" before surgery is associated with better post-operative outcomes." },
+      { spec: "Orthopedics — Sports Medicine", color: "#0071E3", text: "The decision between surgical reconstruction and conservative management depends heavily on your activity goals. For patients wanting to return to cutting/pivoting sports, reconstruction is generally recommended. For straight-line activities, structured PT may restore functional stability without surgery." },
+      { spec: "PM&R — Pain Management", color: "#6B3FA0", text: "The ACL itself is often not the primary pain generator after the acute phase. Much of the ongoing pain may come from associated bone bruising, effusion, and altered biomechanics. If pain persists beyond expectations, there may be interventional options worth discussing." },
+      { spec: "PM&R — Sports Medicine", color: "#2D8B4E", text: "Regardless of whether surgery is pursued, early rehabilitation focusing on quad activation, ROM restoration, and swelling control is universally recommended. \"Prehab\" before surgery is associated with better post-operative outcomes." },
     ],
     questions: ["Based on my age and activity level, would you recommend reconstruction or PT?", "If I pursue PT first, what signs would tell us surgery is needed?", "What graft type would you recommend, and why?", "What is the realistic timeline for returning to my specific activities?", "Are there factors in my MRI that make my case more complex than typical?"],
     timeline: "Conservative: 3-6 months structured PT. Surgical: 6-9 months total recovery, return to sport 9-12 months.",
@@ -123,9 +123,9 @@ const CONTENT = {
     imp: "Pain along the inner knee line, especially with deep squats, twisting, or stair climbing. Possible catching or locking.",
     ctx: "Meniscal tears are among the most common knee findings. Many respond well to physical therapy without surgery.",
     lenses: [
-      { spec: "Sports Medicine Ortho", color: "#0071E3", text: "Many meniscal tears can be managed conservatively. If ACL reconstruction is pursued, the meniscus is typically evaluated during the same procedure. The key question is whether this tear is stable or unstable." },
+      { spec: "Orthopedics — Sports Medicine", color: "#0071E3", text: "Many meniscal tears can be managed conservatively. If ACL reconstruction is pursued, the meniscus is typically evaluated during the same procedure. The key question is whether this tear is stable or unstable." },
       { spec: "Physical Therapy", color: "#1A7F7A", text: "Targeted strengthening of quadriceps and hip musculature reduces mechanical load through the medial compartment. Avoid deep squatting and pivoting until cleared." },
-      { spec: "Trauma Ortho", color: "#C45D00", text: "Options range from partial meniscectomy (trimming) to meniscal repair (suturing). Repair is preferred when feasible, as preserving meniscal tissue protects the joint long-term." },
+      { spec: "Orthopedics — Trauma", color: "#C45D00", text: "Options range from partial meniscectomy (trimming) to meniscal repair (suturing). Repair is preferred when feasible, as preserving meniscal tissue protects the joint long-term." },
     ],
     questions: ["Is my meniscal tear contributing to symptoms, or could it be managed conservatively?", "If surgery is needed, would you repair or trim?", "How does this affect the rehabilitation timeline?"],
     timeline: "Conservative: 3-6 weeks to return to most activities. Post-repair: 4-6 weeks restricted weight-bearing, 3-4 months full recovery.",
@@ -153,8 +153,8 @@ const CONTENT = {
     imp: "Stiffness, tightness, difficulty fully bending or straightening. May feel warm and puffy.",
     ctx: "Expected after acute injury. Improves with RICE (rest, ice, compression, elevation) over 2-4 weeks.",
     lenses: [
-      { spec: "Physiatry / Rehab", color: "#2D8B4E", text: "Reducing effusion is the most important early goal because swelling directly inhibits quad activation (arthrogenic muscle inhibition)." },
-      { spec: "Pain Medicine", color: "#6B3FA0", text: "If effusion persists beyond 4-6 weeks despite conservative measures, aspiration with or without corticosteroid injection may be considered." },
+      { spec: "PM&R — Sports Medicine", color: "#2D8B4E", text: "Reducing effusion is the most important early goal because swelling directly inhibits quad activation (arthrogenic muscle inhibition)." },
+      { spec: "PM&R — Pain Management", color: "#6B3FA0", text: "If effusion persists beyond 4-6 weeks despite conservative measures, aspiration with or without corticosteroid injection may be considered." },
     ],
     questions: ["Should the fluid be drained?", "What's normal vs. concerning swelling at this stage?", "How will this affect my rehabilitation?"],
     timeline: "Acute effusion typically resolves in 2-4 weeks with RICE. Persistent effusion beyond 6 weeks may warrant aspiration.",
@@ -180,7 +180,7 @@ const CONTENT = {
     imp: "Occasional dull ache with prolonged sitting or weight-bearing. Mild grinding sensation possible.",
     ctx: "Very common and frequently incidental in adults over 30. Quadriceps strengthening is the most effective conservative treatment.",
     lenses: [
-      { spec: "Pain Medicine", color: "#6B3FA0", text: "Early cartilage changes are found on a very large proportion of knee MRIs, often with no symptoms at all. This finding may be incidental — discuss with your physician." },
+      { spec: "PM&R — Pain Management", color: "#6B3FA0", text: "Early cartilage changes are found on a very large proportion of knee MRIs, often with no symptoms at all. This finding may be incidental — discuss with your physician." },
       { spec: "Physical Therapy", color: "#1A7F7A", text: "The strongest evidence for managing early cartilage changes is quadriceps and gluteal strengthening, which reduces compressive load. Low-impact activities like cycling and swimming are well-tolerated." },
     ],
     questions: ["Is this cartilage finding causing my pain, or is it incidental?", "Will this get worse over time?", "Are there any injections worth considering?"],
@@ -205,8 +205,8 @@ const CONTENT = {
     imp: "Deep, aching pain that gradually fades over 6-12 weeks. No specific treatment required.",
     ctx: "Present in over 80% of acute ACL injuries. Resolves on its own within 2-3 months.",
     lenses: [
-      { spec: "Trauma Ortho", color: "#C45D00", text: "Bone bruise patterns confirm the mechanism of injury and help with surgical planning. Does not require specific treatment." },
-      { spec: "Pain Medicine", color: "#6B3FA0", text: "Bone bruises can be a significant pain source early on. If pain is disproportionate, discuss weight-bearing modifications or anti-inflammatory strategies." },
+      { spec: "Orthopedics — Trauma", color: "#C45D00", text: "Bone bruise patterns confirm the mechanism of injury and help with surgical planning. Does not require specific treatment." },
+      { spec: "PM&R — Pain Management", color: "#6B3FA0", text: "Bone bruises can be a significant pain source early on. If pain is disproportionate, discuss weight-bearing modifications or anti-inflammatory strategies." },
     ],
     questions: ["Is this bruise pattern typical for my injury?", "Will this affect surgical timing?", "Do I need to limit weight-bearing?"],
     timeline: "Typically resolves in 2-3 months. Pain improves significantly within 4-6 weeks.",
@@ -232,8 +232,8 @@ const CONTENT = {
     imp: "Pain in the back of the knee. Instability when going downhill or decelerating. Often less obvious than ACL instability.",
     ctx: "PCL injuries are less common than ACL tears. Many can be managed conservatively unless combined with other ligament injuries.",
     lenses: [
-      { spec: "Sports Medicine Ortho", color: "#0071E3", text: "Isolated PCL injuries often heal well with bracing and PT. Combined PCL + posterolateral corner injuries are more complex and may require surgery." },
-      { spec: "Physiatry / Rehab", color: "#2D8B4E", text: "Quadriceps strengthening is the most important exercise for PCL-deficient knees — strong quads counteract posterior tibial translation." },
+      { spec: "Orthopedics — Sports Medicine", color: "#0071E3", text: "Isolated PCL injuries often heal well with bracing and PT. Combined PCL + posterolateral corner injuries are more complex and may require surgery." },
+      { spec: "PM&R — Sports Medicine", color: "#2D8B4E", text: "Quadriceps strengthening is the most important exercise for PCL-deficient knees — strong quads counteract posterior tibial translation." },
     ],
     questions: ["Is this an isolated PCL injury or combined with other structures?", "Do I need a brace?", "What is the likelihood this heals without surgery?"],
     timeline: "Isolated Grade 1-2: 4-8 weeks. Grade 3 or combined: may require surgery with 6-9 month recovery.",
@@ -253,7 +253,7 @@ const CONTENT = {
     imp: "Pain on the inner side of the knee, especially with valgus stress. Swelling along the inner knee.",
     ctx: "MCL injuries are common and almost always heal without surgery, even complete tears.",
     lenses: [
-      { spec: "Sports Medicine Ortho", color: "#0071E3", text: "The MCL has excellent healing potential. Even Grade 3 (complete) tears typically heal with bracing and PT. Surgery is only considered if healing fails or if combined with other injuries requiring surgery." },
+      { spec: "Orthopedics — Sports Medicine", color: "#0071E3", text: "The MCL has excellent healing potential. Even Grade 3 (complete) tears typically heal with bracing and PT. Surgery is only considered if healing fails or if combined with other injuries requiring surgery." },
     ],
     questions: ["What grade is my MCL injury?", "Do I need a brace?", "When can I return to activity?"],
     timeline: "Grade 1: 1-2 weeks. Grade 2: 3-6 weeks. Grade 3: 6-8 weeks.",
@@ -271,8 +271,8 @@ const CONTENT = {
     imp: "Pain on the outer side of the knee. May feel unstable with lateral stress or pivoting.",
     ctx: "LCL injuries are less common than MCL injuries and are more likely to be associated with other ligament damage (posterolateral corner).",
     lenses: [
-      { spec: "Sports Medicine Ortho", color: "#0071E3", text: "Isolated LCL injuries can often be managed conservatively. However, LCL tears frequently occur with posterolateral corner injuries, which may require surgical repair for optimal outcomes." },
-      { spec: "Physiatry / Rehab", color: "#2D8B4E", text: "Strengthening of the lateral stabilizers — IT band, lateral hamstrings, and peroneals — helps compensate for LCL laxity during conservative management." },
+      { spec: "Orthopedics — Sports Medicine", color: "#0071E3", text: "Isolated LCL injuries can often be managed conservatively. However, LCL tears frequently occur with posterolateral corner injuries, which may require surgical repair for optimal outcomes." },
+      { spec: "PM&R — Sports Medicine", color: "#2D8B4E", text: "Strengthening of the lateral stabilizers — IT band, lateral hamstrings, and peroneals — helps compensate for LCL laxity during conservative management." },
     ],
     questions: ["Is this an isolated LCL injury or part of a posterolateral corner injury?", "Do I need surgical repair?", "Will bracing be sufficient?"],
     timeline: "Isolated Grade 1-2: 3-6 weeks. Grade 3 or combined: may require surgery with 4-6 month recovery.",
@@ -292,7 +292,7 @@ const CONTENT = {
     imp: "Pain above the kneecap, especially with straightening the knee against resistance or going downstairs.",
     ctx: "Quadriceps tendon pathology ranges from tendinosis (degeneration) to partial or complete tears. More common in patients over 40.",
     lenses: [
-      { spec: "Sports Medicine Ortho", color: "#0071E3", text: "Complete quad tendon ruptures require urgent surgical repair. Partial tears and tendinosis are typically managed conservatively with eccentric loading programs." },
+      { spec: "Orthopedics — Sports Medicine", color: "#0071E3", text: "Complete quad tendon ruptures require urgent surgical repair. Partial tears and tendinosis are typically managed conservatively with eccentric loading programs." },
       { spec: "Physical Therapy", color: "#1A7F7A", text: "Eccentric quad strengthening (slow lowering exercises) is the evidence-based first-line treatment for tendinosis. Avoid jumping and explosive movements until symptoms resolve." },
     ],
     questions: ["Is this tendinosis or a structural tear?", "Do I need imaging follow-up?", "When can I return to full activity?"],
@@ -313,7 +313,7 @@ const CONTENT = {
     imp: "Intermittent locking, catching, or sharp pain when the fragment gets caught between joint surfaces. Symptoms may come and go.",
     ctx: "Loose bodies can result from cartilage injuries, osteochondritis dissecans, or degenerative processes. They often require removal if symptomatic.",
     lenses: [
-      { spec: "Sports Medicine Ortho", color: "#0071E3", text: "Symptomatic loose bodies that cause locking or catching are typically removed arthroscopically. Small asymptomatic fragments may be monitored." },
+      { spec: "Orthopedics — Sports Medicine", color: "#0071E3", text: "Symptomatic loose bodies that cause locking or catching are typically removed arthroscopically. Small asymptomatic fragments may be monitored." },
     ],
     questions: ["Is this loose body causing my symptoms?", "Does it need to be removed?", "Could it damage my joint if left alone?"],
     timeline: "Arthroscopic removal: return to activities in 2-4 weeks. Observation: ongoing monitoring.",
@@ -332,7 +332,7 @@ const CONTENT = {
     imp: "Pain below the kneecap, especially with jumping, stairs, or prolonged sitting.",
     ctx: "Patellar tendon pathology ranges from tendinitis (inflammation) to partial tears. Complete ruptures are rare on MRI as they typically present acutely.",
     lenses: [
-      { spec: "Sports Medicine Ortho", color: "#0071E3", text: "Most patellar tendon pathology responds to eccentric loading programs (decline squats). Imaging findings often lag behind symptom improvement." },
+      { spec: "Orthopedics — Sports Medicine", color: "#0071E3", text: "Most patellar tendon pathology responds to eccentric loading programs (decline squats). Imaging findings often lag behind symptom improvement." },
     ],
     questions: ["Is this tendinitis or a structural tear?", "Should I modify my activities?"],
     timeline: "Tendinitis: 6-12 weeks with eccentric loading program. Partial tears: 3-6 months.",
@@ -350,7 +350,7 @@ const CONTENT = {
     imp: "Tightness or fullness behind the knee. Occasionally noticeable as a visible lump. Usually not the primary pain source.",
     ctx: "Baker's cysts are a symptom, not a disease. They form when excess joint fluid herniates into the back of the knee. Treating the underlying cause (meniscal tear, arthritis, effusion) usually resolves the cyst.",
     lenses: [
-      { spec: "Pain Medicine", color: "#6B3FA0", text: "Baker's cysts rarely need direct treatment. Address the underlying intra-articular pathology and the cyst typically resolves." },
+      { spec: "PM&R — Pain Management", color: "#6B3FA0", text: "Baker's cysts rarely need direct treatment. Address the underlying intra-articular pathology and the cyst typically resolves." },
     ],
     questions: ["Is this cyst causing any of my symptoms?", "Will it go away on its own?"],
     timeline: "Typically resolves when the underlying condition is treated. May persist for months.",

@@ -377,7 +377,7 @@ function BlurReport(){return(
 function Trust(){return(
   <div style={{padding:"10px 14px",background:T.sfA,borderRadius:8,border:`1px solid ${T.bd}`,marginTop:12}}>
     <div style={{fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:1.5,color:T.txL,marginBottom:6}}>Methodology</div>
-    <div style={{fontSize:11,lineHeight:1.6,color:T.txL}}>Findings parsed using standard radiology terminology (ACR). Exercise protocols follow AAOS and APTA clinical guidelines. For education only — not medical advice.</div>
+    <div style={{fontSize:11,lineHeight:1.6,color:T.txL}}>Clinical content reviewed by ClearScan's multidisciplinary advisory panel. Findings parsed using ACR terminology. For education only — not medical advice.</div>
   </div>
 )}
 
@@ -479,14 +479,34 @@ function ReportTab({findings,onGenerateReport,onComplete}){
     (current?.type==="tags"&&answers[current.id]?.length>0)||
     (current?.type==="conditions"); // conditions are optional
 
+  const ClinicalBadges=()=>(
+    <div style={{display:"flex",flexDirection:"column",gap:6,maxWidth:280,margin:"0 auto",marginBottom:16}}>
+      <div style={{display:"flex",alignItems:"center",gap:8,padding:"8px 12px",background:"rgba(45,139,78,0.04)",borderRadius:8,border:"1px solid rgba(45,139,78,0.12)"}}>
+        <div style={{width:28,height:28,borderRadius:7,background:"rgba(45,139,78,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,flexShrink:0}}>🩺</div>
+        <div style={{textAlign:"left"}}>
+          <div style={{fontSize:10,fontWeight:700,color:"#2D8B4E",letterSpacing:.3}}>Clinical Advisory Panel</div>
+          <div style={{fontSize:9,color:"#6E6E73",lineHeight:1.4,marginTop:1}}>Content reviewed by board-certified orthopedic surgeons &amp; physiatrists</div>
+        </div>
+      </div>
+      <div style={{display:"flex",alignItems:"center",gap:8,padding:"8px 12px",background:"rgba(0,113,227,0.03)",borderRadius:8,border:"1px solid rgba(0,113,227,0.1)"}}>
+        <div style={{width:28,height:28,borderRadius:7,background:"rgba(0,113,227,0.06)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,flexShrink:0}}>🎯</div>
+        <div style={{textAlign:"left"}}>
+          <div style={{fontSize:10,fontWeight:700,color:"#0071E3",letterSpacing:.3}}>Personalized to Your MRI</div>
+          <div style={{fontSize:9,color:"#6E6E73",lineHeight:1.4,marginTop:1}}>Adapted to your {findings?.length||0} findings, pain level, goals &amp; medical history</div>
+        </div>
+      </div>
+    </div>
+  );
+
   // ─── Intro ───
   if(step===0) return(
     <div style={{animation:"fadeIn .4s",textAlign:"center",padding:"16px 0"}}>
       <div style={{fontSize:36,marginBottom:10}}>📋</div>
       <div style={{fontSize:16,fontWeight:700,color:"#1D1D1F",marginBottom:4,fontFamily:"Georgia,serif"}}>Build Your Report</div>
-      <div style={{fontSize:12,color:"#6E6E73",lineHeight:1.6,maxWidth:280,margin:"0 auto 20px"}}>
+      <div style={{fontSize:12,color:"#6E6E73",lineHeight:1.6,maxWidth:280,margin:"0 auto 14px"}}>
         Answer {total} quick questions so we can personalize your report to your specific situation, goals, and medical history.
       </div>
+      <ClinicalBadges />
       <button onClick={()=>setStep(1)} style={{
         background:"#0071E3",border:"none",color:"#fff",padding:"11px 32px",borderRadius:10,
         fontSize:14,fontWeight:600,cursor:"pointer",boxShadow:"0 4px 12px rgba(0,113,227,0.2)",
@@ -500,9 +520,10 @@ function ReportTab({findings,onGenerateReport,onComplete}){
     <div style={{animation:"fadeIn .4s",textAlign:"center",padding:"16px 0"}}>
       <div style={{fontSize:36,marginBottom:10}}>✅</div>
       <div style={{fontSize:16,fontWeight:700,color:"#1D1D1F",marginBottom:4,fontFamily:"Georgia,serif"}}>Assessment Complete</div>
-      <div style={{fontSize:12,color:"#6E6E73",lineHeight:1.6,maxWidth:280,margin:"0 auto 16px"}}>
+      <div style={{fontSize:12,color:"#6E6E73",lineHeight:1.6,maxWidth:280,margin:"0 auto 14px"}}>
         Your personalized report is ready with recommendations based on your {findings?.length||0} findings, activity goals, and medical history.
       </div>
+      <ClinicalBadges />
       <button onClick={()=>onGenerateReport?.(findings,answers)} style={{
         background:"#0071E3",border:"none",color:"#fff",padding:"11px 28px",borderRadius:10,
         fontSize:14,fontWeight:600,cursor:"pointer",boxShadow:"0 4px 12px rgba(0,113,227,0.2)",marginBottom:10,
@@ -527,6 +548,7 @@ function ReportTab({findings,onGenerateReport,onComplete}){
         })}
       </div>
       <button onClick={()=>{setStep(0);setAnswers({})}} style={{marginTop:10,background:"none",border:"1px solid rgba(0,0,0,0.08)",color:"#AEAEB2",padding:"6px 14px",borderRadius:6,fontSize:10,cursor:"pointer"}}>Retake Assessment</button>
+      <div style={{marginTop:12,textAlign:"left"}}><ClinicalBadge /></div>
     </div>
   );
 
@@ -878,6 +900,40 @@ function Summary({findings,active,onSel,mob}){
   );
 }
 
+/* ═══════════════════ CLINICAL ADVISORY PANEL ═══════════════════ */
+const CLINICAL_PANEL = [
+  { title: "Orthopedics — Sports Medicine", color: "#0071E3" },
+  { title: "Orthopedics — Trauma", color: "#C45D00" },
+  { title: "PM&R — Pain Management", color: "#6B3FA0" },
+  { title: "PM&R — Sports Medicine", color: "#2D8B4E" },
+  { title: "Physical Therapy", color: "#1A7F7A" },
+];
+
+function ClinicalBadge({compact}){
+  if(compact) return(
+    <div style={{display:"flex",alignItems:"center",gap:4,fontSize:9,color:"#1A7F7A",fontWeight:600}}>
+      <span style={{width:14,height:14,borderRadius:4,background:"rgba(26,127,122,0.08)",display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:8}}>✓</span>
+      Reviewed by ClearScan Clinical Panel
+    </div>
+  );
+  return(
+    <div style={{padding:"10px 12px",background:"rgba(26,127,122,0.03)",borderRadius:8,border:"1px solid rgba(26,127,122,0.1)"}}>
+      <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:6}}>
+        <div style={{width:18,height:18,borderRadius:5,background:"rgba(26,127,122,0.1)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10}}>✓</div>
+        <span style={{fontSize:10,fontWeight:700,color:"#1A7F7A",letterSpacing:.3}}>CLINICAL PANEL REVIEWED</span>
+      </div>
+      <div style={{display:"flex",flexWrap:"wrap",gap:3,marginBottom:6}}>
+        {CLINICAL_PANEL.map(p=>(
+          <span key={p.title} style={{fontSize:8,fontWeight:600,color:p.color,background:p.color+"0A",padding:"2px 6px",borderRadius:3}}>{p.title}</span>
+        ))}
+      </div>
+      <div style={{fontSize:9,color:"#6E6E73",lineHeight:1.4}}>
+        All clinical content — specialist perspectives, treatment options, exercise protocols, and assessment questions — is reviewed and approved by our multidisciplinary advisory panel.
+      </div>
+    </div>
+  );
+}
+
 /* ═══════════════════ PAYWALL COMPONENTS ═══════════════════ */
 const PRICE="$5";
 const PRICE_LABEL="Full ClearScan Report";
@@ -895,7 +951,7 @@ function PaywallBanner({onUnlock,compact}){
           {compact?"Unlock full report":"Unlock Your Complete Report"}
         </div>
         {!compact&&<div style={{fontSize:12,color:"rgba(255,255,255,0.8)",lineHeight:1.5}}>
-          Specialist perspectives, treatment comparison, PT exercises with video, self-assessment questions, and downloadable PDF report.
+          Panel-reviewed specialist perspectives, treatment comparison, personalized PT exercises, self-assessment, and downloadable PDF report.
         </div>}
       </div>
       <button onClick={onUnlock} style={{
@@ -1148,10 +1204,13 @@ function FindingDetail({finding,onClose,mob,onSelectTx,paid,onUnlock}){
         {/* Paywall banner if not paid */}
         {!paid&&<PaywallBanner onUnlock={onUnlock} compact={true} />}
 
+        {/* Clinical panel badge */}
+        <ClinicalBadge />
+
         {/* Disclaimer */}
-        <div style={{padding:"8px 10px",background:"#E6F5F4",borderRadius:8,border:"1px solid rgba(26,127,122,0.12)"}}>
+        <div style={{padding:"8px 10px",background:"#E6F5F4",borderRadius:8,border:"1px solid rgba(26,127,122,0.12)",marginTop:10}}>
           <div style={{fontSize:10,lineHeight:1.5,color:"#1A7F7A"}}>
-            This information reflects general clinical perspectives for this type of finding. Your treating physician will provide recommendations specific to your situation.
+            This content is reviewed by our clinical advisory panel for accuracy. Your treating physician will provide recommendations specific to your situation.
           </div>
         </div>
       </div>
