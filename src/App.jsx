@@ -45,6 +45,28 @@ const FD=[
       {q:"Is the pain worse going downstairs versus upstairs?",why:"Downstairs loads the meniscus more due to compressive and shear forces during eccentric quad loading. This pattern is classic for meniscal pain."},
       {q:"Does deep squatting — like sitting on your heels — reproduce the pain?",why:"Deep flexion compresses the posterior horn where your tear is located. If this is pain-free, the tear may be less clinically significant."},
     ],
+    treatments:[
+      {name:"Physical Therapy (Conservative)",type:"conservative",color:"#2D8B4E",
+        desc:"Structured strengthening of quadriceps, hamstrings, and hip stabilizers to reduce mechanical load through the meniscus. Avoidance of deep flexion and pivoting during initial phase.",
+        timeline:"4-8 weeks to see meaningful improvement. Many horizontal tears become asymptomatic with rehab alone.",
+        pros:"No surgery, no recovery downtime, low risk. Effective for many horizontal/degenerative tears.",
+        cons:"May not resolve mechanical symptoms (catching/locking). Tear remains present on imaging."},
+      {name:"Partial Meniscectomy (Trimming)",type:"surgical",color:"#0071E3",
+        desc:"Arthroscopic removal of the torn, unstable portion of the meniscus. Quick outpatient procedure (~30-45 minutes). Often done during ACL reconstruction if planned.",
+        timeline:"Return to most activities in 2-4 weeks. Rehab is faster than meniscal repair.",
+        pros:"Fast recovery, immediate relief of mechanical symptoms. Can be done during ACL reconstruction.",
+        cons:"Removes protective tissue — long-term, less meniscus means more cartilage wear. Irreversible."},
+      {name:"Meniscal Repair (Suturing)",type:"surgical",color:"#6B3FA0",
+        desc:"Arthroscopic suturing of the tear to preserve meniscal tissue. Repairability depends on tear location, pattern, and blood supply. Best outcomes when combined with ACL reconstruction.",
+        timeline:"4-6 weeks restricted weight-bearing. Full recovery 3-4 months. Slower than meniscectomy.",
+        pros:"Preserves meniscal tissue, protects cartilage long-term. 80-90% healing rate with concurrent ACL reconstruction.",
+        cons:"Slower rehab, weight-bearing restrictions early on. Not all tears are repairable — surgeon assesses at time of arthroscopy."},
+      {name:"Corticosteroid Injection",type:"interventional",color:"#C45D00",
+        desc:"Intra-articular injection to reduce inflammation and pain, facilitating earlier participation in physical therapy.",
+        timeline:"Relief within 2-5 days. Effects typically last 4-8 weeks.",
+        pros:"Can break the pain/swelling cycle. Allows rehab progression. No recovery time.",
+        cons:"Temporary effect. Repeated injections may affect cartilage health. Discuss timing relative to any planned surgery."},
+    ],
   },
   {id:"acl",str:"ACL",path:"Complete Tear",sev:"severe",m:["acl"],
     desc:"Your anterior cruciate ligament is completely torn — the primary stabilizer preventing your shin bone from sliding forward.",
@@ -66,6 +88,33 @@ const FD=[
       {q:"Can you walk without limping? Can you go up and down stairs comfortably?",why:"Good functional baseline walking and stair ability suggest the surrounding muscles are compensating well, which is important for either treatment path."},
       {q:"Do you feel confident pushing off the injured leg to change direction quickly?",why:"This tests your subjective sense of knee trust. If you instinctively don't trust the knee during quick movements, that's clinically meaningful instability."},
     ],
+    treatments:[
+      {name:"Structured Physical Therapy (Conservative)",type:"conservative",color:"#2D8B4E",
+        desc:"Intensive rehabilitation focusing on quadriceps/hamstring strengthening, proprioception training, and neuromuscular control. Goal is to build enough dynamic stability to compensate for the absent ACL.",
+        timeline:"3-6 months structured program. Re-evaluation at 6-12 weeks for stability assessment.",
+        pros:"Avoids surgery and surgical risks. Many patients achieve functional stability. Can always proceed to surgery later if needed.",
+        cons:"Does not restore anatomic ACL. Higher risk of re-injury with cutting/pivoting sports. Requires excellent rehab compliance."},
+      {name:"ACL Reconstruction — Patellar Tendon Graft",type:"surgical",color:"#0071E3",
+        desc:"Bone-patellar tendon-bone autograft. Considered the \"gold standard\" for athletes. Harvests the central third of your patellar tendon with bone plugs for rigid fixation.",
+        timeline:"6-9 months total recovery. Return to sport typically 9-12 months with clearance testing.",
+        pros:"Strongest initial fixation (bone-to-bone healing). Lowest re-tear rate in high-level athletes. Most studied graft option.",
+        cons:"Anterior knee pain and kneeling discomfort in 10-20% of patients. Donor site morbidity."},
+      {name:"ACL Reconstruction — Hamstring Graft",type:"surgical",color:"#0071E3",
+        desc:"Semitendinosus and gracilis tendons harvested from the same leg. Smaller incision, less anterior knee pain than patellar tendon graft.",
+        timeline:"Similar to patellar tendon — 6-9 months recovery.",
+        pros:"Less kneeling pain. Smaller incision. Good option for non-contact sports and recreational athletes.",
+        cons:"Soft tissue-to-bone healing (slower integration). Slight hamstring weakness may persist. Slightly higher re-tear rate in some studies."},
+      {name:"ACL Reconstruction — Quadriceps Tendon Graft",type:"surgical",color:"#0071E3",
+        desc:"Increasingly popular option using a strip of the quadriceps tendon. Combines advantages of both patellar and hamstring grafts.",
+        timeline:"6-9 months recovery, similar protocol to other grafts.",
+        pros:"Strong graft with bone plug. Less kneeling pain than patellar tendon. Thicker graft tissue.",
+        cons:"Newer technique — less long-term outcome data. Temporary quad weakness during recovery."},
+      {name:"Prehabilitation (Before Surgery)",type:"conservative",color:"#1A7F7A",
+        desc:"Structured PT program done before reconstruction to optimize quad strength, reduce swelling, and restore full ROM. Evidence shows prehab improves post-surgical outcomes.",
+        timeline:"2-6 weeks before surgery. Goal: full extension, minimal swelling, good quad activation.",
+        pros:"Better post-surgical outcomes. Faster early rehab milestones. Reduces post-op complications.",
+        cons:"Delays surgery by a few weeks (this is generally considered beneficial, not a true drawback)."},
+    ],
   },
   {id:"bone",str:"Bone",path:"Bone Bruise",sev:"mild",m:["condyle_lateral","tibial_plateau"],
     desc:"Bone marrow edema in your lateral femoral condyle and posterolateral tibial plateau — a very common companion finding with ACL tears.",
@@ -82,6 +131,23 @@ const FD=[
       {q:"When you press on the outer side of your knee, does it reproduce a deep aching pain?",why:"Point tenderness directly over the bruise location confirms it as an active pain source. If pressing there doesn't hurt, the bruise may not be contributing much to your symptoms."},
       {q:"Is weight-bearing more painful than expected given your other injuries?",why:"Disproportionate pain with weight-bearing suggests the bone bruise is a significant contributor and may warrant temporary use of crutches or a brace."},
       {q:"Is the pain improving week over week, even slowly?",why:"Bone bruises should show gradual linear improvement. If pain plateaus or worsens, it's important to share that with your physician."},
+    ],
+    treatments:[
+      {name:"Activity Modification + Time",type:"conservative",color:"#2D8B4E",
+        desc:"The primary treatment is tincture of time. Avoid high-impact activities that load the bruised area. Weight-bearing as tolerated with progression as pain allows.",
+        timeline:"Significant improvement within 4-6 weeks. Full resolution typically 2-3 months.",
+        pros:"No intervention required. Heals reliably on its own.",
+        cons:"Can be a significant pain source in early weeks. May slow early rehab progression."},
+      {name:"Protected Weight-Bearing",type:"conservative",color:"#1A7F7A",
+        desc:"Crutches or a hinged brace to offload the bruised bone during the most painful early period. Typically only needed for 1-2 weeks.",
+        timeline:"1-2 weeks of crutch use, then progressive loading.",
+        pros:"Reduces pain, allows more comfortable early rehab participation.",
+        cons:"Prolonged crutch use can cause deconditioning. Usually only needed briefly."},
+      {name:"Anti-Inflammatory Protocol",type:"interventional",color:"#C45D00",
+        desc:"NSAIDs (ibuprofen, naproxen) for 1-2 weeks to manage pain and inflammation from the bone bruise. Discuss with your physician regarding timing relative to healing.",
+        timeline:"Short-term use during the acute phase (1-2 weeks).",
+        pros:"Effective pain control, allows earlier rehab engagement.",
+        cons:"Some evidence suggests NSAIDs may slow bone healing. Discuss risks and benefits with your physician."},
     ],
   },
   {id:"eff",str:"Joint Fluid",path:"Moderate Effusion",sev:"moderate",m:["effusion"],
@@ -101,6 +167,28 @@ const FD=[
       {q:"Does the knee feel warm to the touch compared to the other side?",why:"Warmth indicates active inflammation. Persistent warmth beyond 2-3 weeks, especially with increasing swelling, should be reported to your physician."},
       {q:"Does the swelling increase after activity and then decrease with rest?",why:"Activity-related swelling that resolves with rest is mechanical (expected). Swelling that persists regardless of activity level may indicate ongoing inflammation needing attention."},
     ],
+    treatments:[
+      {name:"RICE Protocol",type:"conservative",color:"#2D8B4E",
+        desc:"Rest, Ice (20 min 4-6x/day), Compression (ace wrap or sleeve), Elevation (above heart level). The foundation of acute effusion management.",
+        timeline:"Noticeable improvement within 3-7 days. Most acute effusion resolves in 2-4 weeks.",
+        pros:"No risk, no cost, highly effective for acute effusion. Can start immediately.",
+        cons:"Requires discipline and consistency. May not resolve chronic or recurrent effusion."},
+      {name:"Aspiration (Joint Drainage)",type:"interventional",color:"#C45D00",
+        desc:"Your physician uses a needle to remove excess fluid from the joint. Provides immediate relief and allows fluid analysis to rule out infection or other causes.",
+        timeline:"Immediate relief. May need to be repeated if fluid reaccumulates.",
+        pros:"Instant reduction in pressure and stiffness. Allows quad activation to resume. Fluid can be analyzed diagnostically.",
+        cons:"Minor procedure discomfort. Fluid may reaccumulate if the underlying cause persists. Small infection risk."},
+      {name:"Corticosteroid Injection",type:"interventional",color:"#6B3FA0",
+        desc:"Often combined with aspiration — after draining the fluid, a corticosteroid is injected into the joint to reduce inflammation and prevent rapid reaccumulation.",
+        timeline:"Anti-inflammatory effect peaks at 2-5 days. Can last 4-8 weeks.",
+        pros:"Breaks the inflammatory cycle. Reduces reaccumulation risk compared to aspiration alone.",
+        cons:"Repeated steroid injections may affect cartilage health. Discuss timing if surgery is planned (surgeons often prefer 6-8 weeks between injection and surgery)."},
+      {name:"Compression Sleeve",type:"conservative",color:"#1A7F7A",
+        desc:"Medical-grade compression knee sleeve worn during daily activities and exercise. Provides continuous gentle compression to manage swelling.",
+        timeline:"Ongoing use during acute phase and rehab.",
+        pros:"Simple, low-cost, can be worn during PT exercises. Provides proprioceptive feedback.",
+        cons:"Does not treat the cause. Ensure proper sizing — too tight restricts circulation."},
+    ],
   },
   {id:"cart",str:"Articular Cartilage",path:"Grade 2 Chondromalacia",sev:"mild",m:["cartilage_medial"],
     desc:"The smooth cartilage on the inner surface of your thigh bone shows softening and early wear — Grade 2 on a 4-point scale.",
@@ -119,6 +207,33 @@ const FD=[
       {q:"Is there pain when sitting for long periods with the knee bent (\"movie theater sign\")?",why:"Anterior knee pain after prolonged sitting is a classic sign of patellofemoral cartilage involvement. If present, your physician may want to assess patellar tracking."},
       {q:"Does going downstairs cause more pain than going upstairs?",why:"Eccentric loading on stairs creates higher compressive forces through the articular cartilage. This pattern suggests the cartilage is a functional pain contributor."},
       {q:"Do you notice swelling after activities that don't bother the other knee?",why:"If routine activities cause swelling in the injured knee but not the healthy one, the cartilage surface may be more reactive and worth monitoring long-term."},
+    ],
+    treatments:[
+      {name:"Quadriceps & Gluteal Strengthening",type:"conservative",color:"#2D8B4E",
+        desc:"The strongest evidence-based treatment for Grade 2 cartilage changes. Stronger muscles reduce compressive load through the cartilage surface. Focus on quad sets, mini squats, leg press, and hip abduction.",
+        timeline:"Ongoing — this is a long-term maintenance program, not a short-term fix.",
+        pros:"Most effective intervention for early cartilage changes. Protects against progression. No side effects.",
+        cons:"Requires consistent effort. Benefits take 6-8 weeks to become noticeable."},
+      {name:"Activity Modification",type:"conservative",color:"#1A7F7A",
+        desc:"Shift toward lower-impact activities (cycling, swimming, elliptical) as the primary exercise modalities. Minimize repetitive deep knee flexion under load.",
+        timeline:"Ongoing lifestyle adjustment.",
+        pros:"Reduces cartilage wear. Maintains cardiovascular fitness through alternative activities.",
+        cons:"May require modifying sport or activity preferences."},
+      {name:"Viscosupplementation (Hyaluronic Acid)",type:"interventional",color:"#C45D00",
+        desc:"Injection of hyaluronic acid into the joint to supplement the natural joint fluid. Intended to improve lubrication and reduce friction across the cartilage surface.",
+        timeline:"Series of 1-3 injections over several weeks. Effects may last 3-6 months.",
+        pros:"May reduce pain in some patients. Minimal side effects. Can delay need for more invasive treatments.",
+        cons:"Evidence is mixed — some studies show benefit, others do not. Insurance coverage varies. Generally more effective for higher-grade cartilage disease."},
+      {name:"PRP (Platelet-Rich Plasma)",type:"interventional",color:"#6B3FA0",
+        desc:"Injection of concentrated platelets from your own blood to stimulate cartilage healing. Growing body of research but not yet established standard of care.",
+        timeline:"1-3 injections. Results assessed at 6-12 weeks.",
+        pros:"Uses your own biology. Emerging evidence for cartilage symptom relief. Low risk profile.",
+        cons:"Not covered by most insurance. Evidence is promising but not definitive. Varying preparation protocols between clinics."},
+      {name:"NSAIDs (As Needed)",type:"conservative",color:"#2D8B4E",
+        desc:"Over-the-counter anti-inflammatories (ibuprofen, naproxen) for flare-ups when cartilage symptoms are bothersome. Not a long-term solution.",
+        timeline:"As-needed during symptomatic flares.",
+        pros:"Effective for acute symptom relief. Widely available.",
+        cons:"Not recommended for chronic daily use (GI, kidney, cardiovascular risks). Masks symptoms without treating cause."},
     ],
   },
 ];
@@ -266,7 +381,7 @@ function Trust(){return(
 
 /* ═══════════════════ TAB BAR ═══════════════════ */
 function TabBar({tab,setTab,mob}){
-  const tabs=[["findings","Findings"],["exercises","Exercises"],["report","Report"]];
+  const tabs=[["findings","Findings"],["exercises","Exercises"],["treatments","Treatments"],["report","Report"]];
   return(
     <div style={{display:"flex",gap:3,background:"#ECEAE6",borderRadius:9,padding:3,marginBottom:mob?12:14,flexShrink:0}}>
       {tabs.map(([k,label])=>(
@@ -308,13 +423,176 @@ function ReportTab({findings}){
   );
 }
 
+/* ═══════════════════ TREATMENTS TAB (Left Panel) ═══════════════════ */
+function TreatmentsTab({findings,activeTx,setActiveTx,txFinding}){
+  // Collect all treatments grouped by finding, ordered conservative → interventional → surgical
+  const TYPE_ORDER={conservative:0,interventional:1,surgical:2};
+  return(
+    <div style={{animation:"fadeIn .4s"}}>
+      <div style={{padding:"6px 10px",background:"#E6F5F4",borderRadius:8,border:"1px solid rgba(26,127,122,0.15)",marginBottom:14}}>
+        <div style={{fontSize:10,fontWeight:700,color:"#1A7F7A",marginBottom:2}}>NOT A RECOMMENDATION</div>
+        <div style={{fontSize:11,lineHeight:1.5,color:"#6E6E73"}}>These are options typically discussed for your findings. The right treatment depends on your examination, goals, and your physician's assessment.</div>
+      </div>
+
+      {findings.map(f=>{
+        if(!f.treatments||f.treatments.length===0)return null;
+        const sc=f.sev==="severe"?"#BF1029":f.sev==="moderate"?"#C45D00":"#A68B00";
+        const sorted=[...f.treatments].sort((a,b)=>(TYPE_ORDER[a.type]||0)-(TYPE_ORDER[b.type]||0));
+        return(
+          <div key={f.id} style={{marginBottom:14}}>
+            <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:6}}>
+              <span style={{fontSize:9,fontWeight:700,color:sc,background:sc+"12",padding:"2px 7px",borderRadius:4,textTransform:"uppercase",letterSpacing:1}}>{f.sev}</span>
+              <span style={{fontSize:12,fontWeight:700,color:"#1D1D1F",fontFamily:"Georgia,serif"}}>{f.str}</span>
+            </div>
+            {sorted.map((tx,i)=>{
+              const isSel=activeTx?.name===tx.name&&txFinding?.id===f.id;
+              return(
+                <div key={i} onClick={()=>setActiveTx(tx,f)} style={{
+                  padding:"8px 10px",marginBottom:3,borderRadius:7,cursor:"pointer",
+                  border:`1px solid ${isSel?tx.color+"44":"rgba(0,0,0,0.05)"}`,
+                  background:isSel?tx.color+"08":"#fff",transition:"all .15s",
+                  display:"flex",alignItems:"center",justifyContent:"space-between",
+                }}>
+                  <div style={{display:"flex",alignItems:"center",gap:6,flex:1,minWidth:0}}>
+                    <div style={{width:5,height:5,borderRadius:3,background:tx.color,flexShrink:0}} />
+                    <span style={{fontSize:11.5,fontWeight:600,color:"#1D1D1F",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{tx.name}</span>
+                  </div>
+                  <span style={{fontSize:7,fontWeight:700,color:tx.color,background:tx.color+"10",padding:"2px 5px",borderRadius:3,textTransform:"uppercase",letterSpacing:.5,flexShrink:0}}>{tx.type}</span>
+                </div>
+              );
+            })}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ═══════════════════ TREATMENT DETAIL (Right Pane) ═══════════════════ */
+function TreatmentDetail({tx,finding,onClose,allFindings}){
+  if(!tx||!finding)return null;
+  const sc=finding.sev==="severe"?"#BF1029":finding.sev==="moderate"?"#C45D00":"#A68B00";
+  const TYPE_LABELS={conservative:"Conservative",interventional:"Interventional",surgical:"Surgical"};
+  const TYPE_ICONS={conservative:"🟢",interventional:"🟡",surgical:"🔵"};
+
+  // Build a simple timeline visualization
+  const timelineSteps = tx.timeline.split(/[.,;]/).filter(s=>s.trim().length>5).map(s=>s.trim());
+
+  return(
+    <div style={{display:"flex",flexDirection:"column",height:"100%",background:"#fff",animation:"slideInRight .3s cubic-bezier(.16,1,.3,1)",overflow:"hidden"}}>
+      {/* Header */}
+      <div style={{padding:"16px 18px 12px",borderBottom:"1px solid rgba(0,0,0,0.06)",flexShrink:0}}>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:6}}>
+          <button onClick={onClose} style={{display:"flex",alignItems:"center",gap:4,background:"none",border:"none",color:"#AEAEB2",fontSize:12,cursor:"pointer",padding:0}}>← Back</button>
+          <span style={{fontSize:9,fontWeight:700,color:tx.color,background:tx.color+"12",padding:"3px 10px",borderRadius:5,textTransform:"uppercase",letterSpacing:1}}>{TYPE_LABELS[tx.type]}</span>
+        </div>
+        <h2 style={{fontSize:18,fontWeight:700,color:"#1D1D1F",margin:0,fontFamily:"Georgia,serif"}}>{tx.name}</h2>
+        <div style={{fontSize:11,color:sc,fontWeight:600,marginTop:2}}>For: {finding.str} — {finding.path}</div>
+      </div>
+
+      {/* Scrollable content */}
+      <div style={{flex:1,overflow:"auto",padding:"16px 18px"}}>
+
+        {/* Approach spectrum */}
+        <div style={{marginBottom:18}}>
+          <div style={{fontSize:9,fontWeight:700,color:"#AEAEB2",textTransform:"uppercase",letterSpacing:1,marginBottom:6}}>Treatment Spectrum</div>
+          <div style={{display:"flex",alignItems:"center",height:32,background:"#F5F4F1",borderRadius:8,overflow:"hidden",position:"relative"}}>
+            <div style={{flex:1,textAlign:"center",fontSize:9,fontWeight:700,color:tx.type==="conservative"?tx.color:"#AEAEB2",background:tx.type==="conservative"?tx.color+"12":"transparent",height:"100%",display:"flex",alignItems:"center",justifyContent:"center",transition:"all .3s"}}>CONSERVATIVE</div>
+            <div style={{width:1,height:16,background:"rgba(0,0,0,0.08)"}} />
+            <div style={{flex:1,textAlign:"center",fontSize:9,fontWeight:700,color:tx.type==="interventional"?tx.color:"#AEAEB2",background:tx.type==="interventional"?tx.color+"12":"transparent",height:"100%",display:"flex",alignItems:"center",justifyContent:"center",transition:"all .3s"}}>INTERVENTIONAL</div>
+            <div style={{width:1,height:16,background:"rgba(0,0,0,0.08)"}} />
+            <div style={{flex:1,textAlign:"center",fontSize:9,fontWeight:700,color:tx.type==="surgical"?tx.color:"#AEAEB2",background:tx.type==="surgical"?tx.color+"12":"transparent",height:"100%",display:"flex",alignItems:"center",justifyContent:"center",transition:"all .3s"}}>SURGICAL</div>
+          </div>
+        </div>
+
+        {/* What it involves */}
+        <div style={{marginBottom:16}}>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
+            <div style={{width:24,height:24,borderRadius:7,background:tx.color+"14",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>📋</div>
+            <h3 style={{fontSize:14,fontWeight:700,color:"#1D1D1F",margin:0}}>What It Involves</h3>
+          </div>
+          <div style={{padding:"12px 14px",background:"#F5F4F1",borderRadius:10,fontSize:13,lineHeight:1.7,color:"#1D1D1F"}}>{tx.desc}</div>
+        </div>
+
+        {/* Timeline visualization */}
+        <div style={{marginBottom:16}}>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
+            <div style={{width:24,height:24,borderRadius:7,background:"rgba(45,139,78,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>⏱</div>
+            <h3 style={{fontSize:14,fontWeight:700,color:"#1D1D1F",margin:0}}>Expected Timeline</h3>
+          </div>
+          <div style={{padding:"12px 14px",background:"#E8F5EC",borderRadius:10,borderLeft:"3px solid #2D8B4E"}}>
+            {timelineSteps.map((step,i)=>(
+              <div key={i} style={{display:"flex",alignItems:"flex-start",gap:8,marginBottom:i<timelineSteps.length-1?8:0}}>
+                <div style={{display:"flex",flexDirection:"column",alignItems:"center",flexShrink:0,marginTop:2}}>
+                  <div style={{width:8,height:8,borderRadius:4,background:"#2D8B4E"}} />
+                  {i<timelineSteps.length-1&&<div style={{width:1,height:16,background:"rgba(45,139,78,0.2)",marginTop:2}} />}
+                </div>
+                <div style={{fontSize:12,lineHeight:1.5,color:"#1D1D1F"}}>{step}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Advantages & Considerations — side by side */}
+        <div style={{marginBottom:16}}>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
+            <div style={{width:24,height:24,borderRadius:7,background:"rgba(0,113,227,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>⚖️</div>
+            <h3 style={{fontSize:14,fontWeight:700,color:"#1D1D1F",margin:0}}>Pros & Considerations</h3>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+            <div style={{padding:"12px",background:"rgba(45,139,78,0.04)",borderRadius:10,border:"1px solid rgba(45,139,78,0.12)"}}>
+              <div style={{fontSize:10,fontWeight:700,color:"#2D8B4E",textTransform:"uppercase",letterSpacing:1,marginBottom:6}}>✓ Advantages</div>
+              <div style={{fontSize:12,lineHeight:1.65,color:"#1D1D1F"}}>{tx.pros}</div>
+            </div>
+            <div style={{padding:"12px",background:"rgba(191,16,41,0.03)",borderRadius:10,border:"1px solid rgba(191,16,41,0.1)"}}>
+              <div style={{fontSize:10,fontWeight:700,color:"#BF1029",textTransform:"uppercase",letterSpacing:1,marginBottom:6}}>⚠ Considerations</div>
+              <div style={{fontSize:12,lineHeight:1.65,color:"#1D1D1F"}}>{tx.cons}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Other treatments for this finding */}
+        {finding.treatments&&finding.treatments.length>1&&<div style={{marginBottom:16}}>
+          <div style={{fontSize:9,fontWeight:700,color:"#AEAEB2",textTransform:"uppercase",letterSpacing:1,marginBottom:8}}>Other Options for {finding.str}</div>
+          <div style={{borderRadius:8,border:"1px solid rgba(0,0,0,0.06)",overflow:"hidden"}}>
+            {finding.treatments.filter(t=>t.name!==tx.name).map((alt,i,arr)=>(
+              <div key={i} onClick={()=>onClose("switch",alt,finding)} style={{
+                padding:"8px 10px",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"space-between",
+                borderBottom:i<arr.length-1?"1px solid rgba(0,0,0,0.04)":"none",
+                transition:"background .15s",
+              }}
+              onMouseEnter={e=>e.currentTarget.style.background="#FAFAF8"}
+              onMouseLeave={e=>e.currentTarget.style.background="transparent"}
+              >
+                <div style={{display:"flex",alignItems:"center",gap:6}}>
+                  <div style={{width:5,height:5,borderRadius:3,background:alt.color}} />
+                  <span style={{fontSize:11,fontWeight:500,color:"#1D1D1F"}}>{alt.name}</span>
+                </div>
+                <span style={{color:"#AEAEB2",fontSize:10}}>→</span>
+              </div>
+            ))}
+          </div>
+        </div>}
+
+        {/* Disclaimer */}
+        <div style={{padding:"8px 10px",background:"#E6F5F4",borderRadius:8,border:"1px solid rgba(26,127,122,0.12)"}}>
+          <div style={{fontSize:10,lineHeight:1.5,color:"#1A7F7A"}}>
+            This is general information about this treatment approach. Your physician will recommend a specific plan based on your examination, imaging, goals, and medical history.
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ═══════════════════ TABBED PANEL ═══════════════════ */
-function TabbedPanel({findings,active,onSel,mob,tab,setTab,activeEx,setActiveEx}){
+function TabbedPanel({findings,active,onSel,mob,tab,setTab,activeEx,setActiveEx,activeTx,setActiveTx,txFinding}){
   return(
     <>
       <TabBar tab={tab} setTab={setTab} mob={mob} />
       {tab==="findings"&&<Summary findings={findings} active={active} onSel={onSel} mob={mob} />}
       {tab==="exercises"&&<PTLibrary findings={findings} onSelectFinding={onSel} activeEx={activeEx} setActiveEx={setActiveEx} />}
+      {tab==="treatments"&&<TreatmentsTab findings={findings} activeTx={activeTx} setActiveTx={(tx,f)=>setActiveTx(tx,f)} txFinding={txFinding} />}
       {tab==="report"&&<ReportTab findings={findings} />}
     </>
   );
@@ -354,7 +632,7 @@ function Summary({findings,active,onSel,mob}){
 }
 
 /* ═══════════════════ FINDING DETAIL PANE ═══════════════════ */
-function FindingDetail({finding,onClose,mob}){
+function FindingDetail({finding,onClose,mob,onSelectTx}){
   if(!finding)return null;
   const sc=T[finding.sev];
   return(
@@ -455,6 +733,38 @@ function FindingDetail({finding,onClose,mob}){
               <div style={{fontSize:12,lineHeight:1.6,color:"#6E6E73"}}>{l.text}</div>
             </div>
           ))}
+        </div>}
+
+        {/* Treatment options — compact list, click to explore */}
+        {finding.treatments&&finding.treatments.length>0&&<div style={{marginBottom:16}}>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
+            <div style={{width:24,height:24,borderRadius:7,background:"rgba(0,113,227,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>💊</div>
+            <h3 style={{fontSize:14,fontWeight:700,color:T.tx,margin:0}}>Treatment Options</h3>
+          </div>
+          <div style={{borderRadius:10,border:"1px solid rgba(0,0,0,0.06)",overflow:"hidden"}}>
+            {finding.treatments.map((tx,i)=>{
+              const TYPE_ORDER={conservative:0,interventional:1,surgical:2};
+              return(
+              <div key={i} onClick={()=>onSelectTx?.(tx,finding)} style={{
+                padding:"10px 12px",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"space-between",
+                borderBottom:i<finding.treatments.length-1?"1px solid rgba(0,0,0,0.04)":"none",
+                transition:"background .15s",
+              }}
+              onMouseEnter={e=>e.currentTarget.style.background=tx.color+"06"}
+              onMouseLeave={e=>e.currentTarget.style.background="transparent"}
+              >
+                <div style={{display:"flex",alignItems:"center",gap:8,flex:1,minWidth:0}}>
+                  <div style={{width:6,height:6,borderRadius:3,background:tx.color,flexShrink:0}} />
+                  <span style={{fontSize:12,fontWeight:600,color:T.tx,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{tx.name}</span>
+                </div>
+                <div style={{display:"flex",alignItems:"center",gap:6,flexShrink:0}}>
+                  <span style={{fontSize:8,fontWeight:700,color:tx.color,background:tx.color+"10",padding:"2px 6px",borderRadius:3,textTransform:"uppercase",letterSpacing:.5}}>{tx.type}</span>
+                  <span style={{color:"#AEAEB2",fontSize:11}}>→</span>
+                </div>
+              </div>
+            )})}
+          </div>
+          <div style={{fontSize:10,color:"#AEAEB2",marginTop:6,marginLeft:32}}>Tap to explore details, timeline, and comparison</div>
         </div>}
 
         {/* Questions to ask */}
@@ -669,6 +979,8 @@ export default function App(){
   const[tab,setTab]=useState("findings"); // "findings" | "exercises" | "report"
   const[activeEx,setActiveEx]=useState(null); // selected exercise for detail pane
   const[detailFinding,setDetailFinding]=useState(null); // selected finding for detail pane
+  const[activeTx,setActiveTx]=useState(null); // selected treatment for detail pane
+  const[txFinding,setTxFinding]=useState(null); // which finding the treatment belongs to
   useEffect(()=>{const c=()=>setMob(window.innerWidth<768);c();window.addEventListener("resize",c);return()=>window.removeEventListener("resize",c)},[]);
 
   const go=useCallback(async()=>{
@@ -683,16 +995,19 @@ export default function App(){
     if(phase==="revealing"&&ri>=FD.length){setPhase("summary");setActive(null)}
   },[ri,phase]);
 
-  const reset=()=>{setPhase("input");setFindings(null);setRi(-1);setActive(null);setShowH(false);setText("");setTab("findings");setActiveEx(null);setDetailFinding(null)};
+  const reset=()=>{setPhase("input");setFindings(null);setRi(-1);setActive(null);setShowH(false);setText("");setTab("findings");setActiveEx(null);setDetailFinding(null);setActiveTx(null);setTxFinding(null)};
   const togSel=f=>{
     const deselecting = active?.id===f.id;
     setActive(deselecting?null:f);
     setDetailFinding(deselecting?null:f);
     setActiveEx(null);
+    setActiveTx(null);setTxFinding(null);
     setShowH(false);
   };
   const hBtn=()=>setShowH(!showH);
-  const onTabChange=(t)=>{setTab(t);if(t!=="exercises")setActiveEx(null);if(t!=="findings")setDetailFinding(null)};
+  const onTabChange=(t)=>{setTab(t);if(t!=="exercises")setActiveEx(null);if(t!=="findings"){setDetailFinding(null)}if(t!=="treatments"){setActiveTx(null);setTxFinding(null)}};
+  const selectTx=(tx,f)=>{setActiveTx(tx);setTxFinding(f);setTab("treatments");setDetailFinding(null);setActiveEx(null);setActive(f)};
+  const handleTxClose=(action,alt,f)=>{if(action==="switch"&&alt&&f){setActiveTx(alt);setTxFinding(f)}else{setActiveTx(null);setTxFinding(null)}};
 
   const inputUI=(pad)=>(
     <>
@@ -736,8 +1051,9 @@ export default function App(){
           </div>
           {phase==="summary"&&findings&&<div style={{flex:1,overflow:"auto",padding:16,background:T.sf,borderTop:`1px solid ${T.bd}`}}>
             {activeEx ? <ExerciseDetail ex={activeEx} onClose={()=>setActiveEx(null)} mob={true} />
-             : detailFinding ? <FindingDetail finding={detailFinding} onClose={()=>{setDetailFinding(null);setActive(null)}} mob={true} />
-             : <TabbedPanel findings={findings} active={active} onSel={togSel} mob={true} tab={tab} setTab={onTabChange} activeEx={activeEx} setActiveEx={setActiveEx} />}
+             : activeTx ? <TreatmentDetail tx={activeTx} finding={txFinding} onClose={handleTxClose} allFindings={findings} />
+             : detailFinding ? <FindingDetail finding={detailFinding} onClose={()=>{setDetailFinding(null);setActive(null)}} mob={true} onSelectTx={selectTx} />
+             : <TabbedPanel findings={findings} active={active} onSel={togSel} mob={true} tab={tab} setTab={onTabChange} activeEx={activeEx} setActiveEx={setActiveEx} activeTx={activeTx} setActiveTx={selectTx} txFinding={txFinding} />}
           </div>}
         </>
       )}
@@ -753,26 +1069,28 @@ export default function App(){
           <div style={{padding:"22px 20px",display:"flex",flexDirection:"column",flex:1,overflow:"auto",minWidth:phase==="input"?400:360}}>
             {phase==="input"&&inputUI()}
             {phase==="analyzing"&&<div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:12}}><div style={{width:32,height:32,border:`3px solid ${T.bgD}`,borderTopColor:T.ac,borderRadius:"50%",animation:"spin .8s linear infinite"}} /><span style={{fontSize:14,color:T.txM,fontWeight:500}}>Analyzing your MRI report...</span><span style={{fontSize:12,color:T.txL}}>Building your visualization</span></div>}
-            {phase==="summary"&&findings&&<TabbedPanel findings={findings} active={active} onSel={togSel} mob={false} tab={tab} setTab={onTabChange} activeEx={activeEx} setActiveEx={setActiveEx} />}
+            {phase==="summary"&&findings&&<TabbedPanel findings={findings} active={active} onSel={togSel} mob={false} tab={tab} setTab={onTabChange} activeEx={activeEx} setActiveEx={setActiveEx} activeTx={activeTx} setActiveTx={selectTx} txFinding={txFinding} />}
           </div>
         </div>
         <ResizableSplit
-          show={!!(detailFinding||activeEx)}
+          show={!!(detailFinding||activeEx||activeTx)}
           defaultPct={50} minPct={30} maxPct={70}
           left={
             <div style={{width:"100%",height:"100%",position:"relative",background:`radial-gradient(ellipse at 50% 40%,#faf9f7 0%,${T.bg} 100%)`}}>
               <KneeCanvas findings={findings} active={active} phase={phase} showH={showH} />
               {phase==="revealing"&&<NCard f={active} i={ri} n={FD.length} onN={()=>setRi(i=>i+1)} onP={()=>setRi(i=>Math.max(0,i-1))} mob={false} />}
-              {active&&phase==="summary"&&!detailFinding&&!activeEx&&<div style={{position:"absolute",top:14,left:14,background:T.sf,padding:"7px 14px",borderRadius:9,boxShadow:"0 2px 12px rgba(0,0,0,.05)",fontSize:13,fontWeight:600,color:T.tx,zIndex:10,animation:"fadeIn .3s"}}>{active.str} <span style={{color:T[active.sev].c,fontSize:11,marginLeft:6}}>● {active.path}</span></div>}
+              {active&&phase==="summary"&&!detailFinding&&!activeEx&&!activeTx&&<div style={{position:"absolute",top:14,left:14,background:T.sf,padding:"7px 14px",borderRadius:9,boxShadow:"0 2px 12px rgba(0,0,0,.05)",fontSize:13,fontWeight:600,color:T.tx,zIndex:10,animation:"fadeIn .3s"}}>{active.str} <span style={{color:T[active.sev].c,fontSize:11,marginLeft:6}}>● {active.path}</span></div>}
               <div style={{position:"absolute",top:14,right:14,fontSize:10,color:T.txF,pointerEvents:"none"}}>Drag to rotate · Scroll to zoom</div>
               {phase==="input"&&<div style={{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",textAlign:"center",pointerEvents:"none"}}><div style={{fontSize:48,marginBottom:14,opacity:.15}}>🦴</div><div style={{fontSize:15,color:T.txL,fontWeight:500}}>Your 3D knee model</div><div style={{fontSize:12,color:T.txF,marginTop:6}}>Paste an MRI report to see findings visualized</div></div>}
-              {phase==="summary"&&!detailFinding&&!activeEx&&<div style={{position:"absolute",bottom:20,left:20,right:20,maxWidth:440,background:T.sf,borderRadius:11,padding:"14px 18px",boxShadow:"0 4px 20px rgba(0,0,0,.06)",border:`1px solid ${T.bd}`,display:"flex",alignItems:"center",justifyContent:"space-between",zIndex:10,animation:"slideUp .5s cubic-bezier(.16,1,.3,1)"}}><div><div style={{fontSize:13,fontWeight:600,color:T.tx}}>Your full report is ready</div><div style={{fontSize:11,color:T.txL,marginTop:2}}>Specialist perspectives, exercises, questions for your doctor</div></div><button onClick={()=>generateReport(FD)} style={{background:T.ac,border:"none",color:"#fff",padding:"9px 18px",borderRadius:8,fontSize:12,fontWeight:600,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,marginLeft:14}}>Download Report (PDF)</button></div>}
+              {phase==="summary"&&!detailFinding&&!activeEx&&!activeTx&&<div style={{position:"absolute",bottom:20,left:20,right:20,maxWidth:440,background:T.sf,borderRadius:11,padding:"14px 18px",boxShadow:"0 4px 20px rgba(0,0,0,.06)",border:`1px solid ${T.bd}`,display:"flex",alignItems:"center",justifyContent:"space-between",zIndex:10,animation:"slideUp .5s cubic-bezier(.16,1,.3,1)"}}><div><div style={{fontSize:13,fontWeight:600,color:T.tx}}>Your full report is ready</div><div style={{fontSize:11,color:T.txL,marginTop:2}}>Specialist perspectives, exercises, questions for your doctor</div></div><button onClick={()=>generateReport(FD)} style={{background:T.ac,border:"none",color:"#fff",padding:"9px 18px",borderRadius:8,fontSize:12,fontWeight:600,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,marginLeft:14}}>Download Report (PDF)</button></div>}
             </div>
           }
           right={
             activeEx
               ? <ExerciseDetail ex={activeEx} onClose={()=>setActiveEx(null)} mob={false} />
-              : <FindingDetail finding={detailFinding} onClose={()=>{setDetailFinding(null);setActive(null)}} mob={false} />
+              : activeTx
+              ? <TreatmentDetail tx={activeTx} finding={txFinding} onClose={handleTxClose} allFindings={findings} />
+              : <FindingDetail finding={detailFinding} onClose={()=>{setDetailFinding(null);setActive(null)}} mob={false} onSelectTx={selectTx} />
           }
         />
       </div>
