@@ -2296,7 +2296,7 @@ function ResizableSplit({left,right,show,minPct=25,maxPct=75,defaultPct=50}){
       >
         <div style={{width:2,height:32,borderRadius:1,background:"rgba(0,0,0,0.12)"}} />
       </div>
-      <div style={{flex:1,overflow:"hidden",animation:"slideInRight .3s cubic-bezier(.16,1,.3,1)"}}>{right}</div>
+      <div style={{flex:1,overflow:"hidden",position:"relative",animation:"slideInRight .3s cubic-bezier(.16,1,.3,1)"}}>{right}</div>
     </div>
   );
 }
