@@ -1005,7 +1005,7 @@ export default function App(){
     setShowH(false);
   };
   const hBtn=()=>setShowH(!showH);
-  const onTabChange=(t)=>{setTab(t);if(t!=="exercises")setActiveEx(null);if(t!=="findings"){setDetailFinding(null)}if(t!=="treatments"){setActiveTx(null);setTxFinding(null)}};
+  const onTabChange=(t)=>{setTab(t);setActiveEx(null);setDetailFinding(null);setActiveTx(null);setTxFinding(null);if(t!=="findings")setActive(null)};
   const selectTx=(tx,f)=>{setActiveTx(tx);setTxFinding(f);setTab("treatments");setDetailFinding(null);setActiveEx(null);setActive(f)};
   const handleTxClose=(action,alt,f)=>{if(action==="switch"&&alt&&f){setActiveTx(alt);setTxFinding(f)}else{setActiveTx(null);setTxFinding(null)}};
 
@@ -1103,9 +1103,20 @@ export default function App(){
             </div>
           )}
           {/* Bottom panel */}
-          {phase==="summary"&&findings&&<div style={{flex:1,overflow:"auto",padding:16,background:T.sf}}>
-            {hasDetail ? mobDetailContent
-             : <TabbedPanel findings={findings} active={active} onSel={togSel} mob={true} tab={tab} setTab={onTabChange} activeEx={activeEx} setActiveEx={setActiveEx} activeTx={activeTx} setActiveTx={selectTx} txFinding={txFinding} />}
+          {phase==="summary"&&findings&&<div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden",background:T.sf}}>
+            {/* Persistent tab bar */}
+            <div style={{padding:"8px 16px 0",flexShrink:0}}>
+              <TabBar tab={tab} setTab={onTabChange} mob={true} />
+            </div>
+            {/* Content */}
+            <div style={{flex:1,overflow:"auto",padding:"0 16px 16px"}}>
+              {hasDetail ? mobDetailContent
+               : tab==="findings" ? <Summary findings={findings} active={active} onSel={togSel} mob={true} />
+               : tab==="exercises" ? <PTLibrary findings={findings} onSelectFinding={togSel} activeEx={activeEx} setActiveEx={setActiveEx} />
+               : tab==="treatments" ? <TreatmentsTab findings={findings} activeTx={activeTx} setActiveTx={selectTx} txFinding={txFinding} />
+               : tab==="report" ? <ReportTab findings={findings} />
+               : null}
+            </div>
           </div>}
         </div>
       )}
