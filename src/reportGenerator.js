@@ -464,6 +464,44 @@ export function generateReport(findings, joint, recoveryStage) {
   txt(d, "The specialists above contributed to the clinical framework. They have not personally reviewed your specific imaging.", ML, y, {sz:7.5, st:"italic", c:P.txL, mw:PW, lh:3});
 
   // ═══════════════════════════════════════════
+  // QUESTIONS FOR YOUR APPOINTMENT — FIRST SECTION
+  // ═══════════════════════════════════════════
+  y = newPg(d);
+  box(d, ML, y, 3, 10, P.blue);
+  txt(d, "Questions for Your", ML+7, y+4, {sz:20, st:"bold"});
+  txt(d, "Appointment", ML+7, y+10, {sz:20, st:"bold"});
+  y += 16;
+  txt(d, "Bring this page to your visit. Check the ones that matter most to you.", ML+7, y, {sz:10, c:P.txM});
+  y += 10;
+
+  // Build question groups from findings
+  const qGroups = [];
+  findings.forEach(f => {
+    if (f.questions && f.questions.length > 0) {
+      qGroups.push([`About Your ${f.str}`, SC[f.sev] || P.blue, f.questions.slice(0, 5)]);
+    }
+  });
+  // Always add general logistics
+  qGroups.push(["General Questions", P.txM, [
+    "What is the most important thing I should focus on right now?",
+    "Should I start physical therapy before any other decisions?",
+    "Are there activities I should avoid?",
+    "What's the expected timeline for improvement?",
+    "When should I follow up, and what would change your recommendation?",
+  ]]);
+
+  qGroups.forEach(([sec, color, qs]) => {
+    y = checkPg(d, y, 8 + qs.length*5.5);
+    circle(d, ML+2, y+1, 1.5, color);
+    txt(d, sec, ML+6, y+2, {sz:11, st:"bold", c:P.tx}); y += 6;
+    qs.forEach(q => {
+      box(d, ML+4, y-1.5, 3, 3, null, P.bd);
+      txt(d, q, ML+10, y+0.5, {sz:9, c:P.tx}); y += 5.5;
+    });
+    y += 3;
+  });
+
+  // ═══════════════════════════════════════════
   // FINDINGS PAGES — DYNAMIC
   // ═══════════════════════════════════════════
   y = newPg(d);
@@ -523,44 +561,6 @@ export function generateReport(findings, joint, recoveryStage) {
     }
 
     if (fi < findings.length-1) { y += 3; line(d, ML, y, W-MR, y); y += 5; }
-  });
-
-  // ═══════════════════════════════════════════
-  // QUESTIONS PAGE — DYNAMIC
-  // ═══════════════════════════════════════════
-  y = newPg(d);
-  box(d, ML, y, 3, 10, P.blue);
-  txt(d, "Questions for Your", ML+7, y+4, {sz:20, st:"bold"});
-  txt(d, "Appointment", ML+7, y+10, {sz:20, st:"bold"});
-  y += 16;
-  txt(d, "Check the ones that matter to you. Bring this page to your visit.", ML+7, y, {sz:10, c:P.txM});
-  y += 10;
-
-  // Build question groups from findings
-  const qGroups = [];
-  findings.forEach(f => {
-    if (f.questions && f.questions.length > 0) {
-      qGroups.push([`About Your ${f.str}`, SC[f.sev] || P.blue, f.questions.slice(0, 5)]);
-    }
-  });
-  // Always add general logistics
-  qGroups.push(["General Questions", P.txM, [
-    "What is the most important thing I should focus on right now?",
-    "Should I start physical therapy before any other decisions?",
-    "Are there activities I should avoid?",
-    "What's the expected timeline for improvement?",
-    "When should I follow up, and what would change your recommendation?",
-  ]]);
-
-  qGroups.forEach(([sec, color, qs]) => {
-    y = checkPg(d, y, 8 + qs.length*5.5);
-    circle(d, ML+2, y+1, 1.5, color);
-    txt(d, sec, ML+6, y+2, {sz:11, st:"bold", c:P.tx}); y += 6;
-    qs.forEach(q => {
-      box(d, ML+4, y-1.5, 3, 3, null, P.bd);
-      txt(d, q, ML+10, y+0.5, {sz:9, c:P.tx}); y += 5.5;
-    });
-    y += 3;
   });
 
   // ═══════════════════════════════════════════

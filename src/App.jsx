@@ -713,37 +713,59 @@ function ReportPreview({findings,joint,paid,onUnlock,onDismiss,onDownload}){
 
       {/* Scrollable report preview */}
       <div style={{flex:1,overflow:"auto",padding:"16px 20px",position:"relative"}}>
-        {/* Clear section — visible findings summary */}
+        {/* Clear section — appointment questions */}
         <div style={{marginBottom:16}}>
-          <div style={{fontSize:9,fontWeight:700,color:"#AEAEB2",textTransform:"uppercase",letterSpacing:1.2,marginBottom:8}}>MRI Findings Summary</div>
+          <div style={{fontSize:9,fontWeight:700,color:"#0071E3",textTransform:"uppercase",letterSpacing:1.2,marginBottom:8}}>Questions for Your Appointment</div>
+          <div style={{fontSize:11,color:"#6E6E73",marginBottom:10,lineHeight:1.5}}>Bring these to your next visit. Check the ones that matter most.</div>
           {(findings||[]).map((f,i)=>{
+            if(!f.questions||f.questions.length===0)return null;
             const sc=sevColors[f.sev]||"#6E6E73";
             return(
-              <div key={i} style={{padding:"10px 12px",marginBottom:6,borderRadius:8,background:"#fff",border:"1px solid rgba(0,0,0,0.06)"}}>
-                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:3}}>
+              <div key={i} style={{marginBottom:10}}>
+                <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:4}}>
                   <span style={{fontSize:8,fontWeight:700,color:sc,background:sc+"12",padding:"2px 6px",borderRadius:3,textTransform:"uppercase"}}>{f.sev}</span>
-                  <span style={{fontSize:13,fontWeight:700,color:"#1D1D1F",fontFamily:"Georgia,serif"}}>{f.str}</span>
+                  <span style={{fontSize:12,fontWeight:700,color:"#1D1D1F",fontFamily:"Georgia,serif"}}>{f.str}</span>
                 </div>
-                <div style={{fontSize:11,fontWeight:600,color:sc,marginBottom:2}}>{f.path}</div>
-                <div style={{fontSize:11,color:"#6E6E73",lineHeight:1.5}}>{f.desc}</div>
+                {f.questions.slice(0,3).map((q,qi)=>(
+                  <div key={qi} style={{display:"flex",alignItems:"flex-start",gap:8,padding:"6px 10px",marginBottom:3,borderRadius:6,background:"#fff",border:"1px solid rgba(0,0,0,0.06)"}}>
+                    <div style={{width:14,height:14,borderRadius:3,border:"1.5px solid #AEAEB2",flexShrink:0,marginTop:1}} />
+                    <span style={{fontSize:11,color:"#1D1D1F",lineHeight:1.4}}>{q}</span>
+                  </div>
+                ))}
               </div>
             );
           })}
+          {/* General questions */}
+          <div style={{marginBottom:6}}>
+            <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:4}}>
+              <span style={{fontSize:12,fontWeight:700,color:"#6E6E73"}}>General Questions</span>
+            </div>
+            {["What should I focus on right now?","Should I start PT before other decisions?","What activities should I avoid?"].map((q,qi)=>(
+              <div key={qi} style={{display:"flex",alignItems:"flex-start",gap:8,padding:"6px 10px",marginBottom:3,borderRadius:6,background:"#fff",border:"1px solid rgba(0,0,0,0.06)"}}>
+                <div style={{width:14,height:14,borderRadius:3,border:"1.5px solid #AEAEB2",flexShrink:0,marginTop:1}} />
+                <span style={{fontSize:11,color:"#1D1D1F",lineHeight:1.4}}>{q}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Transition — gradient fade to blur */}
         <div style={{position:"relative"}}>
           {/* Blurred content */}
           <div style={{filter:"blur(4px)",opacity:.6,pointerEvents:"none",userSelect:"none"}}>
-            <div style={{fontSize:9,fontWeight:700,color:"#AEAEB2",textTransform:"uppercase",letterSpacing:1.2,marginBottom:8}}>Questions Your Doctor Will Ask</div>
-            {(findings||[]).slice(0,2).map((f,i)=>(
-              <div key={i} style={{marginBottom:8}}>
-                <div style={{fontSize:11,fontWeight:700,color:"#1D1D1F",marginBottom:4}}>{f.str}</div>
-                {(f.questions||[]).slice(0,2).map((q,qi)=>(
-                  <div key={qi} style={{padding:"6px 10px",marginBottom:3,borderRadius:6,background:"#F5F9FE",border:"1px solid rgba(0,113,227,0.08)",fontSize:11,color:"#6E6E73"}}>{q}</div>
-                ))}
-              </div>
-            ))}
+            <div style={{fontSize:9,fontWeight:700,color:"#AEAEB2",textTransform:"uppercase",letterSpacing:1.2,marginBottom:8}}>Your MRI Findings Explained</div>
+            {(findings||[]).slice(0,2).map((f,i)=>{
+              const sc=sevColors[f.sev]||"#6E6E73";
+              return(
+                <div key={i} style={{padding:"10px 12px",marginBottom:6,borderRadius:8,background:"#fff",border:"1px solid rgba(0,0,0,0.06)"}}>
+                  <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:3}}>
+                    <span style={{fontSize:8,fontWeight:700,color:sc,background:sc+"12",padding:"2px 6px",borderRadius:3,textTransform:"uppercase"}}>{f.sev}</span>
+                    <span style={{fontSize:13,fontWeight:700,color:"#1D1D1F"}}>{f.str}</span>
+                  </div>
+                  <div style={{fontSize:11,color:"#6E6E73",lineHeight:1.5}}>{f.desc?.slice(0,100)}...</div>
+                </div>
+              );
+            })}
 
             <div style={{fontSize:9,fontWeight:700,color:"#AEAEB2",textTransform:"uppercase",letterSpacing:1.2,marginBottom:8,marginTop:16}}>Treatment Comparison</div>
             {(findings||[]).slice(0,1).flatMap(f=>f.treatments||[]).slice(0,3).map((tx,i)=>(
