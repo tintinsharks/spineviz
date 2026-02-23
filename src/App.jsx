@@ -1039,23 +1039,75 @@ export default function App(){
   const styles=<style>{`*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,'SF Pro Text','Helvetica Neue',sans-serif;-webkit-font-smoothing:antialiased}::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:rgba(0,0,0,.08);border-radius:4px}textarea::placeholder{color:#AEAEB2}textarea:focus{outline:none;border-color:#0071E3 !important;box-shadow:0 0 0 3px rgba(0,113,227,.07)}@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes spin{to{transform:rotate(360deg)}}@keyframes slideInRight{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}`}</style>;
 
   // ─── MOBILE ───
+  const mobContainerRef=useRef(null);
+  const [mobSplit,setMobSplit]=useState(55); // percentage for 3D viewport height
+  const mobDragging=useRef(false);
+
+  const mobDragStart=useCallback((e)=>{
+    e.preventDefault();
+    mobDragging.current=true;
+    const isTouch=e.type==="touchstart";
+    const getY=(ev)=>isTouch?(ev.touches?.[0]?.clientY??0):(ev.clientY??0);
+    const onMove=(ev)=>{
+      if(!mobDragging.current||!mobContainerRef.current)return;
+      if(isTouch)ev.preventDefault();
+      const rect=mobContainerRef.current.getBoundingClientRect();
+      const y=getY(ev)-rect.top;
+      const pct=Math.max(25,Math.min(75,(y/rect.height)*100));
+      setMobSplit(pct);
+    };
+    const onEnd=()=>{
+      mobDragging.current=false;
+      document.removeEventListener(isTouch?"touchmove":"mousemove",onMove);
+      document.removeEventListener(isTouch?"touchend":"mouseup",onEnd);
+      document.body.style.userSelect="";
+    };
+    document.addEventListener(isTouch?"touchmove":"mousemove",onMove,isTouch?{passive:false}:undefined);
+    document.addEventListener(isTouch?"touchend":"mouseup",onEnd);
+    document.body.style.userSelect="none";
+  },[]);
+
+  const hasDetail=!!(activeEx||activeTx||detailFinding);
+  const mobDetailContent=activeEx
+    ? <ExerciseDetail ex={activeEx} onClose={()=>setActiveEx(null)} mob={true} />
+    : activeTx
+    ? <TreatmentDetail tx={activeTx} finding={txFinding} onClose={handleTxClose} allFindings={findings} />
+    : detailFinding
+    ? <FindingDetail finding={detailFinding} onClose={()=>{setDetailFinding(null);setActive(null)}} mob={true} onSelectTx={selectTx} />
+    : null;
+
   if(mob)return(
     <div style={{width:"100%",height:"100vh",background:T.bg,display:"flex",flexDirection:"column",overflow:"hidden"}}>
       {styles}{hdr}
       {phase==="input"?<div style={{flex:1,overflow:"auto",padding:16,display:"flex",flexDirection:"column"}}>{inputUI()}</div>:(
-        <>
-          <div style={{height:"55vh",position:"relative",flexShrink:0}}>
+        <div ref={mobContainerRef} style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden",position:"relative"}}>
+          {/* 3D Viewport */}
+          <div style={{height:`${mobSplit}%`,position:"relative",flexShrink:0,overflow:"hidden"}}>
             <KneeCanvas findings={findings} active={active} phase={phase} showH={showH} />
             {phase==="revealing"&&<NCard f={active} i={ri} n={FD.length} onN={()=>setRi(i=>i+1)} onP={()=>setRi(i=>Math.max(0,i-1))} mob={true} />}
             {phase==="analyzing"&&<div style={{position:"absolute",inset:0,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",background:"rgba(245,244,241,.6)"}}><div style={{width:28,height:28,border:`3px solid ${T.bgD}`,borderTopColor:T.ac,borderRadius:"50%",animation:"spin .8s linear infinite"}} /><span style={{fontSize:13,color:T.txM,marginTop:10}}>Analyzing...</span></div>}
           </div>
-          {phase==="summary"&&findings&&<div style={{flex:1,overflow:"auto",padding:16,background:T.sf,borderTop:`1px solid ${T.bd}`}}>
-            {activeEx ? <ExerciseDetail ex={activeEx} onClose={()=>setActiveEx(null)} mob={true} />
-             : activeTx ? <TreatmentDetail tx={activeTx} finding={txFinding} onClose={handleTxClose} allFindings={findings} />
-             : detailFinding ? <FindingDetail finding={detailFinding} onClose={()=>{setDetailFinding(null);setActive(null)}} mob={true} onSelectTx={selectTx} />
+          {/* Vertical drag handle */}
+          {phase==="summary"&&findings&&(
+            <div
+              onMouseDown={mobDragStart}
+              onTouchStart={mobDragStart}
+              style={{
+                height:10,flexShrink:0,cursor:"row-resize",background:T.sf,
+                borderTop:"1px solid rgba(0,0,0,0.06)",borderBottom:"1px solid rgba(0,0,0,0.06)",
+                display:"flex",alignItems:"center",justifyContent:"center",
+                touchAction:"none",zIndex:5,
+              }}
+            >
+              <div style={{width:36,height:3,borderRadius:2,background:"rgba(0,0,0,0.12)"}} />
+            </div>
+          )}
+          {/* Bottom panel */}
+          {phase==="summary"&&findings&&<div style={{flex:1,overflow:"auto",padding:16,background:T.sf}}>
+            {hasDetail ? mobDetailContent
              : <TabbedPanel findings={findings} active={active} onSel={togSel} mob={true} tab={tab} setTab={onTabChange} activeEx={activeEx} setActiveEx={setActiveEx} activeTx={activeTx} setActiveTx={selectTx} txFinding={txFinding} />}
           </div>}
-        </>
+        </div>
       )}
     </div>
   );
