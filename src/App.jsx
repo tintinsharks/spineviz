@@ -397,29 +397,247 @@ function TabBar({tab,setTab,mob,paid}){
   );
 }
 
-/* ═══════════════════ REPORT TAB ═══════════════════ */
-function ReportTab({findings}){
-  return(
-    <div style={{animation:"fadeIn .4s"}}>
-      <div style={{textAlign:"center",padding:"20px 0 10px"}}>
-        <div style={{fontSize:40,marginBottom:10}}>📄</div>
-        <div style={{fontSize:15,fontWeight:600,color:"#1D1D1F",marginBottom:4}}>Multi-Specialist Report</div>
-        <div style={{fontSize:12,color:"#AEAEB2",lineHeight:1.5,maxWidth:280,margin:"0 auto 16px"}}>
-          Full findings analysis with specialist perspectives, questions for your doctor, treatment landscape, and phased exercise plan.
-        </div>
-        <button onClick={()=>generateReport(findings)} style={{
-          background:"#0071E3",border:"none",color:"#fff",padding:"11px 28px",borderRadius:10,
-          fontSize:14,fontWeight:600,cursor:"pointer",marginBottom:14
-        }}>Download PDF Report</button>
-        <div style={{fontSize:10,color:"#AEAEB2"}}>Generated instantly in your browser</div>
+/* ═══════════════════ REPORT TAB — Clinical Intake ═══════════════════ */
+
+const MEDICAL_CONDITIONS=[
+  "Diabetes","Osteoporosis","Rheumatoid Arthritis","Osteoarthritis","Heart Disease",
+  "Blood Clotting Disorder","Obesity (BMI > 30)","Previous Knee Surgery","Steroid Use",
+  "Autoimmune Condition","Peripheral Neuropathy","Chronic Pain Syndrome",
+];
+
+// Generate finding-aware questions
+function getIntakeQuestions(findings){
+  const hasACL=findings.some(f=>f.id?.includes("acl")||f.str?.includes("ACL"));
+  const hasMeniscus=findings.some(f=>f.id?.includes("meniscus")||f.str?.includes("Meniscus"));
+  const hasSurgical=findings.some(f=>f.sev==="severe");
+  const hasCartilage=findings.some(f=>f.id?.includes("cartilage")||f.str?.includes("Cartilage"));
+
+  const qs=[];
+
+  // Q1 — always: instability / mechanical symptoms (yes/no)
+  qs.push({
+    id:"instability",type:"yesno",
+    q: hasACL
+      ? "Does your knee give way or feel unstable when changing direction or stepping off a curb?"
+      : hasMeniscus
+      ? "Does your knee catch, lock, or feel like something is getting in the way?"
+      : "Do you have difficulty bearing full weight on the affected knee?",
+    why: hasACL
+      ? "Functional instability is the primary factor in deciding between reconstruction and conservative management."
+      : "Mechanical symptoms help determine whether surgical intervention may be needed.",
+  });
+
+  // Q2 — always: pain severity (slider 0-10)
+  qs.push({
+    id:"pain",type:"slider",min:0,max:10,
+    q:"Rate your current pain level at its worst during daily activities.",
+    labels:["No pain","Moderate","Severe"],
+    why:"Pain severity helps calibrate treatment urgency and guides medication recommendations.",
+  });
+
+  // Q3 — always: activity goals (multi-select)
+  qs.push({
+    id:"goals",type:"tags",
+    q:"What activities are important to you? Select all that apply.",
+    options:["Running","Cutting/Pivoting Sports","Weightlifting","Hiking","Cycling","Swimming","Yoga/Flexibility","Walking Daily","Desk Work Only","Return to Competition"],
+    why:"Your activity goals are the single most important factor in choosing between treatment approaches.",
+  });
+
+  // Q4 — contextual: prior treatment or surgery history (yes/no + conditional)
+  qs.push({
+    id:"prior",type:"yesno",
+    q: hasSurgical
+      ? "Have you had any previous surgery on this knee?"
+      : hasCartilage
+      ? "Have you had knee injections (cortisone, gel, PRP) in the past?"
+      : "Have you tried physical therapy for this knee before?",
+    why:"Prior treatments and their outcomes significantly influence the next steps your physician will recommend.",
+  });
+
+  // Q5 — always: medical history (tag selector)
+  qs.push({
+    id:"history",type:"conditions",
+    q:"Do you have any of these conditions? Select all that apply.",
+    options:MEDICAL_CONDITIONS,
+    why:"Certain conditions affect healing, surgical risk, and medication options. This helps your care team plan safely.",
+  });
+
+  return qs;
+}
+
+function ReportTab({findings,onGenerateReport}){
+  const[step,setStep]=useState(0); // 0=intro, 1-5=questions, 6=complete
+  const[answers,setAnswers]=useState({});
+  const questions=getIntakeQuestions(findings||[]);
+  const total=questions.length;
+
+  const setAnswer=(id,val)=>setAnswers(p=>({...p,[id]:val}));
+  const current=questions[step-1];
+  const canNext=step===0||
+    (current?.type==="yesno"&&answers[current.id]!=null)||
+    (current?.type==="slider"&&answers[current.id]!=null)||
+    (current?.type==="tags"&&answers[current.id]?.length>0)||
+    (current?.type==="conditions"); // conditions are optional
+
+  // ─── Intro ───
+  if(step===0) return(
+    <div style={{animation:"fadeIn .4s",textAlign:"center",padding:"16px 0"}}>
+      <div style={{fontSize:36,marginBottom:10}}>📋</div>
+      <div style={{fontSize:16,fontWeight:700,color:"#1D1D1F",marginBottom:4,fontFamily:"Georgia,serif"}}>Build Your Report</div>
+      <div style={{fontSize:12,color:"#6E6E73",lineHeight:1.6,maxWidth:280,margin:"0 auto 20px"}}>
+        Answer {total} quick questions so we can personalize your report to your specific situation, goals, and medical history.
       </div>
-      <div style={{marginTop:14,padding:"10px 12px",background:"#FAFAF8",borderRadius:8,border:"1px solid rgba(0,0,0,0.06)"}}>
-        <div style={{fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:1.5,color:"#AEAEB2",marginBottom:8}}>What's Included</div>
-        {["5 findings analyzed with severity assessment","Specialist perspectives from our advisory panel","20+ questions organized by specialty","Treatment pathways comparison","3-phase exercise program (12 weeks)","Recovery timeline: conservative vs. surgical"].map((item,i)=>(
-          <div key={i} style={{fontSize:11,color:"#6E6E73",padding:"4px 0",display:"flex",alignItems:"center",gap:6}}>
-            <span style={{color:"#0071E3",fontSize:12}}>✓</span>{item}
+      <button onClick={()=>setStep(1)} style={{
+        background:"#0071E3",border:"none",color:"#fff",padding:"11px 32px",borderRadius:10,
+        fontSize:14,fontWeight:600,cursor:"pointer",boxShadow:"0 4px 12px rgba(0,113,227,0.2)",
+      }}>Start Assessment</button>
+      <div style={{fontSize:10,color:"#AEAEB2",marginTop:10}}>Takes about 30 seconds</div>
+    </div>
+  );
+
+  // ─── Complete ───
+  if(step>total) return(
+    <div style={{animation:"fadeIn .4s",textAlign:"center",padding:"16px 0"}}>
+      <div style={{fontSize:36,marginBottom:10}}>✅</div>
+      <div style={{fontSize:16,fontWeight:700,color:"#1D1D1F",marginBottom:4,fontFamily:"Georgia,serif"}}>Assessment Complete</div>
+      <div style={{fontSize:12,color:"#6E6E73",lineHeight:1.6,maxWidth:280,margin:"0 auto 16px"}}>
+        Your personalized report is ready with recommendations based on your {findings?.length||0} findings, activity goals, and medical history.
+      </div>
+      <button onClick={()=>onGenerateReport?.(findings,answers)} style={{
+        background:"#0071E3",border:"none",color:"#fff",padding:"11px 28px",borderRadius:10,
+        fontSize:14,fontWeight:600,cursor:"pointer",boxShadow:"0 4px 12px rgba(0,113,227,0.2)",marginBottom:10,
+      }}>Download PDF Report</button>
+      <div style={{fontSize:10,color:"#AEAEB2",marginBottom:14}}>Generated instantly in your browser</div>
+      {/* Answer summary */}
+      <div style={{textAlign:"left",padding:"10px 12px",background:"#FAFAF8",borderRadius:8,border:"1px solid rgba(0,0,0,0.06)"}}>
+        <div style={{fontSize:9,fontWeight:700,textTransform:"uppercase",letterSpacing:1.5,color:"#AEAEB2",marginBottom:8}}>Your Responses</div>
+        {questions.map((q,i)=>{
+          const a=answers[q.id];
+          let display="—";
+          if(q.type==="yesno")display=a===true?"Yes":a===false?"No":"—";
+          if(q.type==="slider")display=a!=null?`${a}/10`:"—";
+          if(q.type==="tags"||q.type==="conditions")display=a?.length>0?a.join(", "):"None selected";
+          return(
+            <div key={i} style={{marginBottom:8,paddingBottom:8,borderBottom:i<questions.length-1?"1px solid rgba(0,0,0,0.04)":"none"}}>
+              <div style={{fontSize:10,color:"#AEAEB2",marginBottom:2}}>Q{i+1}</div>
+              <div style={{fontSize:11,color:"#1D1D1F",fontWeight:600,marginBottom:2}}>{q.q}</div>
+              <div style={{fontSize:11,color:"#0071E3"}}>{display}</div>
+            </div>
+          );
+        })}
+      </div>
+      <button onClick={()=>{setStep(0);setAnswers({})}} style={{marginTop:10,background:"none",border:"1px solid rgba(0,0,0,0.08)",color:"#AEAEB2",padding:"6px 14px",borderRadius:6,fontSize:10,cursor:"pointer"}}>Retake Assessment</button>
+    </div>
+  );
+
+  // ─── Question card ───
+  const val=answers[current.id];
+  return(
+    <div style={{animation:"fadeIn .25s",padding:"8px 0"}}>
+      {/* Progress */}
+      <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
+        <div style={{flex:1,height:4,background:"#ECEAE6",borderRadius:2,overflow:"hidden"}}>
+          <div style={{height:"100%",width:`${(step/total)*100}%`,background:"#0071E3",borderRadius:2,transition:"width .3s"}} />
+        </div>
+        <span style={{fontSize:10,color:"#AEAEB2",fontWeight:600,flexShrink:0}}>{step}/{total}</span>
+      </div>
+
+      {/* Question */}
+      <div style={{fontSize:14,fontWeight:700,color:"#1D1D1F",lineHeight:1.5,marginBottom:4,fontFamily:"Georgia,serif"}}>{current.q}</div>
+      <div style={{fontSize:10,color:"#AEAEB2",lineHeight:1.5,marginBottom:14,fontStyle:"italic"}}>{current.why}</div>
+
+      {/* ── Yes/No ── */}
+      {current.type==="yesno"&&(
+        <div style={{display:"flex",gap:8,marginBottom:16}}>
+          {[true,false].map(v=>(
+            <button key={String(v)} onClick={()=>setAnswer(current.id,v)} style={{
+              flex:1,padding:"14px 12px",borderRadius:10,border:`2px solid ${val===v?"#0071E3":"rgba(0,0,0,0.08)"}`,
+              background:val===v?"rgba(0,113,227,0.06)":"#fff",cursor:"pointer",
+              fontSize:14,fontWeight:700,color:val===v?"#0071E3":"#6E6E73",transition:"all .15s",
+            }}>{v?"Yes":"No"}</button>
+          ))}
+        </div>
+      )}
+
+      {/* ── Slider ── */}
+      {current.type==="slider"&&(
+        <div style={{marginBottom:16}}>
+          <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:8}}>
+            <input type="range" min={current.min} max={current.max} step={1}
+              value={val!=null?val:0}
+              onChange={e=>setAnswer(current.id,parseInt(e.target.value))}
+              style={{flex:1,accentColor:"#0071E3",height:6}}
+            />
+            <div style={{
+              width:40,height:40,borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",
+              background:val!=null?(val<=3?"#E8F5EC":val<=6?"#FFF3E0":"#FEECEF"):"#F5F4F1",
+              fontSize:18,fontWeight:800,fontFamily:"monospace",flexShrink:0,
+              color:val!=null?(val<=3?"#2D8B4E":val<=6?"#C45D00":"#BF1029"):"#AEAEB2",
+              transition:"all .2s",
+            }}>{val!=null?val:"—"}</div>
           </div>
-        ))}
+          <div style={{display:"flex",justifyContent:"space-between"}}>
+            {current.labels.map((l,i)=>(
+              <span key={i} style={{fontSize:9,color:"#AEAEB2",fontWeight:600}}>{l}</span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Tag selector (activities) ── */}
+      {current.type==="tags"&&(
+        <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:16}}>
+          {current.options.map(opt=>{
+            const sel=(val||[]).includes(opt);
+            return(
+              <button key={opt} onClick={()=>{
+                const cur=val||[];
+                setAnswer(current.id,sel?cur.filter(x=>x!==opt):[...cur,opt]);
+              }} style={{
+                padding:"8px 14px",borderRadius:8,fontSize:11,fontWeight:600,cursor:"pointer",
+                border:`1.5px solid ${sel?"#0071E3":"rgba(0,0,0,0.08)"}`,
+                background:sel?"rgba(0,113,227,0.06)":"#fff",
+                color:sel?"#0071E3":"#6E6E73",transition:"all .15s",
+              }}>{sel?"✓ ":""}{opt}</button>
+            );
+          })}
+        </div>
+      )}
+
+      {/* ── Conditions (medical history tags) ── */}
+      {current.type==="conditions"&&(
+        <div style={{marginBottom:16}}>
+          <div style={{display:"flex",flexWrap:"wrap",gap:5}}>
+            {current.options.map(opt=>{
+              const sel=(val||[]).includes(opt);
+              return(
+                <button key={opt} onClick={()=>{
+                  const cur=val||[];
+                  setAnswer(current.id,sel?cur.filter(x=>x!==opt):[...cur,opt]);
+                }} style={{
+                  padding:"6px 11px",borderRadius:7,fontSize:10,fontWeight:600,cursor:"pointer",
+                  border:`1.5px solid ${sel?"#6B3FA0":"rgba(0,0,0,0.06)"}`,
+                  background:sel?"rgba(107,63,160,0.06)":"#fff",
+                  color:sel?"#6B3FA0":"#6E6E73",transition:"all .15s",
+                }}>{sel?"✓ ":""}{opt}</button>
+              );
+            })}
+          </div>
+          <div style={{fontSize:10,color:"#AEAEB2",marginTop:8}}>Select all that apply, or skip if none.</div>
+        </div>
+      )}
+
+      {/* Navigation */}
+      <div style={{display:"flex",gap:8}}>
+        {step>1&&<button onClick={()=>setStep(s=>s-1)} style={{
+          padding:"10px 18px",borderRadius:8,border:"1px solid rgba(0,0,0,0.08)",
+          background:"#fff",color:"#6E6E73",fontSize:12,fontWeight:600,cursor:"pointer",
+        }}>← Back</button>}
+        <button onClick={()=>setStep(s=>s+1)} disabled={!canNext} style={{
+          flex:1,padding:"10px 18px",borderRadius:8,border:"none",
+          background:canNext?"#0071E3":"#ECEAE6",color:canNext?"#fff":"#AEAEB2",
+          fontSize:12,fontWeight:700,cursor:canNext?"pointer":"not-allowed",transition:"all .2s",
+        }}>{step===total?"Complete Assessment":"Next →"}</button>
       </div>
     </div>
   );
@@ -622,7 +840,7 @@ function TabbedPanel({findings,active,onSel,mob,tab,setTab,activeEx,setActiveEx,
       {tab==="findings"&&<Summary findings={findings} active={active} onSel={onSel} mob={mob} />}
       {tab==="exercises"&&<PTLibrary findings={findings} onSelectFinding={onSel} activeEx={activeEx} setActiveEx={setActiveEx} />}
       {tab==="treatments"&&<TreatmentsTab findings={findings} activeTx={activeTx} setActiveTx={(tx,f)=>setActiveTx(tx,f)} txFinding={txFinding} />}
-      {tab==="report"&&<ReportTab findings={findings} />}
+      {tab==="report"&&<ReportTab findings={findings} onGenerateReport={(f,a)=>generateReport(f)} />}
     </>
   );
 }
@@ -1366,7 +1584,7 @@ export default function App(){
                : tab==="findings" ? <Summary findings={findings} active={active} onSel={togSel} mob={true} />
                : tab==="exercises" ? <PTLibrary findings={findings} onSelectFinding={togSel} activeEx={activeEx} setActiveEx={setActiveEx} />
                : tab==="treatments" ? <TreatmentsTab findings={findings} activeTx={activeTx} setActiveTx={selectTx} txFinding={txFinding} />
-               : tab==="report" ? <ReportTab findings={findings} />
+               : tab==="report" ? <ReportTab findings={findings} onGenerateReport={(f,a)=>generateReport(f)} />
                : null}
             </div>
           </div>}
