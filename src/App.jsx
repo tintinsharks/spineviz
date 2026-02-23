@@ -661,7 +661,7 @@ function Summary({findings,active,onSel,mob}){
 }
 
 /* ═══════════════════ PAYWALL COMPONENTS ═══════════════════ */
-const PRICE="$10";
+const PRICE="$5";
 const PRICE_LABEL="Full ClearScan Report";
 
 function PaywallBanner({onUnlock,compact}){
