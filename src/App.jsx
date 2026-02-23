@@ -383,7 +383,7 @@ function Trust(){return(
 
 /* ═══════════════════ TAB BAR ═══════════════════ */
 function TabBar({tab,setTab,mob,paid}){
-  const tabs=[["findings","Findings"],["exercises","Exercises"],["treatments","Treatments"],["report","Report"]];
+  const tabs=[["findings","Findings"],["treatments","Treatments"],["report","Report"],["exercises","Exercises"]];
   return(
     <div style={{display:"flex",gap:3,background:"#ECEAE6",borderRadius:9,padding:3,marginBottom:mob?12:14,flexShrink:0}}>
       {tabs.map(([k,label])=>(
@@ -465,7 +465,7 @@ function getIntakeQuestions(findings){
   return qs;
 }
 
-function ReportTab({findings,onGenerateReport}){
+function ReportTab({findings,onGenerateReport,onComplete}){
   const[step,setStep]=useState(0); // 0=intro, 1-5=questions, 6=complete
   const[answers,setAnswers]=useState({});
   const questions=getIntakeQuestions(findings||[]);
@@ -633,7 +633,7 @@ function ReportTab({findings,onGenerateReport}){
           padding:"10px 18px",borderRadius:8,border:"1px solid rgba(0,0,0,0.08)",
           background:"#fff",color:"#6E6E73",fontSize:12,fontWeight:600,cursor:"pointer",
         }}>← Back</button>}
-        <button onClick={()=>setStep(s=>s+1)} disabled={!canNext} style={{
+        <button onClick={()=>{if(step===total){onComplete?.(answers)}setStep(s=>s+1)}} disabled={!canNext} style={{
           flex:1,padding:"10px 18px",borderRadius:8,border:"none",
           background:canNext?"#0071E3":"#ECEAE6",color:canNext?"#fff":"#AEAEB2",
           fontSize:12,fontWeight:700,cursor:canNext?"pointer":"not-allowed",transition:"all .2s",
@@ -838,9 +838,9 @@ function TabbedPanel({findings,active,onSel,mob,tab,setTab,activeEx,setActiveEx,
     <>
       <TabBar tab={tab} setTab={setTab} mob={mob} paid={paid} />
       {tab==="findings"&&<Summary findings={findings} active={active} onSel={onSel} mob={mob} />}
-      {tab==="exercises"&&<PTLibrary findings={findings} onSelectFinding={onSel} activeEx={activeEx} setActiveEx={setActiveEx} />}
+      {tab==="exercises"&&<PTLibrary findings={findings} onSelectFinding={onSel} activeEx={activeEx} setActiveEx={setActiveEx} assessAnswers={assessAnswers} />}
       {tab==="treatments"&&<TreatmentsTab findings={findings} activeTx={activeTx} setActiveTx={(tx,f)=>setActiveTx(tx,f)} txFinding={txFinding} />}
-      {tab==="report"&&<ReportTab findings={findings} onGenerateReport={(f,a)=>generateReport(f)} />}
+      {tab==="report"&&<ReportTab findings={findings} onGenerateReport={(f,a)=>generateReport(f)} onComplete={(a)=>setAssessAnswers(a)} />}
     </>
   );
 }
@@ -1391,6 +1391,7 @@ export default function App(){
   const[txFinding,setTxFinding]=useState(null);
   const[paid,setPaid]=useState(false);
   const[checkingPayment,setCheckingPayment]=useState(false);
+  const[assessAnswers,setAssessAnswers]=useState(null); // null = not completed
   useEffect(()=>{const c=()=>setMob(window.innerWidth<768);c();window.addEventListener("resize",c);return()=>window.removeEventListener("resize",c)},[]);
 
   // Check for payment return from Stripe
@@ -1459,7 +1460,7 @@ export default function App(){
     if(phase==="revealing"&&findings&&ri>=findings.length){setPhase("summary");setActive(null)}
   },[ri,phase,findings]);
 
-  const reset=()=>{setPhase("input");setFindings(null);setRi(-1);setActive(null);setShowH(false);setText("");setTab("findings");setActiveEx(null);setDetailFinding(null);setActiveTx(null);setTxFinding(null);setErr(null)};
+  const reset=()=>{setPhase("input");setFindings(null);setRi(-1);setActive(null);setShowH(false);setText("");setTab("findings");setActiveEx(null);setDetailFinding(null);setActiveTx(null);setTxFinding(null);setErr(null);setAssessAnswers(null)};
   const togSel=f=>{
     const deselecting = active?.id===f.id;
     setActive(deselecting?null:f);
@@ -1582,9 +1583,9 @@ export default function App(){
             <div style={{flex:1,overflow:"auto",padding:"0 16px 16px"}}>
               {hasDetail ? mobDetailContent
                : tab==="findings" ? <Summary findings={findings} active={active} onSel={togSel} mob={true} />
-               : tab==="exercises" ? <PTLibrary findings={findings} onSelectFinding={togSel} activeEx={activeEx} setActiveEx={setActiveEx} />
+               : tab==="exercises" ? <PTLibrary findings={findings} onSelectFinding={togSel} activeEx={activeEx} setActiveEx={setActiveEx} assessAnswers={assessAnswers} />
                : tab==="treatments" ? <TreatmentsTab findings={findings} activeTx={activeTx} setActiveTx={selectTx} txFinding={txFinding} />
-               : tab==="report" ? <ReportTab findings={findings} onGenerateReport={(f,a)=>generateReport(f)} />
+               : tab==="report" ? <ReportTab findings={findings} onGenerateReport={(f,a)=>generateReport(f)} onComplete={(a)=>setAssessAnswers(a)} />
                : null}
             </div>
           </div>}

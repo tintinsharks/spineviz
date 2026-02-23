@@ -123,16 +123,42 @@ const PHASE_NAMES = { 1: "Phase 1: Early Recovery", 2: "Phase 2: Building Streng
 const PHASE_TIME = { 1: "Weeks 1-2", 2: "Weeks 3-6", 3: "Weeks 7-12" };
 const PHASE_COLOR = { 1: "#0071E3", 2: "#2D8B4E", 3: "#6B3FA0" };
 
-export default function PTLibrary({ findings, onSelectFinding, activeEx, setActiveEx }) {
+export default function PTLibrary({ findings, onSelectFinding, activeEx, setActiveEx, assessAnswers }) {
   const [viewMode, setViewMode] = useState("byPhase"); // byPhase | byFinding
   const [activePhase, setActivePhase] = useState(null);
 
   if (!findings || findings.length === 0) return null;
 
+  // If assessment not yet completed, show prompt
+  if (!assessAnswers) return (
+    <div style={{animation:"fadeIn .4s",textAlign:"center",padding:"24px 10px"}}>
+      <div style={{fontSize:36,marginBottom:10}}>🏋️</div>
+      <div style={{fontSize:15,fontWeight:700,color:"#1D1D1F",marginBottom:6,fontFamily:"Georgia,serif"}}>Your Exercise Program</div>
+      <div style={{fontSize:12,color:"#6E6E73",lineHeight:1.6,maxWidth:280,margin:"0 auto 16px"}}>
+        Complete the clinical assessment in the <strong>Report</strong> tab first. We'll use your pain level, activity goals, and medical history to build a personalized exercise program.
+      </div>
+      <div style={{padding:"10px 14px",background:"rgba(0,113,227,0.04)",borderRadius:8,border:"1px solid rgba(0,113,227,0.08)"}}>
+        <div style={{fontSize:11,color:"#0071E3",fontWeight:600}}>→ Go to the Report tab to start</div>
+      </div>
+    </div>
+  );
+
+  // ── Assessment-based customization ──
+  const painLevel = assessAnswers.pain ?? 5;
+  const goals = assessAnswers.goals || [];
+  const conditions = assessAnswers.history || [];
+  const hasInstability = assessAnswers.instability === true;
+  const hadPriorTx = assessAnswers.prior === true;
+
+  // Condition flags
+  const hasOsteoporosis = conditions.includes("Osteoporosis");
+  const hasOA = conditions.includes("Osteoarthritis");
+  const hasRA = conditions.includes("Rheumatoid Arthritis");
+  const hasObesity = conditions.includes("Obesity (BMI > 30)");
+  const isHighImpactGoal = goals.some(g => ["Running","Cutting/Pivoting Sports","Return to Competition"].includes(g));
+  const isLowImpactGoal = goals.some(g => ["Cycling","Swimming","Yoga/Flexibility","Walking Daily","Desk Work Only"].includes(g));
+
   // Map finding IDs to exercise target tags
-  // NLP IDs look like "acl_0", "meniscus_medial_1", "effusion_2" etc.
-  // Demo IDs are "men", "acl", "bone", "eff", "cart"
-  // Exercise targets use: "acl", "men", "eff", "cart", "bone", "pcl", "mcl"
   const STRUCTURE_TO_TAG = {
     acl: "acl", pcl: "pcl", mcl: "mcl", lcl: "lcl",
     meniscus_medial: "men", meniscus_lateral: "men",
@@ -160,6 +186,73 @@ export default function PTLibrary({ findings, onSelectFinding, activeEx, setActi
 
   const relevantExercises = EXERCISES.filter(ex => ex.targets.some(t => findingTags.has(t)));
 
+  // ── Customize exercises based on assessment ──
+  const customizedExercises = relevantExercises.map(ex => {
+    const custom = { ...ex, notes: [], adjustedRx: ex.rx };
+
+    // Pain-based adjustments
+    if (painLevel >= 7) {
+      if (ex.phase >= 2) custom.notes.push("⚠️ Start conservatively given your high pain level. Reduce reps by half and progress only when pain-free.");
+      if (ex.phase === 1) custom.adjustedRx = ex.rx.replace(/(\d+)\s*reps/i, (m, n) => `${Math.max(5, Math.ceil(n*0.7))} reps`);
+    } else if (painLevel <= 3) {
+      if (ex.phase === 1) custom.notes.push("Your pain is well-controlled — focus on quality and consistency over quantity.");
+    }
+
+    // Goal-based emphasis
+    if (isHighImpactGoal && ex.phase === 3) {
+      custom.notes.push("⭐ Priority exercise for your return-to-sport goals.");
+      custom.priority = true;
+    }
+    if (isLowImpactGoal && !isHighImpactGoal && ex.id === "plyo") {
+      custom.notes.push("Optional — include only if your goals evolve toward higher-impact activities.");
+      custom.optional = true;
+    }
+
+    // Condition-based modifications
+    if (hasOsteoporosis && ex.id === "plyo") {
+      custom.notes.push("⚠️ Modified protocol recommended due to osteoporosis. Discuss impact activities with your physician.");
+    }
+    if (hasOA && ex.phase >= 2) {
+      custom.notes.push("Lower reps with longer holds may be better tolerated with osteoarthritis.");
+    }
+    if (hasObesity) {
+      if (ex.id === "slr" || ex.id === "qs") custom.notes.push("Excellent starting exercise — builds strength without joint loading.");
+      if (ex.id === "plyo") custom.notes.push("⚠️ Progress gradually to reduce joint stress. Body weight management can significantly reduce knee load.");
+    }
+    if (hasRA) {
+      custom.notes.push("Monitor joint response carefully. Skip on flare days. Water-based alternatives may be beneficial.");
+    }
+
+    // Instability-based
+    if (hasInstability && ex.targets.includes("acl")) {
+      if (ex.phase === 1) custom.notes.push("Critical for your knee stability. Prioritize this exercise.");
+      if (ex.id === "slb") custom.notes.push("⭐ Especially important given your reported instability. Progress slowly through difficulty levels.");
+    }
+
+    // Prior treatment context
+    if (hadPriorTx && ex.phase === 1) {
+      custom.notes.push("If you've done these before, your baseline may be higher. Start where you left off if comfortable.");
+    }
+
+    return custom;
+  })
+
+  // Filter: if very high pain, defer phase 3
+  .filter(ex => {
+    if (painLevel >= 8 && ex.phase === 3) return false;
+    return true;
+  })
+
+  // Sort: priority exercises first within each phase
+  .sort((a, b) => {
+    if (a.phase !== b.phase) return a.phase - b.phase;
+    if (a.priority && !b.priority) return -1;
+    if (!a.priority && b.priority) return 1;
+    if (a.optional && !b.optional) return 1;
+    if (!a.optional && b.optional) return -1;
+    return 0;
+  });
+
   // Helper: get findings that match an exercise's targets
   const getMatchedFindings = (ex) => {
     const matched = [];
@@ -183,8 +276,9 @@ export default function PTLibrary({ findings, onSelectFinding, activeEx, setActi
       <div style={{ marginBottom: 6 }}>
         <div onClick={() => toggleEx(ex)} style={{
           padding: "10px 12px", borderRadius: 8, cursor: "pointer",
-          border: `1px solid ${isSel ? pc+"44" : "rgba(0,0,0,0.06)"}`,
-          background: isSel ? pc+"08" : "#fff", transition: "all .2s",
+          border: `1px solid ${isSel ? pc+"44" : ex.priority ? "rgba(0,113,227,0.15)" : "rgba(0,0,0,0.06)"}`,
+          background: isSel ? pc+"08" : ex.priority ? "rgba(0,113,227,0.02)" : "#fff", transition: "all .2s",
+          opacity: ex.optional ? 0.7 : 1,
         }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -192,6 +286,8 @@ export default function PTLibrary({ findings, onSelectFinding, activeEx, setActi
                 {isSel ? "●" : "○"}
               </span>
               <span style={{ fontSize: 13, fontWeight: 600, color: "#1D1D1F" }}>{ex.name}</span>
+              {ex.priority && <span style={{fontSize:7,fontWeight:800,color:"#0071E3",background:"rgba(0,113,227,0.1)",padding:"1px 4px",borderRadius:2}}>PRIORITY</span>}
+              {ex.optional && <span style={{fontSize:7,fontWeight:800,color:"#AEAEB2",background:"rgba(0,0,0,0.04)",padding:"1px 4px",borderRadius:2}}>OPTIONAL</span>}
             </div>
             <span style={{ fontSize: 10, color: pc, fontWeight: 600, padding: "2px 8px", background: pc+"12", borderRadius: 4 }}>
               {PHASE_TIME[ex.phase]}
@@ -207,7 +303,14 @@ export default function PTLibrary({ findings, onSelectFinding, activeEx, setActi
               </span>
             ))}
           </div>
-          <div style={{ fontSize: 11, color: "#AEAEB2", marginTop: 3, marginLeft: 28 }}>{ex.rx}</div>
+          <div style={{ fontSize: 11, color: "#AEAEB2", marginTop: 3, marginLeft: 28 }}>{ex.adjustedRx || ex.rx}</div>
+          {ex.notes && ex.notes.length > 0 && (
+            <div style={{ marginTop: 4, marginLeft: 28 }}>
+              {ex.notes.map((n, i) => (
+                <div key={i} style={{ fontSize: 10, color: n.startsWith("⚠️") ? "#C45D00" : n.startsWith("⭐") ? "#0071E3" : "#6E6E73", lineHeight: 1.4, marginTop: 2 }}>{n}</div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     );
@@ -217,7 +320,7 @@ export default function PTLibrary({ findings, onSelectFinding, activeEx, setActi
   const byPhaseView = () => (
     <div>
       {[1, 2, 3].map(phase => {
-        const phaseExs = relevantExercises.filter(ex => ex.phase === phase);
+        const phaseExs = customizedExercises.filter(ex => ex.phase === phase);
         if (phaseExs.length === 0) return null;
         const isActive = activePhase === null || activePhase === phase;
         return (
@@ -241,7 +344,9 @@ export default function PTLibrary({ findings, onSelectFinding, activeEx, setActi
   const byFindingView = () => (
     <div>
       {findings.map(f => {
-        const fExs = relevantExercises.filter(ex => ex.targets.includes(f.id));
+        const structKey = f.id.replace(/_\d+$/, '');
+        const tag = STRUCTURE_TO_TAG[structKey] || f.id;
+        const fExs = customizedExercises.filter(ex => ex.targets.includes(tag) || ex.targets.includes(f.id));
         if (fExs.length === 0) return null;
         const sc = f.sev === "severe" ? "#BF1029" : f.sev === "moderate" ? "#C45D00" : "#A68B00";
         return (
@@ -261,20 +366,38 @@ export default function PTLibrary({ findings, onSelectFinding, activeEx, setActi
     </div>
   );
 
+  const priorityCount = customizedExercises.filter(e => e.priority).length;
+  const activePhases = [...new Set(customizedExercises.map(e => e.phase))].length;
+
   return (
     <div style={{ animation: "fadeIn .4s" }}>
+      {/* Personalization summary */}
+      <div style={{ padding: "10px 12px", background: "rgba(0,113,227,0.04)", borderRadius: 8, border: "1px solid rgba(0,113,227,0.08)", marginBottom: 10 }}>
+        <div style={{ fontSize: 10, fontWeight: 700, color: "#0071E3", marginBottom: 4 }}>PERSONALIZED TO YOUR ASSESSMENT</div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+          <span style={{ fontSize: 9, padding: "2px 7px", borderRadius: 4, background: painLevel >= 7 ? "rgba(191,16,41,0.08)" : painLevel >= 4 ? "rgba(196,93,0,0.08)" : "rgba(45,139,78,0.08)", color: painLevel >= 7 ? "#BF1029" : painLevel >= 4 ? "#C45D00" : "#2D8B4E", fontWeight: 600 }}>
+            Pain: {painLevel}/10
+          </span>
+          {goals.slice(0, 3).map(g => (
+            <span key={g} style={{ fontSize: 9, padding: "2px 7px", borderRadius: 4, background: "rgba(0,113,227,0.06)", color: "#0071E3", fontWeight: 600 }}>{g}</span>
+          ))}
+          {goals.length > 3 && <span style={{ fontSize: 9, padding: "2px 7px", borderRadius: 4, background: "rgba(0,0,0,0.03)", color: "#AEAEB2", fontWeight: 600 }}>+{goals.length - 3} more</span>}
+          {conditions.length > 0 && <span style={{ fontSize: 9, padding: "2px 7px", borderRadius: 4, background: "rgba(107,63,160,0.06)", color: "#6B3FA0", fontWeight: 600 }}>{conditions.length} condition{conditions.length > 1 ? "s" : ""} noted</span>}
+        </div>
+      </div>
+
       {/* Important notice */}
       <div style={{ padding: "10px 12px", background: "#E6F5F4", borderRadius: 8, border: "1px solid rgba(26,127,122,0.2)", marginBottom: 14 }}>
         <div style={{ fontSize: 10, fontWeight: 700, color: "#1A7F7A", marginBottom: 3 }}>DISCUSS WITH YOUR PT BEFORE STARTING</div>
         <div style={{ fontSize: 11, lineHeight: 1.5, color: "#6E6E73" }}>
-          These exercises are tailored to your specific findings. Your physical therapist will modify progressions and intensity based on your examination.
+          This program is adapted to your pain level, goals, and medical history. Your physical therapist will further modify based on examination.
         </div>
       </div>
 
       {/* View toggle */}
       <div style={{ display: "flex", gap: 4, marginBottom: 14, background: "#ECEAE6", borderRadius: 8, padding: 3 }}>
         {[["byPhase", "By Phase"], ["byFinding", "By Finding"]].map(([v, label]) => (
-          <button key={v} onClick={() => { setViewMode(v); setActivePhase(null); setExpandedEx(null); }}
+          <button key={v} onClick={() => { setViewMode(v); setActivePhase(null); }}
             style={{ flex: 1, padding: "6px 10px", borderRadius: 6, border: "none", fontSize: 11, fontWeight: 600, cursor: "pointer",
               background: viewMode === v ? "#fff" : "transparent", color: viewMode === v ? "#1D1D1F" : "#AEAEB2",
               boxShadow: viewMode === v ? "0 1px 3px rgba(0,0,0,0.06)" : "none", transition: "all .2s" }}>
@@ -286,15 +409,15 @@ export default function PTLibrary({ findings, onSelectFinding, activeEx, setActi
       {/* Stats */}
       <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
         <div style={{ flex: 1, padding: "8px", borderRadius: 8, background: "#F5F9FE", textAlign: "center" }}>
-          <div style={{ fontSize: 18, fontWeight: 700, color: "#0071E3", fontFamily: "monospace" }}>{relevantExercises.length}</div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: "#0071E3", fontFamily: "monospace" }}>{customizedExercises.length}</div>
           <div style={{ fontSize: 9, fontWeight: 600, color: "#AEAEB2", textTransform: "uppercase" }}>Exercises</div>
         </div>
         <div style={{ flex: 1, padding: "8px", borderRadius: 8, background: "#F5F9FE", textAlign: "center" }}>
-          <div style={{ fontSize: 18, fontWeight: 700, color: "#0071E3", fontFamily: "monospace" }}>3</div>
-          <div style={{ fontSize: 9, fontWeight: 600, color: "#AEAEB2", textTransform: "uppercase" }}>Phases</div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: "#0071E3", fontFamily: "monospace" }}>{priorityCount}</div>
+          <div style={{ fontSize: 9, fontWeight: 600, color: "#AEAEB2", textTransform: "uppercase" }}>Priority</div>
         </div>
         <div style={{ flex: 1, padding: "8px", borderRadius: 8, background: "#F5F9FE", textAlign: "center" }}>
-          <div style={{ fontSize: 18, fontWeight: 700, color: "#0071E3", fontFamily: "monospace" }}>12 wk</div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: "#0071E3", fontFamily: "monospace" }}>{activePhases} Phase{activePhases>1?"s":""}</div>
           <div style={{ fontSize: 9, fontWeight: 600, color: "#AEAEB2", textTransform: "uppercase" }}>Program</div>
         </div>
       </div>
