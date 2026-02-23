@@ -520,125 +520,160 @@ function BlurReport(){return(
 function RecoveryTimeline({finding,joint,selected,onSelect}){
   const teal="#1A7F7A";
 
-  // Build phases from finding data — parse treatments + timeline text
   const buildPhases=()=>{
     const phases=[];
     const j=joint||"knee";
     const sev=finding.sev||"moderate";
     const hasSurgical=finding.treatments?.some(t=>t.type==="surgical");
 
-    // Generic phases based on severity and joint
     if(sev==="severe"||hasSurgical){
       if(j==="shoulder"){
-        phases.push({week:"0",label:"Phase 1",icon:"🏥",title:"Protection",items:["Immobilization in sling","Pain & swelling management","Gentle pendulum exercises"]});
-        phases.push({week:"2",label:"Phase 2",icon:"🤲",title:"Early Motion",items:["Assisted range of motion","Scapular activation","Light isometrics"]});
-        phases.push({week:"6",label:"Phase 3",icon:"💪",title:"Strengthening",items:["Active range of motion","Rotator cuff strengthening","Scapular stabilization"]});
-        phases.push({week:"12",label:"Phase 4",icon:"🏃",title:"Advanced Strengthening",items:["Resistance training","Functional movements","Sport-specific preparation"]});
-        phases.push({week:"20",label:"Phase 5",icon:"⚡",title:"Return to Activity",items:["Full overhead activities","Return to sport protocol","Maintenance program"]});
-        phases.push({week:"26",label:"Phase 6",icon:"🏁",title:"Full Recovery",items:["Strength normalized","Full unrestricted activity","Quality of life maximized"]});
+        phases.push({week:"Now",title:"Just Diagnosed",desc:"You have your MRI results and are deciding next steps",icon:"📋",
+          items:["You may have pain at rest or with certain movements","Reaching overhead or behind your back is difficult","Sleep may be disrupted lying on the affected side","You're weighing conservative vs. surgical options"]});
+        phases.push({week:"0-2",title:"Starting Treatment",desc:"Whether PT or post-surgery, this is the protection window",icon:"🛡️",
+          items:["Arm may be in a sling or movement is restricted","Pain is managed with ice, medication, or both","Gentle pendulum exercises to prevent stiffness","Showering & dressing may need help or adaptation"]});
+        phases.push({week:"3-6",title:"Getting Motion Back",desc:"Moving more, but still have clear limitations",icon:"🤲",
+          items:["You can reach forward but overhead is still limited","Stiffness is the main complaint, not sharp pain","Assisted stretches and light isometrics are tolerable","Driving and desk work are becoming manageable"]});
+        phases.push({week:"6-12",title:"Building Strength",desc:"Motion is better — working on power and endurance",icon:"💪",
+          items:["You can reach overhead with some effort","Carrying light groceries or bags is possible","Resistance band and light dumbbell work tolerated","Sleeping on the affected side still uncomfortable"]});
+        phases.push({week:"12-20",title:"Returning to Activity",desc:"Most daily tasks done — testing sport-like movements",icon:"🏃",
+          items:["Lifting, pushing, pulling with moderate confidence","Throwing or overhead movements being reintroduced","Work duties mostly or fully resumed","Soreness after activity is normal but improving"]});
+        phases.push({week:"20-26",title:"Full Confidence",desc:"Strength regained — doing everything you did before",icon:"🏁",
+          items:["Full overhead strength and range of motion","All sports and activities without restriction","No pain with daily activities or exercise","Maintenance exercises keep you strong long-term"]});
       } else {
-        phases.push({week:"0",label:"Phase 1",icon:"🏥",title:"Acute Recovery",items:["Surgery recovery / Protection","Non weight-bearing","Pain & swelling management"]});
-        phases.push({week:"1",label:"Phase 2",icon:"🚶",title:"Early Mobility",items:["Partial weight-bearing","Light strength & flexibility","Quad activation exercises"]});
-        phases.push({week:"3",label:"Phase 3",icon:"🚴",title:"Progressive Loading",items:["Light cycling","Moderate strength & flexibility","Light balance exercises","Assisted functional activity"]});
-        phases.push({week:"6",label:"Phase 4",icon:"🏋️",title:"Functional Training",items:["Full weight-bearing","Unassisted functional activity","Machine-based resistance training","Continued mobility exercises"]});
-        phases.push({week:"12",label:"Phase 5",icon:"🏃",title:"Return to Activity",items:["Return to full work duties","Return to recreational activity","Continued rehabilitation"]});
-        phases.push({week:"26",label:"Phase 6",icon:"🏁",title:"Full Recovery",items:[`${j==="knee"?"Knee":"Joint"} strength normalized`,"Flexibility exceeds pre-surgical levels","Quality of life maximized"]});
+        phases.push({week:"Now",title:"Just Diagnosed",desc:"You have your MRI results and are deciding next steps",icon:"📋",
+          items:["Your knee may swell after activity or feel unstable","Walking is possible but you may limp or feel uncertain","Stairs, squatting, or pivoting causes pain or giving-way","You're weighing conservative vs. surgical options"]});
+        phases.push({week:"0-2",title:"Starting Treatment",desc:"Whether PT or post-surgery, this is the protection window",icon:"🛡️",
+          items:["Walking may require crutches or a brace","Bending past 90° is difficult or restricted","Doing gentle quad sets and ankle pumps","Ice and elevation are part of the daily routine"]});
+        phases.push({week:"3-6",title:"Walking More Normally",desc:"Off crutches and moving with more confidence",icon:"🚶",
+          items:["Walking without a visible limp on flat ground","Bending to ~120° is achievable","Stairs possible but may lead with the good leg","Light cycling or pool walking feels comfortable"]});
+        phases.push({week:"6-12",title:"Building Strength",desc:"Walking is easy — working on power and balance",icon:"🏋️",
+          items:["Bodyweight squats without pain","Standing on one leg for 30+ seconds","Step-ups, lunges, and resistance exercises","Jogging in a straight line may be starting"]});
+        phases.push({week:"12-20",title:"Returning to Activity",desc:"Testing your knee with real-world demands",icon:"🏃",
+          items:["Running, jumping, and cutting drills introduced","Climbing stairs without thinking about it","Confidence in quick movements is building","Some soreness after hard sessions is normal"]});
+        phases.push({week:"20-26",title:"Full Confidence",desc:"Your knee feels strong and trustworthy again",icon:"🏁",
+          items:["Full return to sport and recreation","No instability, giving-way, or swelling after activity","Strength equal or near-equal to the other side","Maintenance exercises keep you protected"]});
       }
     } else if(sev==="moderate"){
       if(j==="shoulder"){
-        phases.push({week:"0",label:"Phase 1",icon:"🛡️",title:"Protection & Rest",items:["Activity modification","Ice & anti-inflammatory","Gentle pendulum exercises"]});
-        phases.push({week:"2",label:"Phase 2",icon:"🤲",title:"Restore Motion",items:["Assisted stretching","Isometric strengthening","Scapular exercises"]});
-        phases.push({week:"6",label:"Phase 3",icon:"💪",title:"Strengthening",items:["Progressive resistance","Rotator cuff program","Functional movements"]});
-        phases.push({week:"12",label:"Phase 4",icon:"🏁",title:"Return to Normal",items:["Full activity resumption","Maintenance exercises","Reassess if symptoms persist"]});
+        phases.push({week:"Now",title:"Just Diagnosed",desc:"You know what's going on — time to start addressing it",icon:"📋",
+          items:["Pain with certain movements, especially overhead","Sleep disrupted if lying on the affected side","Most daily tasks OK but some cause a sharp catch","Starting conservative treatment (PT, modification)"]});
+        phases.push({week:"2-4",title:"Calming Things Down",desc:"Pain and inflammation being managed actively",icon:"🛡️",
+          items:["Pain decreasing with activity modification","Avoiding aggravating positions","Gentle stretches and isometrics are tolerable","Ice or anti-inflammatories are helping"]});
+        phases.push({week:"4-8",title:"Getting Stronger",desc:"Sharp pain gone — building back up",icon:"💪",
+          items:["Reaching overhead with only mild discomfort","Resistance band exercises done consistently","Carrying objects at your side is comfortable","Shoulder feels more stable day-to-day"]});
+        phases.push({week:"8-12",title:"Back to Normal",desc:"Doing everything you did before with confidence",icon:"🏁",
+          items:["Full range of motion without pain","Exercise and sport activities resumed","No catch or sharp pain with movement","Maintenance exercises 2-3x/week"]});
       } else {
-        phases.push({week:"0",label:"Phase 1",icon:"🛡️",title:"Protect & Reduce",items:["RICE protocol","Activity modification","Gentle range of motion"]});
-        phases.push({week:"2",label:"Phase 2",icon:"🚶",title:"Progressive Loading",items:["Gradual strengthening","Balance training","Low-impact cardio"]});
-        phases.push({week:"6",label:"Phase 3",icon:"🏋️",title:"Functional Strength",items:["Progressive resistance","Dynamic stability exercises","Return to light activity"]});
-        phases.push({week:"12",label:"Phase 4",icon:"🏁",title:"Return to Normal",items:["Full activity resumption","Sport-specific training","Maintenance program"]});
+        phases.push({week:"Now",title:"Just Diagnosed",desc:"You know what's going on — time to start addressing it",icon:"📋",
+          items:["Pain or swelling after activity, especially stairs","Walking fine but longer distances uncomfortable","May hear clicking, catching, or feel stiffness","Starting conservative treatment (PT, modification)"]});
+        phases.push({week:"2-4",title:"Calming Things Down",desc:"Reducing pain and swelling so rehab can progress",icon:"🛡️",
+          items:["Pain decreasing with rest and modification","Swelling going down with ice and compression","Gentle range of motion and quad activation tolerated","Avoiding deep squats and impact activities"]});
+        phases.push({week:"4-8",title:"Getting Stronger",desc:"Acute phase over — rebuilding strength and stability",icon:"💪",
+          items:["Walking long distances comfortable again","Squatting to ~90° without sharp pain","Balance and resistance exercises progressing","Cycling or swimming feels good"]});
+        phases.push({week:"8-12",title:"Back to Normal",desc:"Knee feels reliable for daily life and activity",icon:"🏁",
+          items:["Stairs, hills, and uneven terrain no problem","Sport and exercise fully resumed","No swelling after activity","Maintenance exercises prevent recurrence"]});
       }
     } else {
-      phases.push({week:"0",label:"Phase 1",icon:"🛡️",title:"Activity Modification",items:["Avoid aggravating activities","Ice if symptomatic","Gentle stretching"]});
-      phases.push({week:"2",label:"Phase 2",icon:"💪",title:"Strengthening",items:["Targeted strengthening","Flexibility exercises","Monitor symptoms"]});
-      phases.push({week:"6",label:"Phase 3",icon:"🏁",title:"Full Activity",items:["Return to all activities","Maintenance exercises","Follow up if symptomatic"]});
+      phases.push({week:"Now",title:"Just Diagnosed",desc:"Likely manageable with simple modifications",icon:"📋",
+        items:["Mild discomfort with certain movements","Daily activities mostly unaffected","More noticeable after prolonged activity","Simple changes and targeted exercises should help"]});
+      phases.push({week:"2-4",title:"Improving",desc:"Targeted exercises are reducing symptoms",icon:"💪",
+        items:["Discomfort noticeably less frequent","Strengthening exercises done consistently","Activity tolerance increasing","Most days you don't think about it"]});
+      phases.push({week:"4-8",title:"Resolved",desc:"Symptoms gone or minimal — maintain with exercise",icon:"🏁",
+        items:["No pain with daily activities or exercise","Full strength and range of motion","Continue maintenance 2-3x/week","Follow up only if symptoms return"]});
     }
     return phases;
   };
 
   const phases=buildPhases();
-  const selIdx=selected?.index??null;
+  const selIdx=selected?.index??0;
+
+  // Auto-select first stage on mount if nothing selected
+  useEffect(()=>{
+    if(!selected&&phases.length>0){
+      onSelect?.({index:0,week:phases[0].week,label:phases[0].title,title:phases[0].title});
+    }
+  },[]);
 
   return(
     <div style={{padding:"0 0 0 2px"}}>
-      {/* Instruction */}
-      {!selected&&<div style={{marginBottom:8,padding:"6px 10px",background:"rgba(0,113,227,0.04)",borderRadius:6,border:"1px solid rgba(0,113,227,0.08)"}}>
-        <div style={{fontSize:10,color:"#0071E3",fontWeight:600}}>👆 Tap your current phase to personalize exercises & report</div>
-      </div>}
-      {selected&&<div style={{marginBottom:8,padding:"6px 10px",background:"rgba(26,127,122,0.04)",borderRadius:6,border:"1px solid rgba(26,127,122,0.12)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-        <div style={{fontSize:10,color:teal,fontWeight:600}}>✓ Phase {selected.index+1}: {selected.title} — exercises & report personalized</div>
-        <button onClick={()=>onSelect?.(null)} style={{background:"none",border:"none",fontSize:10,color:"#AEAEB2",cursor:"pointer",textDecoration:"underline"}}>Clear</button>
-      </div>}
+      {/* Current stage banner */}
+      <div style={{marginBottom:10,padding:"8px 12px",background:"rgba(26,127,122,0.05)",borderRadius:8,border:"1px solid rgba(26,127,122,0.12)"}}>
+        <div style={{display:"flex",alignItems:"center",gap:8}}>
+          <span style={{fontSize:20}}>{phases[selIdx]?.icon}</span>
+          <div style={{flex:1}}>
+            <div style={{fontSize:9,fontWeight:700,color:teal,textTransform:"uppercase",letterSpacing:.8}}>Where you are now</div>
+            <div style={{fontSize:12,fontWeight:700,color:"#1D1D1F"}}>{phases[selIdx]?.title}</div>
+            <div style={{fontSize:10,color:"#6E6E73",marginTop:1}}>{phases[selIdx]?.desc}</div>
+          </div>
+        </div>
+        <div style={{fontSize:9,color:"#AEAEB2",marginTop:6}}>Tap a different stage below if you're further along in your recovery</div>
+      </div>
 
       {phases.map((ph,i)=>{
         const isSel=selIdx===i;
-        const isPast=selIdx!=null&&i<selIdx;
-        const isFuture=selIdx!=null&&i>selIdx;
+        const isPast=i<selIdx;
+        const isFuture=i>selIdx;
         return(
         <div key={i}
-          onClick={()=>onSelect?.({index:i,week:ph.week,label:ph.label,title:ph.title})}
-          style={{display:"flex",gap:12,position:"relative",cursor:"pointer",opacity:isFuture?.5:1,transition:"opacity .2s"}}
+          onClick={()=>onSelect?.({index:i,week:ph.week,label:ph.title,title:ph.title})}
+          style={{display:"flex",gap:12,cursor:"pointer",opacity:isFuture?.45:1,transition:"opacity .2s"}}
         >
-          {/* Left — week badge + connector line below */}
+          {/* Left — icon circle + connector */}
           <div style={{display:"flex",flexDirection:"column",alignItems:"center",width:32,flexShrink:0,zIndex:1}}>
             <div style={{
               width:32,height:32,borderRadius:"50%",flexShrink:0,
               background:isSel?teal:isPast?"rgba(26,127,122,0.15)":i===phases.length-1?teal:"#fff",
               border:`3px solid ${isSel?teal:isPast?teal+"80":teal}`,
               display:"flex",alignItems:"center",justifyContent:"center",
-              fontSize:11,fontWeight:800,color:isSel||i===phases.length-1?"#fff":isPast?teal:teal,
+              fontSize:isSel?14:13,
               boxShadow:isSel?"0 0 0 4px rgba(26,127,122,0.2)":"0 2px 6px rgba(26,127,122,0.15)",
               transition:"all .2s",
-            }}>{isPast?"✓":ph.week}</div>
-            {/* Connector line between this circle and the next */}
-            {i<phases.length-1&&<div style={{width:3,flex:1,minHeight:12,background:isPast?teal+"80":`${teal}40`,borderRadius:2,margin:"4px 0"}} />}
+            }}>{isPast?"✓":ph.icon}</div>
+            {i<phases.length-1&&<div style={{width:3,flex:1,minHeight:12,background:isPast?teal+"80":`${teal}30`,borderRadius:2,margin:"4px 0"}} />}
           </div>
 
           {/* Right — content card */}
           <div style={{
-            flex:1,padding:"10px 12px",marginBottom:i<phases.length-1?0:0,
-            background:isSel?"rgba(26,127,122,0.08)":isPast?"rgba(26,127,122,0.02)":"#FAFAF8",
+            flex:1,padding:isSel?"10px 12px":"8px 12px",
+            background:isSel?"rgba(26,127,122,0.06)":isPast?"rgba(26,127,122,0.02)":"#FAFAF8",
             borderRadius:10,
             border:isSel?`2px solid ${teal}`:`1px solid ${isPast?"rgba(26,127,122,0.1)":"rgba(0,0,0,0.05)"}`,
-            transition:"all .2s",
+            transition:"all .2s",marginBottom:0,
           }}>
-            <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:4}}>
-              <span style={{fontSize:16}}>{ph.icon}</span>
+            <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:isSel?3:0}}>
               <div style={{flex:1}}>
-                <div style={{fontSize:9,fontWeight:700,color:isSel?teal:"#AEAEB2",textTransform:"uppercase",letterSpacing:.8}}>{ph.label} · Week {ph.week}</div>
-                <div style={{fontSize:12,fontWeight:700,color:"#1D1D1F"}}>{ph.title}</div>
+                <div style={{display:"flex",alignItems:"center",gap:6}}>
+                  <span style={{fontSize:12,fontWeight:700,color:isPast?"#AEAEB2":isSel?"#1D1D1F":"#6E6E73"}}>{ph.title}</span>
+                  {isSel&&<span style={{fontSize:8,fontWeight:700,color:"#fff",background:teal,padding:"2px 6px",borderRadius:3}}>YOU ARE HERE</span>}
+                  {isPast&&<span style={{fontSize:8,fontWeight:600,color:teal,background:"rgba(26,127,122,0.08)",padding:"2px 6px",borderRadius:3}}>✓ DONE</span>}
+                </div>
+                <div style={{fontSize:9,color:"#AEAEB2",fontWeight:600}}>Week {ph.week}</div>
               </div>
-              {isSel&&<span style={{fontSize:9,fontWeight:700,color:"#fff",background:teal,padding:"2px 8px",borderRadius:4}}>YOU ARE HERE</span>}
             </div>
-            <div style={{paddingLeft:2}}>
+            {isSel&&<div style={{fontSize:10,color:"#6E6E73",marginBottom:4,fontStyle:"italic"}}>{ph.desc}</div>}
+            {isSel&&<div style={{marginTop:2}}>
               {ph.items.map((item,j)=>(
-                <div key={j} style={{display:"flex",alignItems:"flex-start",gap:6,marginBottom:2}}>
-                  <span style={{color:isSel?teal:isPast?teal+"80":"#AEAEB2",fontSize:10,marginTop:2,flexShrink:0}}>{isPast?"✓":"•"}</span>
-                  <span style={{fontSize:11,color:isPast?"#AEAEB2":isSel?"#1D1D1F":"#6E6E73",lineHeight:1.4,textDecoration:isPast?"line-through":"none"}}>{item}</span>
+                <div key={j} style={{display:"flex",alignItems:"flex-start",gap:6,marginBottom:3}}>
+                  <span style={{color:teal,fontSize:10,marginTop:2,flexShrink:0}}>•</span>
+                  <span style={{fontSize:11,color:"#1D1D1F",lineHeight:1.45}}>{item}</span>
                 </div>
               ))}
-            </div>
+            </div>}
           </div>
         </div>
         );
       })}
 
-      {/* Text summary */}
-      <div style={{marginTop:4,padding:"8px 10px",background:"rgba(26,127,122,0.03)",borderRadius:6,border:"1px solid rgba(26,127,122,0.08)"}}>
-        <div style={{fontSize:10,color:teal,fontWeight:600,marginBottom:2}}>Timeline summary</div>
+      {/* Clinical timeline */}
+      <div style={{marginTop:8,padding:"8px 10px",background:"rgba(26,127,122,0.03)",borderRadius:6,border:"1px solid rgba(26,127,122,0.08)"}}>
+        <div style={{fontSize:10,color:teal,fontWeight:600,marginBottom:2}}>Clinical timeline</div>
         <div style={{fontSize:10,color:"#6E6E73",lineHeight:1.5}}>{finding.timeline}</div>
       </div>
     </div>
   );
 }
+
 
 function Trust(){return(
   <div style={{padding:"10px 14px",background:T.sfA,borderRadius:8,border:`1px solid ${T.bd}`,marginTop:12}}>
