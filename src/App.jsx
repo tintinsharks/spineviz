@@ -3,6 +3,8 @@ import * as THREE from "three";
 import * as Tone from "tone";
 import { generateReport } from "./reportGenerator";
 import PTLibrary from "./PTLibrary";
+import { extractFindings, dedupeFindings } from "./kneeNLP";
+import { mapToVisualization } from "./kneeContentLibrary";
 
 /* ═══════════════════ DESIGN TOKENS ═══════════════════ */
 const T = {
@@ -24,7 +26,7 @@ const SAMPLE=`IMPRESSION:
 4. Grade 2 chondromalacia of the medial femoral condyle.
 5. Small Baker's cyst.`;
 
-const FD=[
+const DEMO_FD=[
   {id:"men",str:"Medial Meniscus",path:"Horizontal Tear",sev:"moderate",m:["meniscus_medial"],
     desc:"A horizontal cleavage tear in the posterior horn of your medial meniscus — the C-shaped shock absorber on the inner side of your knee.",
     imp:"Pain along the inner knee line, especially with deep squats, twisting, or stair climbing. Possible catching or locking.",
@@ -366,7 +368,7 @@ function BlurReport(){return(
     <div style={{position:"absolute",inset:0,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",background:"rgba(255,255,255,.75)",backdropFilter:"blur(2px)"}}>
       <div style={{fontSize:13,fontWeight:600,color:T.tx,marginBottom:4}}>Unlock Your Full Report</div>
       <div style={{fontSize:11,color:T.txM,marginBottom:10,textAlign:"center",maxWidth:220,lineHeight:1.4}}>Personalized exercises, timeline, and treatment comparison</div>
-      <button onClick={()=>generateReport(FD)} style={{background:T.ac,border:"none",color:"#fff",padding:"9px 22px",borderRadius:8,fontSize:12,fontWeight:600,cursor:"pointer"}}>Download Full Report (PDF)</button>
+      <button onClick={()=>generateReport(findings)} style={{background:T.ac,border:"none",color:"#fff",padding:"9px 22px",borderRadius:8,fontSize:12,fontWeight:600,cursor:"pointer"}}>Download Full Report (PDF)</button>
     </div>
   </div>
 )}
@@ -983,19 +985,48 @@ export default function App(){
   const[txFinding,setTxFinding]=useState(null); // which finding the treatment belongs to
   useEffect(()=>{const c=()=>setMob(window.innerWidth<768);c();window.addEventListener("resize",c);return()=>window.removeEventListener("resize",c)},[]);
 
+  const[err,setErr]=useState(null);
+
   const go=useCallback(async()=>{
     if(!text.trim())return;
     await Tone.start().catch(()=>{});initS();
-    setPhase("analyzing");pAmb();
-    setTimeout(()=>{pTrans();setFindings(FD);setPhase("revealing");setRi(0)},2500);
+    setPhase("analyzing");setErr(null);pAmb();
+
+    // Check if this is the demo text
+    const isDemo = text.trim() === SAMPLE.trim();
+
+    if(isDemo){
+      // Use hardcoded demo data — instant, no API call
+      setTimeout(()=>{pTrans();setFindings(DEMO_FD);setPhase("revealing");setRi(0)},2000);
+    } else {
+      // Real NLP extraction via Claude API
+      try {
+        const raw = await extractFindings(text);
+        const deduped = dedupeFindings(raw);
+        if(deduped.length === 0){
+          setErr("No pathological findings detected. Make sure you're pasting the IMPRESSION section of a knee MRI report.");
+          setPhase("input");
+          return;
+        }
+        const mapped = mapToVisualization(deduped);
+        pTrans();
+        setFindings(mapped);
+        setPhase("revealing");
+        setRi(0);
+      } catch(e) {
+        console.error('NLP failed:', e);
+        setErr("Unable to analyze this report. Please check that you've pasted a knee MRI impression and try again.");
+        setPhase("input");
+      }
+    }
   },[text]);
 
   useEffect(()=>{
-    if(phase==="revealing"&&ri>=0&&ri<FD.length){setActive(FD[ri]);pRev(ri)}
-    if(phase==="revealing"&&ri>=FD.length){setPhase("summary");setActive(null)}
-  },[ri,phase]);
+    if(phase==="revealing"&&findings&&ri>=0&&ri<findings.length){setActive(findings[ri]);pRev(ri)}
+    if(phase==="revealing"&&findings&&ri>=findings.length){setPhase("summary");setActive(null)}
+  },[ri,phase,findings]);
 
-  const reset=()=>{setPhase("input");setFindings(null);setRi(-1);setActive(null);setShowH(false);setText("");setTab("findings");setActiveEx(null);setDetailFinding(null);setActiveTx(null);setTxFinding(null)};
+  const reset=()=>{setPhase("input");setFindings(null);setRi(-1);setActive(null);setShowH(false);setText("");setTab("findings");setActiveEx(null);setDetailFinding(null);setActiveTx(null);setTxFinding(null);setErr(null)};
   const togSel=f=>{
     const deselecting = active?.id===f.id;
     setActive(deselecting?null:f);
@@ -1013,7 +1044,8 @@ export default function App(){
     <>
       <h2 style={{fontSize:mob?20:24,fontWeight:700,color:T.tx,margin:"0 0 6px",fontFamily:"Georgia,serif"}}>Understand Your Knee MRI</h2>
       <p style={{fontSize:mob?13:14,color:T.txL,margin:"0 0 18px",lineHeight:1.55}}>Paste the Impression section from your knee MRI report. We'll visualize each finding in 3D and explain what it means.</p>
-      <textarea value={text} onChange={e=>setText(e.target.value)} placeholder="Paste your MRI impression here..." style={{flex:1,minHeight:mob?120:160,background:T.bgD,border:`1px solid ${T.bd}`,borderRadius:12,padding:14,color:T.tx,fontSize:13,fontFamily:"'SF Mono',Consolas,monospace",lineHeight:1.7,resize:"none"}} />
+      {err&&<div style={{padding:"10px 12px",background:"rgba(191,16,41,0.06)",border:"1px solid rgba(191,16,41,0.15)",borderRadius:8,marginBottom:12,fontSize:12,lineHeight:1.5,color:"#BF1029"}}>{err}</div>}
+      <textarea value={text} onChange={e=>{setText(e.target.value);setErr(null)}} placeholder="Paste your MRI impression here..." style={{flex:1,minHeight:mob?120:160,background:T.bgD,border:`1px solid ${err?"rgba(191,16,41,0.3)":T.bd}`,borderRadius:12,padding:14,color:T.tx,fontSize:13,fontFamily:"'SF Mono',Consolas,monospace",lineHeight:1.7,resize:"none"}} />
       <div style={{display:"flex",gap:8,marginTop:12}}>
         <button onClick={go} disabled={!text.trim()} style={{flex:1,padding:"11px 18px",borderRadius:10,border:"none",background:text.trim()?T.ac:T.bgD,color:text.trim()?"#fff":T.txL,fontSize:14,fontWeight:600,cursor:text.trim()?"pointer":"not-allowed"}}>Visualize Findings</button>
         <button onClick={()=>setText(SAMPLE)} style={{padding:"11px 14px",borderRadius:10,border:`1px solid ${T.bd}`,background:T.sf,color:T.txM,fontSize:12,fontWeight:500,cursor:"pointer"}}>Demo</button>
@@ -1084,7 +1116,7 @@ export default function App(){
           {/* 3D Viewport */}
           <div style={{height:`${mobSplit}%`,position:"relative",flexShrink:0,overflow:"hidden"}}>
             <KneeCanvas findings={findings} active={active} phase={phase} showH={showH} />
-            {phase==="revealing"&&<NCard f={active} i={ri} n={FD.length} onN={()=>setRi(i=>i+1)} onP={()=>setRi(i=>Math.max(0,i-1))} mob={true} />}
+            {phase==="revealing"&&<NCard f={active} i={ri} n={findings?.length||0} onN={()=>setRi(i=>i+1)} onP={()=>setRi(i=>Math.max(0,i-1))} mob={true} />}
             {phase==="analyzing"&&<div style={{position:"absolute",inset:0,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",background:"rgba(245,244,241,.6)"}}><div style={{width:28,height:28,border:`3px solid ${T.bgD}`,borderTopColor:T.ac,borderRadius:"50%",animation:"spin .8s linear infinite"}} /><span style={{fontSize:13,color:T.txM,marginTop:10}}>Analyzing...</span></div>}
           </div>
           {/* Vertical drag handle */}
@@ -1141,11 +1173,11 @@ export default function App(){
           left={
             <div style={{width:"100%",height:"100%",position:"relative",background:`radial-gradient(ellipse at 50% 40%,#faf9f7 0%,${T.bg} 100%)`}}>
               <KneeCanvas findings={findings} active={active} phase={phase} showH={showH} />
-              {phase==="revealing"&&<NCard f={active} i={ri} n={FD.length} onN={()=>setRi(i=>i+1)} onP={()=>setRi(i=>Math.max(0,i-1))} mob={false} />}
+              {phase==="revealing"&&<NCard f={active} i={ri} n={findings?.length||0} onN={()=>setRi(i=>i+1)} onP={()=>setRi(i=>Math.max(0,i-1))} mob={false} />}
               {active&&phase==="summary"&&!detailFinding&&!activeEx&&!activeTx&&<div style={{position:"absolute",top:14,left:14,background:T.sf,padding:"7px 14px",borderRadius:9,boxShadow:"0 2px 12px rgba(0,0,0,.05)",fontSize:13,fontWeight:600,color:T.tx,zIndex:10,animation:"fadeIn .3s"}}>{active.str} <span style={{color:T[active.sev].c,fontSize:11,marginLeft:6}}>● {active.path}</span></div>}
               <div style={{position:"absolute",top:14,right:14,fontSize:10,color:T.txF,pointerEvents:"none"}}>Drag to rotate · Scroll to zoom</div>
               {phase==="input"&&<div style={{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",textAlign:"center",pointerEvents:"none"}}><div style={{fontSize:48,marginBottom:14,opacity:.15}}>🦴</div><div style={{fontSize:15,color:T.txL,fontWeight:500}}>Your 3D knee model</div><div style={{fontSize:12,color:T.txF,marginTop:6}}>Paste an MRI report to see findings visualized</div></div>}
-              {phase==="summary"&&!detailFinding&&!activeEx&&!activeTx&&<div style={{position:"absolute",bottom:20,left:20,right:20,maxWidth:440,background:T.sf,borderRadius:11,padding:"14px 18px",boxShadow:"0 4px 20px rgba(0,0,0,.06)",border:`1px solid ${T.bd}`,display:"flex",alignItems:"center",justifyContent:"space-between",zIndex:10,animation:"slideUp .5s cubic-bezier(.16,1,.3,1)"}}><div><div style={{fontSize:13,fontWeight:600,color:T.tx}}>Your full report is ready</div><div style={{fontSize:11,color:T.txL,marginTop:2}}>Specialist perspectives, exercises, questions for your doctor</div></div><button onClick={()=>generateReport(FD)} style={{background:T.ac,border:"none",color:"#fff",padding:"9px 18px",borderRadius:8,fontSize:12,fontWeight:600,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,marginLeft:14}}>Download Report (PDF)</button></div>}
+              {phase==="summary"&&!detailFinding&&!activeEx&&!activeTx&&<div style={{position:"absolute",bottom:20,left:20,right:20,maxWidth:440,background:T.sf,borderRadius:11,padding:"14px 18px",boxShadow:"0 4px 20px rgba(0,0,0,.06)",border:`1px solid ${T.bd}`,display:"flex",alignItems:"center",justifyContent:"space-between",zIndex:10,animation:"slideUp .5s cubic-bezier(.16,1,.3,1)"}}><div><div style={{fontSize:13,fontWeight:600,color:T.tx}}>Your full report is ready</div><div style={{fontSize:11,color:T.txL,marginTop:2}}>Specialist perspectives, exercises, questions for your doctor</div></div><button onClick={()=>generateReport(findings)} style={{background:T.ac,border:"none",color:"#fff",padding:"9px 18px",borderRadius:8,fontSize:12,fontWeight:600,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,marginLeft:14}}>Download Report (PDF)</button></div>}
             </div>
           }
           right={

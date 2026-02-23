@@ -129,9 +129,47 @@ export default function PTLibrary({ findings, onSelectFinding, activeEx, setActi
 
   if (!findings || findings.length === 0) return null;
 
-  // Filter exercises to only those relevant to patient's findings
-  const findingIds = new Set(findings.map(f => f.id));
-  const relevantExercises = EXERCISES.filter(ex => ex.targets.some(t => findingIds.has(t)));
+  // Map finding IDs to exercise target tags
+  // NLP IDs look like "acl_0", "meniscus_medial_1", "effusion_2" etc.
+  // Demo IDs are "men", "acl", "bone", "eff", "cart"
+  // Exercise targets use: "acl", "men", "eff", "cart", "bone", "pcl", "mcl"
+  const STRUCTURE_TO_TAG = {
+    acl: "acl", pcl: "pcl", mcl: "mcl", lcl: "lcl",
+    meniscus_medial: "men", meniscus_lateral: "men",
+    cartilage_medial: "cart", cartilage_lateral: "cart",
+    cartilage_patella: "cart", cartilage_tibial: "cart",
+    effusion: "eff",
+    bone_femoral_medial: "bone", bone_femoral_lateral: "bone",
+    bone_tibial_medial: "bone", bone_tibial_lateral: "bone",
+    bone_patella: "bone",
+    patella_tendon: "cart", quad_tendon: "acl",
+  };
+
+  const findingTags = new Set();
+  const tagToFinding = {};
+  findings.forEach(f => {
+    // Try to extract structure from NLP-style ID (e.g., "acl_0" → "acl")
+    const structKey = f.id.replace(/_\d+$/, '');
+    const tag = STRUCTURE_TO_TAG[structKey] || f.id; // fallback to raw id for demo data
+    findingTags.add(tag);
+    // Also add the raw ID for demo data compatibility
+    findingTags.add(f.id);
+    if (!tagToFinding[tag]) tagToFinding[tag] = f;
+    if (!tagToFinding[f.id]) tagToFinding[f.id] = f;
+  });
+
+  const relevantExercises = EXERCISES.filter(ex => ex.targets.some(t => findingTags.has(t)));
+
+  // Helper: get findings that match an exercise's targets
+  const getMatchedFindings = (ex) => {
+    const matched = [];
+    const seen = new Set();
+    ex.targets.forEach(t => {
+      const f = tagToFinding[t];
+      if (f && !seen.has(f.id)) { seen.add(f.id); matched.push(f); }
+    });
+    return matched;
+  };
 
   const toggleEx = (ex) => setActiveEx?.(prev => prev?.id === ex.id ? null : ex);
 
@@ -139,7 +177,7 @@ export default function PTLibrary({ findings, onSelectFinding, activeEx, setActi
   const ExCard = ({ ex }) => {
     const isSel = activeEx?.id === ex.id;
     const pc = PHASE_COLOR[ex.phase];
-    const addressedFindings = findings.filter(f => ex.targets.includes(f.id));
+    const addressedFindings = getMatchedFindings(ex);
 
     return (
       <div style={{ marginBottom: 6 }}>
