@@ -6,7 +6,7 @@ import PTLibrary from "./PTLibrary";
 import { detectJoint, parseReport, JOINT_INFO } from "./jointRouter";
 
 /* ═══════════════════ DESIGN TOKENS ═══════════════════ */
-const T = {
+const TL = {
   bg:"#F5F4F1",bgD:"#ECEAE6",sf:"#FFFFFF",sfA:"#FAFAF8",
   tx:"#1D1D1F",txM:"#6E6E73",txL:"#AEAEB2",txF:"#C7C7CC",
   ac:"#0071E3",acS:"rgba(0,113,227,0.07)",
@@ -15,7 +15,20 @@ const T = {
   moderate:{c:"#C45D00",bg:"rgba(196,93,0,0.06)",bd:"rgba(196,93,0,0.18)",g:0xc45d00},
   severe:{c:"#BF1029",bg:"rgba(191,16,41,0.06)",bd:"rgba(191,16,41,0.18)",g:0xbf1029},
   hBone:0xf0e8dc,hCart:0xc2dae8,hLig:0xe5ddd5,hMen:0xa8c8de,hFlu:0xccc080,
+  canvasBg:0xf5f4f1,canvasFog:0xf5f4f1,canvasGround:0xeceae6,
 };
+const TD = {
+  bg:"#1A1A1E",bgD:"#141416",sf:"#242428",sfA:"#1E1E22",
+  tx:"#E8E8ED",txM:"#A0A0A8",txL:"#6B6B73",txF:"#4A4A52",
+  ac:"#4DA3FF",acS:"rgba(77,163,255,0.1)",
+  bd:"rgba(255,255,255,0.08)",bdM:"rgba(255,255,255,0.12)",
+  mild:{c:"#D4B000",bg:"rgba(212,176,0,0.1)",bd:"rgba(212,176,0,0.2)",g:0xd4b000},
+  moderate:{c:"#E88030",bg:"rgba(232,128,48,0.1)",bd:"rgba(232,128,48,0.2)",g:0xe88030},
+  severe:{c:"#FF4060",bg:"rgba(255,64,96,0.1)",bd:"rgba(255,64,96,0.2)",g:0xff4060},
+  hBone:0xc8bca8,hCart:0x8aacc8,hLig:0xb8a898,hMen:0x7898b0,hFlu:0xa8a060,
+  canvasBg:0x1a1a1e,canvasFog:0x1a1a1e,canvasGround:0x242428,
+};
+let T = TL;
 
 /* ═══════════════════ DATA ═══════════════════ */
 const SAMPLE=`IMPRESSION:
@@ -352,7 +365,7 @@ const JOINT_DEFAULTS = {
 };
 
 /* ═══════════════════ 3D CANVAS ═══════════════════ */
-function JointCanvas({findings,active,phase,showH,joint}){
+function JointCanvas({findings,active,phase,showH,joint,dark,onStructureClick}){
   const ref=useRef(),rr=useRef({}),cm=useRef(null),ob=useRef({ry:0,rx:0,dn:false,lx:0,ly:0});
   const currentJoint=useRef(null);
 
@@ -366,14 +379,14 @@ function JointCanvas({findings,active,phase,showH,joint}){
 
     let W=el.clientWidth,H=el.clientHeight;
     const r=new THREE.WebGLRenderer({antialias:true});r.setSize(W,H);r.setPixelRatio(Math.min(devicePixelRatio,2));
-    r.toneMapping=THREE.ACESFilmicToneMapping;r.toneMappingExposure=1.15;r.setClearColor(0xf5f4f1);el.appendChild(r.domElement);
-    const sc=new THREE.Scene();sc.fog=new THREE.Fog(0xf5f4f1,10,22);
+    r.toneMapping=THREE.ACESFilmicToneMapping;r.toneMappingExposure=1.15;r.setClearColor(T.canvasBg);el.appendChild(r.domElement);
+    const sc=new THREE.Scene();sc.fog=new THREE.Fog(T.canvasFog,10,22);
     const ca=new THREE.PerspectiveCamera(30,W/H,.1,50);ca.position.copy(cm.current.pos);
     sc.add(new THREE.AmbientLight(0xe8e4df,.85));
     const k=new THREE.DirectionalLight(0xffffff,1.5);k.position.set(3,6,4);sc.add(k);
     sc.add(new THREE.DirectionalLight(0xdde4f0,.4).position.set(-4,3,-2));
     sc.add(new THREE.DirectionalLight(0xf0e8e0,.25).position.set(0,-2,-4));
-    const gm=new THREE.Mesh(new THREE.PlaneGeometry(20,20),new THREE.MeshStandardMaterial({color:0xeceae6,roughness:1}));
+    const gm=new THREE.Mesh(new THREE.PlaneGeometry(20,20),new THREE.MeshStandardMaterial({color:T.canvasGround,roughness:1}));
     gm.rotation.x=-Math.PI/2;gm.position.y=-3.2;sc.add(gm);
 
     const builder=JOINT_BUILDERS[j]||JOINT_BUILDERS.knee;
@@ -387,11 +400,27 @@ function JointCanvas({findings,active,phase,showH,joint}){
     const pu=()=>{o.dn=false};
     const wh=e=>{e.preventDefault();const c2=cm.current,d=c2.pT.clone().sub(c2.tT).normalize().multiplyScalar(e.deltaY*.003),np=c2.pT.clone().add(d);if(np.distanceTo(c2.tT)>1.5&&np.distanceTo(c2.tT)<8)c2.pT.copy(np)};
     el.addEventListener("pointerdown",pd);el.addEventListener("pointermove",pm);el.addEventListener("pointerup",pu);el.addEventListener("pointerleave",pu);el.addEventListener("wheel",wh,{passive:false});
+    // Raycasting for anatomy explorer click
+    const raycaster=new THREE.Raycaster();const mouse=new THREE.Vector2();
+    let clickStart={x:0,y:0,t:0};
+    const onClickDown=(e)=>{clickStart={x:e.clientX,y:e.clientY,t:Date.now()}};
+    const onClickUp=(e)=>{
+      const dx=Math.abs(e.clientX-clickStart.x),dy=Math.abs(e.clientY-clickStart.y),dt=Date.now()-clickStart.t;
+      if(dx>5||dy>5||dt>300)return; // was a drag, not a click
+      const rect=el.getBoundingClientRect();
+      mouse.x=((e.clientX-rect.left)/rect.width)*2-1;
+      mouse.y=-((e.clientY-rect.top)/rect.height)*2+1;
+      raycaster.setFromCamera(mouse,ca);
+      const meshes=[];model.traverse(c=>{if(c.isMesh)meshes.push(c)});
+      const hits=raycaster.intersectObjects(meshes);
+      if(hits.length>0&&onStructureClick){onStructureClick(hits[0].object.name)}
+    };
+    el.addEventListener("pointerdown",onClickDown);el.addEventListener("pointerup",onClickUp);
     const onR=()=>{W=el.clientWidth;H=el.clientHeight;ca.aspect=W/H;ca.updateProjectionMatrix();r.setSize(W,H)};
     window.addEventListener("resize",onR);
     let raf;const anim=()=>{raf=requestAnimationFrame(anim);const c2=cm.current;if(!o.dn)o.ry+=.0006;const rad=c2.pT.length();const op=new THREE.Vector3(Math.sin(o.ry)*rad*Math.cos(o.rx),c2.pT.y+Math.sin(o.rx)*rad*.5,Math.cos(o.ry)*rad*Math.cos(o.rx));c2.pos.lerp(op,.04);c2.tgt.lerp(c2.tT,.04);ca.position.copy(c2.pos);ca.lookAt(c2.tgt);r.render(sc,ca)};anim();
     return()=>{cancelAnimationFrame(raf);window.removeEventListener("resize",onR);r.dispose();if(el.contains(r.domElement))el.removeChild(r.domElement)};
-  },[joint]);
+  },[joint,dark]);
 
   useEffect(()=>{
     const c2=cm.current;if(!c2)return;
@@ -415,6 +444,90 @@ function JointCanvas({findings,active,phase,showH,joint}){
 }
 
 /* ═══════════════════ SEVERITY GAUGE ═══════════════════ */
+/* ═══════════════════ ANATOMY EXPLORER ═══════════════════ */
+const ANATOMY_INFO={
+  // Knee
+  femur:{name:"Femur (Thigh Bone)",cat:"Bone",desc:"The largest bone in the body. Forms the upper part of the knee joint. The rounded ends (condyles) articulate with the tibia below.",injuries:"Femoral fractures, bone bruises, osteochondral defects",role:"Primary load-bearing bone of the thigh. Transfers force from hip to knee."},
+  condyle_medial:{name:"Medial Femoral Condyle",cat:"Bone",desc:"The rounded inner end of the femur. Covered in articular cartilage and contacts the medial meniscus.",injuries:"Bone bruises, cartilage defects, osteonecrosis",role:"Articulates with the tibia's medial plateau. Key weight-bearing surface."},
+  condyle_lateral:{name:"Lateral Femoral Condyle",cat:"Bone",desc:"The rounded outer end of the femur. Frequently bruised in ACL injuries due to pivot-shift mechanism.",injuries:"Bone bruises (especially with ACL tears), cartilage damage",role:"Articulates with the tibia's lateral plateau. Absorbs rotational forces."},
+  tibia:{name:"Tibia (Shin Bone)",cat:"Bone",desc:"The main weight-bearing bone of the lower leg. The tibial plateau forms the bottom of the knee joint.",injuries:"Tibial plateau fractures, bone bruises, stress fractures",role:"Supports body weight. Provides anchor points for cruciate and collateral ligaments."},
+  tibial_plateau:{name:"Tibial Plateau",cat:"Bone",desc:"The flat upper surface of the tibia. Divided into medial and lateral compartments, each cushioned by a meniscus.",injuries:"Plateau fractures, cartilage wear, bone edema",role:"Creates the stable platform that the femoral condyles glide on."},
+  patella:{name:"Patella (Kneecap)",cat:"Bone",desc:"A sesamoid bone embedded in the quadriceps tendon. Protects the front of the knee and improves leverage for straightening.",injuries:"Patellar fractures, chondromalacia, subluxation/dislocation",role:"Acts as a pulley for the quadriceps. Increases mechanical advantage by 30%."},
+  fibula:{name:"Fibula",cat:"Bone",desc:"The thin outer bone of the lower leg. Doesn't bear much weight but provides attachment for the LCL and biceps femoris.",injuries:"Fibular fractures (often with ankle injuries), LCL avulsion",role:"Lateral stability. Anchor for the lateral collateral ligament."},
+  meniscus_medial:{name:"Medial Meniscus",cat:"Cartilage",desc:"C-shaped cartilage cushion on the inner side of the knee. Absorbs shock and distributes load across the joint.",injuries:"Tears (posterior horn most common), degenerative changes, root tears",role:"Shock absorber. Distributes 50% of weight-bearing load in the medial compartment."},
+  meniscus_lateral:{name:"Lateral Meniscus",cat:"Cartilage",desc:"More circular cartilage cushion on the outer side. More mobile than the medial meniscus, so tears less often.",injuries:"Tears (often with ACL injuries), discoid meniscus variants",role:"Shock absorption. More mobile than medial — better at accommodating rotation."},
+  acl:{name:"ACL (Anterior Cruciate Ligament)",cat:"Ligament",desc:"Runs diagonally through the center of the knee from the femur to the tibia. Prevents the tibia from sliding forward.",injuries:"Partial tears, complete tears (most common sport ligament injury), chronic ACL deficiency",role:"Primary restraint against anterior tibial translation. Critical for pivoting/cutting sports."},
+  pcl:{name:"PCL (Posterior Cruciate Ligament)",cat:"Ligament",desc:"The strongest ligament in the knee. Crosses behind the ACL and prevents the tibia from sliding backward.",injuries:"Tears (usually from dashboard injuries or hyperextension), avulsions",role:"Prevents posterior tibial translation. Twice as strong as the ACL."},
+  mcl:{name:"MCL (Medial Collateral Ligament)",cat:"Ligament",desc:"Runs along the inner side of the knee from femur to tibia. Resists forces that push the knee inward (valgus stress).",injuries:"Sprains (grade I-III), tears, often combined with ACL/meniscus injuries",role:"Primary valgus stabilizer. Most commonly injured knee ligament."},
+  lcl:{name:"LCL (Lateral Collateral Ligament)",cat:"Ligament",desc:"A cord-like ligament on the outer side. Resists forces pushing the knee outward (varus stress).",injuries:"Sprains, tears, posterolateral corner injuries",role:"Varus stabilizer. Part of the posterolateral corner complex."},
+  cartilage_medial:{name:"Medial Articular Cartilage",cat:"Cartilage",desc:"Smooth, glassy covering on the medial femoral condyle. Allows near-frictionless gliding between bones.",injuries:"Chondral defects, thinning (osteoarthritis), osteochondral lesions",role:"Low-friction surface for joint motion. Cannot regenerate once damaged."},
+  cartilage_lateral:{name:"Lateral Articular Cartilage",cat:"Cartilage",desc:"Articular cartilage covering the lateral femoral condyle. Similar properties to medial but lower weight-bearing demands.",injuries:"Chondral damage, early arthritis, osteochondral defects",role:"Friction-free surface. Works with lateral meniscus to distribute load."},
+  effusion:{name:"Joint Effusion",cat:"Fluid",desc:"Excess fluid inside the knee joint capsule. A sign of inflammation, injury, or irritation — the knee's way of signaling a problem.",injuries:"Present with most acute injuries, arthritis flares, infections",role:"Normal synovial fluid lubricates the joint. Excess signals pathology."},
+  bakers_cyst:{name:"Baker's Cyst",cat:"Fluid",desc:"A fluid-filled sac behind the knee (popliteal fossa). Often communicates with the joint and fills when there's excess fluid.",injuries:"Cyst formation, rupture (mimics DVT), associated with meniscal tears/arthritis",role:"Pressure relief valve for joint fluid. Usually a secondary finding."},
+  // Shoulder
+  scapula_body:{name:"Scapula (Shoulder Blade)",cat:"Bone",desc:"Large flat triangular bone on the back of the ribcage. Houses the glenoid socket and provides muscle attachment for 17 muscles.",injuries:"Fractures (rare, high-energy), scapular winging",role:"Platform for rotator cuff. Coordinates shoulder blade movement (scapulohumeral rhythm)."},
+  glenoid:{name:"Glenoid (Socket)",cat:"Bone",desc:"The shallow socket of the shoulder joint on the scapula. Only covers about 1/3 of the humeral head, relying on the labrum for depth.",injuries:"Fractures (Bankart lesion involves the bony glenoid), erosion, dysplasia",role:"Provides the socket for the ball-and-socket joint. Shallow = mobile but less stable."},
+  acromion:{name:"Acromion",cat:"Bone",desc:"The bony shelf extending over the top of the shoulder. The supraspinatus passes underneath through the subacromial space.",injuries:"Bone spurs (impingement), fractures, os acromiale (unfused growth plate)",role:"Protects the rotator cuff from above. Shape affects impingement risk (Type I-III)."},
+  clavicle:{name:"Clavicle (Collarbone)",cat:"Bone",desc:"The S-shaped bone connecting the shoulder to the sternum. The only bony connection between arm and trunk.",injuries:"Fractures (most common broken bone), AC joint separation",role:"Strut connecting arm to axial skeleton. Protects vessels and nerves underneath."},
+  ac_joint:{name:"AC Joint",cat:"Joint",desc:"The junction where the clavicle meets the acromion. A small but important joint that allows overhead arm movement.",injuries:"Separation (grades I-VI), osteoarthritis, distal clavicle osteolysis (weightlifter's shoulder)",role:"Allows scapula to rotate upward as arm is raised. High stress with overhead activity."},
+  humeral_head:{name:"Humeral Head",cat:"Bone",desc:"The ball of the ball-and-socket shoulder joint. About 1/3 of a sphere, larger than the glenoid socket it sits in.",injuries:"Fractures, Hill-Sachs lesions (dent from dislocation), avascular necrosis",role:"Articulates with the glenoid. Its large size relative to the socket allows extreme range of motion."},
+  humerus:{name:"Humerus (Upper Arm Bone)",cat:"Bone",desc:"The long bone of the upper arm. The surgical neck (just below the head) is a common fracture site.",injuries:"Fractures (proximal, shaft, distal), stress fractures in throwers",role:"Lever arm for shoulder and elbow movements. Attachment for deltoid, biceps, triceps."},
+  labrum:{name:"Labrum",cat:"Cartilage",desc:"A ring of fibrous cartilage that deepens the glenoid socket by about 50%. Critical for shoulder stability and suction-cup effect.",injuries:"SLAP tears (top), Bankart tears (front-bottom), posterior tears, degenerative fraying",role:"Deepens the socket. Creates negative pressure seal. Anchor for biceps tendon (superior labrum)."},
+  capsule:{name:"Joint Capsule",cat:"Soft Tissue",desc:"A fibrous envelope surrounding the entire shoulder joint. Loose enough to allow wide range of motion but thickened into ligaments at key points.",injuries:"Adhesive capsulitis (frozen shoulder), capsular tears, laxity",role:"Contains joint fluid. Glenohumeral ligaments are thickenings within the capsule."},
+  supraspinatus:{name:"Supraspinatus",cat:"Rotator Cuff",desc:"Runs over the top of the shoulder from the scapula to the greater tuberosity. Most commonly torn rotator cuff tendon.",injuries:"Tendinosis, partial tears, full-thickness tears with or without retraction",role:"Initiates arm abduction (first 15°). Holds humeral head down in socket during overhead movement."},
+  infraspinatus:{name:"Infraspinatus",cat:"Rotator Cuff",desc:"Covers the back of the scapula below the spine. Second most commonly torn rotator cuff tendon.",injuries:"Tendinosis, tears (often extend from supraspinatus), atrophy from nerve compression",role:"External rotation of the arm. Critical for deceleration in throwing athletes."},
+  subscapularis:{name:"Subscapularis",cat:"Rotator Cuff",desc:"The largest rotator cuff muscle, on the front of the scapula. Less commonly torn but important for internal rotation.",injuries:"Tears (often missed), subluxation of biceps tendon when torn",role:"Internal rotation. Anterior stabilizer of the humeral head. Protects biceps groove."},
+  teres_minor:{name:"Teres Minor",cat:"Rotator Cuff",desc:"Small muscle on the back of the scapula below the infraspinatus. Rarely torn in isolation.",injuries:"Isolated tears (rare), atrophy from quadrilateral space syndrome",role:"External rotation (assists infraspinatus). Stabilizes posterior humeral head."},
+  biceps_tendon:{name:"Biceps Tendon (Long Head)",cat:"Tendon",desc:"Runs from the superior labrum, through the bicipital groove, and down the front of the humerus. Often a pain generator.",injuries:"Tendinosis, partial tears, subluxation/dislocation from groove, SLAP tears at anchor",role:"Elbow flexion and forearm supination. Minor role as humeral head depressor."},
+};
+
+function AnatomyExplorerCard({structureName,onClose,joint}){
+  const info=ANATOMY_INFO[structureName];
+  if(!info)return(
+    <div style={{position:"absolute",bottom:20,left:20,right:20,maxWidth:380,background:T.sf,borderRadius:12,padding:"14px 16px",boxShadow:"0 8px 32px rgba(0,0,0,0.12)",border:`1px solid ${T.bd}`,zIndex:20,animation:"slideUp .3s cubic-bezier(.16,1,.3,1)"}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        <span style={{fontSize:13,fontWeight:700,color:T.tx}}>{structureName.replace(/_/g," ").replace(/\b\w/g,c=>c.toUpperCase())}</span>
+        <button onClick={onClose} style={{background:"none",border:"none",fontSize:16,color:T.txL,cursor:"pointer"}}>✕</button>
+      </div>
+      <div style={{fontSize:11,color:T.txM,marginTop:4}}>Tap a specific structure to learn more about it.</div>
+    </div>
+  );
+
+  const catColors={Bone:"#8B7355",Cartilage:"#4A90D9",Ligament:"#7B6B5A","Rotator Cuff":"#9B59B6",Tendon:"#8B6914","Soft Tissue":"#6B8E6B",Fluid:"#B8A040",Joint:"#D4A373"};
+  const catColor=catColors[info.cat]||"#6E6E73";
+
+  return(
+    <div style={{position:"absolute",bottom:20,left:20,right:20,maxWidth:400,background:T.sf,borderRadius:14,boxShadow:"0 8px 32px rgba(0,0,0,0.15)",border:`1px solid ${T.bd}`,zIndex:20,animation:"slideUp .3s cubic-bezier(.16,1,.3,1)",overflow:"hidden"}}>
+      {/* Header */}
+      <div style={{padding:"12px 16px 10px",borderBottom:`1px solid ${T.bd}`}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+          <div>
+            <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:2}}>
+              <span style={{fontSize:8,fontWeight:700,color:catColor,background:catColor+"14",padding:"2px 6px",borderRadius:3,textTransform:"uppercase",letterSpacing:.8}}>{info.cat}</span>
+            </div>
+            <div style={{fontSize:15,fontWeight:700,color:T.tx,fontFamily:"Georgia,serif"}}>{info.name}</div>
+          </div>
+          <button onClick={onClose} style={{background:"none",border:"none",fontSize:16,color:T.txL,cursor:"pointer",padding:"2px 4px"}}>✕</button>
+        </div>
+      </div>
+      {/* Body */}
+      <div style={{padding:"12px 16px",maxHeight:200,overflow:"auto"}}>
+        <div style={{fontSize:12,color:T.tx,lineHeight:1.6,marginBottom:10}}>{info.desc}</div>
+        <div style={{fontSize:11,color:T.txM,lineHeight:1.5,marginBottom:6}}>
+          <span style={{fontWeight:700,color:T.tx}}>Function: </span>{info.role}
+        </div>
+        <div style={{fontSize:11,color:T.txM,lineHeight:1.5}}>
+          <span style={{fontWeight:700,color:T.severe?.c||"#BF1029"}}>Common injuries: </span>{info.injuries}
+        </div>
+      </div>
+      {/* Footer hint */}
+      <div style={{padding:"8px 16px",background:T.bgD,fontSize:10,color:T.txL,textAlign:"center"}}>
+        Tap other structures to explore · Drag to rotate the model
+      </div>
+    </div>
+  );
+}
+
 function Gauge({score,sev}){const s=T[sev];return(
   <div style={{display:"flex",alignItems:"center",gap:8,marginTop:5}}>
     <div style={{flex:1,height:4,background:"rgba(0,0,0,0.04)",borderRadius:2,overflow:"hidden"}}>
@@ -812,7 +925,7 @@ function ReportPreview({findings,joint,paid,onUnlock,onDismiss,onDownload}){
 }
 
 /* ═══════════════════ SEO LANDING PAGE ═══════════════════ */
-function LandingPage({onStart,onSelectCondition,mob}){
+function LandingPage({onStart,onSelectCondition,mob,dark,toggleDark}){
   const[selJoint,setSelJoint]=useState(null);
 
   const CONDITIONS={
@@ -867,20 +980,23 @@ function LandingPage({onStart,onSelectCondition,mob}){
   const joints=Object.keys(CONDITIONS);
 
   return(
-    <div style={{minHeight:"100vh",background:"#FAFAF8",overflow:"auto"}}>
+    <div style={{minHeight:"100vh",background:dark?"#1A1A1E":"#FAFAF8",overflow:"auto"}}>
 
       {/* Header */}
-      <div style={{position:"sticky",top:0,zIndex:20,background:"rgba(250,249,247,0.92)",backdropFilter:"blur(12px)",borderBottom:"1px solid rgba(0,0,0,0.06)"}}>
+      <div style={{position:"sticky",top:0,zIndex:20,background:dark?"rgba(26,26,30,0.92)":"rgba(250,249,247,0.92)",backdropFilter:"blur(12px)",borderBottom:`1px solid ${dark?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.06)"}`}}>
         <div style={{maxWidth:900,margin:"0 auto",padding:mob?"10px 20px":"12px 40px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
           <div style={{display:"flex",alignItems:"center",gap:mob?8:10}}>
             <div style={{width:mob?26:30,height:mob?26:30,borderRadius:mob?7:9,background:"linear-gradient(135deg,#0071E3,#5BA3F5)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:mob?13:15,fontWeight:800,color:"#fff"}}>C</div>
-            <span style={{fontSize:mob?15:17,fontWeight:700,color:"#1D1D1F"}}>ClearScan</span>
-            {!mob&&<span style={{fontSize:11,color:"#AEAEB2",fontWeight:500,marginLeft:4}}>MRI Interpreter</span>}
+            <span style={{fontSize:mob?15:17,fontWeight:700,color:dark?"#E8E8ED":"#1D1D1F"}}>ClearScan</span>
+            {!mob&&<span style={{fontSize:11,color:dark?"#6B6B73":"#AEAEB2",fontWeight:500,marginLeft:4}}>MRI Interpreter</span>}
           </div>
-          <button onClick={()=>onStart()} style={{
-            padding:mob?"7px 14px":"8px 18px",borderRadius:8,border:"none",
-            background:"#0071E3",color:"#fff",fontSize:12,fontWeight:600,cursor:"pointer",
-          }}>Upload MRI →</button>
+          <div style={{display:"flex",alignItems:"center",gap:8}}>
+            <button onClick={toggleDark} style={{background:"none",border:`1px solid ${dark?"rgba(255,255,255,0.1)":"rgba(0,0,0,0.08)"}`,color:dark?"#A0A0A8":"#6E6E73",padding:mob?"5px 8px":"6px 10px",borderRadius:7,fontSize:13,cursor:"pointer",lineHeight:1}} title={dark?"Light mode":"Dark mode"}>{dark?"☀️":"🌙"}</button>
+            <button onClick={()=>onStart()} style={{
+              padding:mob?"7px 14px":"8px 18px",borderRadius:8,border:"none",
+              background:"#0071E3",color:"#fff",fontSize:12,fontWeight:600,cursor:"pointer",
+            }}>Upload MRI →</button>
+          </div>
         </div>
       </div>
 
@@ -890,11 +1006,11 @@ function LandingPage({onStart,onSelectCondition,mob}){
           <span style={{fontSize:12,fontWeight:600,color:"#0071E3"}}>Free MRI interpretation in seconds</span>
         </div>
 
-        <h1 style={{fontSize:mob?28:44,fontWeight:800,color:"#1D1D1F",margin:"0 0 12px",lineHeight:1.15,fontFamily:"Georgia,serif",letterSpacing:"-0.02em"}}>
+        <h1 style={{fontSize:mob?28:44,fontWeight:800,color:dark?"#E8E8ED":"#1D1D1F",margin:"0 0 12px",lineHeight:1.15,fontFamily:"Georgia,serif",letterSpacing:"-0.02em"}}>
           Understand Your MRI Results.<br/><span style={{color:"#0071E3"}}>Prepare for Your Appointment.</span>
         </h1>
 
-        <p style={{fontSize:mob?15:18,color:"#6E6E73",margin:"0 auto 28px",maxWidth:560,lineHeight:1.6}}>
+        <p style={{fontSize:mob?15:18,color:dark?"#A0A0A8":"#6E6E73",margin:"0 auto 28px",maxWidth:560,lineHeight:1.6}}>
           Paste your MRI report and instantly get plain-language explanations, questions for your doctor, treatment comparisons, and a personalized exercise program.
         </p>
 
@@ -926,16 +1042,16 @@ function LandingPage({onStart,onSelectCondition,mob}){
 
       {/* How It Works */}
       <div style={{maxWidth:800,margin:"0 auto",padding:mob?"0 20px 40px":"0 40px 50px"}}>
-        <h2 style={{fontSize:mob?18:22,fontWeight:700,color:"#1D1D1F",textAlign:"center",marginBottom:24,fontFamily:"Georgia,serif"}}>How It Works</h2>
+        <h2 style={{fontSize:mob?18:22,fontWeight:700,color:dark?"#E8E8ED":"#1D1D1F",textAlign:"center",marginBottom:24,fontFamily:"Georgia,serif"}}>How It Works</h2>
         <div style={{display:"grid",gridTemplateColumns:mob?"1fr":"1fr 1fr 1fr",gap:16}}>
           {[
             {step:"1",title:"Paste Your Report",desc:"Copy the Impression section from your MRI report and paste it in. We auto-detect knee or shoulder."},
             {step:"2",title:"See What It Means",desc:"Every finding explained in plain language with severity ratings, 3D visualization, and what you might feel."},
             {step:"3",title:"Prepare for Your Visit",desc:"Get personalized doctor questions, treatment comparisons, exercises, and a downloadable PDF report."},
           ].map((s,i)=>(
-            <div key={i} style={{padding:20,borderRadius:12,background:"#fff",border:"1px solid rgba(0,0,0,0.06)"}}>
+            <div key={i} style={{padding:20,borderRadius:12,background:dark?"#242428":"#fff",border:`1px solid ${dark?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.06)"}`}}>
               <div style={{width:32,height:32,borderRadius:"50%",background:"rgba(0,113,227,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,fontWeight:800,color:"#0071E3",marginBottom:10}}>{s.step}</div>
-              <div style={{fontSize:14,fontWeight:700,color:"#1D1D1F",marginBottom:4}}>{s.title}</div>
+              <div style={{fontSize:14,fontWeight:700,color:dark?"#E8E8ED":"#1D1D1F",marginBottom:4}}>{s.title}</div>
               <div style={{fontSize:12,color:"#6E6E73",lineHeight:1.5}}>{s.desc}</div>
             </div>
           ))}
@@ -944,7 +1060,7 @@ function LandingPage({onStart,onSelectCondition,mob}){
 
       {/* Body Part Selector + Condition Browser */}
       <div id="conditions" style={{maxWidth:800,margin:"0 auto",padding:mob?"0 20px 40px":"0 40px 60px"}}>
-        <h2 style={{fontSize:mob?18:22,fontWeight:700,color:"#1D1D1F",textAlign:"center",marginBottom:6,fontFamily:"Georgia,serif"}}>Don't Have Your MRI Report?</h2>
+        <h2 style={{fontSize:mob?18:22,fontWeight:700,color:dark?"#E8E8ED":"#1D1D1F",textAlign:"center",marginBottom:6,fontFamily:"Georgia,serif"}}>Don't Have Your MRI Report?</h2>
         <p style={{fontSize:13,color:"#6E6E73",textAlign:"center",marginBottom:24,lineHeight:1.5}}>Select your body part and diagnosis below. We'll load a representative MRI report so you can explore what ClearScan shows.</p>
 
         {/* Joint selector */}
@@ -955,8 +1071,8 @@ function LandingPage({onStart,onSelectCondition,mob}){
             return(
               <button key={j} onClick={()=>setSelJoint(isSel?null:j)} style={{
                 padding:mob?"12px 20px":"14px 28px",borderRadius:12,
-                border:isSel?`2px solid ${jd.color}`:"1px solid rgba(0,0,0,0.08)",
-                background:isSel?jd.color+"08":"#fff",
+                border:isSel?`2px solid ${jd.color}`:`1px solid ${dark?"rgba(255,255,255,0.08)":"rgba(0,0,0,0.08)"}`,
+                background:isSel?jd.color+"08":dark?"#242428":"#fff",
                 cursor:"pointer",display:"flex",alignItems:"center",gap:8,
                 transition:"all .2s",
               }}>
@@ -977,8 +1093,8 @@ function LandingPage({onStart,onSelectCondition,mob}){
               const sc=c.sev==="severe"?"#BF1029":c.sev==="moderate"?"#C45D00":"#A68B00";
               return(
                 <div key={i} onClick={()=>onSelectCondition(c.sample,selJoint)} style={{
-                  padding:"14px 16px",borderRadius:10,background:"#fff",
-                  border:"1px solid rgba(0,0,0,0.06)",cursor:"pointer",
+                  padding:"14px 16px",borderRadius:10,background:dark?"#242428":"#fff",
+                  border:`1px solid ${dark?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.06)"}`,cursor:"pointer",
                   transition:"all .15s",position:"relative",overflow:"hidden",
                 }} onMouseEnter={e=>{e.currentTarget.style.borderColor=CONDITIONS[selJoint].color+"40";e.currentTarget.style.transform="translateY(-1px)";e.currentTarget.style.boxShadow="0 4px 12px rgba(0,0,0,0.06)"}}
                    onMouseLeave={e=>{e.currentTarget.style.borderColor="rgba(0,0,0,0.06)";e.currentTarget.style.transform="none";e.currentTarget.style.boxShadow="none"}}>
@@ -1001,9 +1117,9 @@ function LandingPage({onStart,onSelectCondition,mob}){
       </div>
 
       {/* SEO Content Section */}
-      <div style={{background:"#fff",borderTop:"1px solid rgba(0,0,0,0.06)",padding:mob?"30px 20px":"40px 40px"}}>
+      <div style={{background:dark?"#242428":"#fff",borderTop:`1px solid ${dark?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.06)"}`,padding:mob?"30px 20px":"40px 40px"}}>
         <div style={{maxWidth:700,margin:"0 auto"}}>
-          <h2 style={{fontSize:mob?16:20,fontWeight:700,color:"#1D1D1F",marginBottom:16,fontFamily:"Georgia,serif"}}>Understanding Your MRI Report</h2>
+          <h2 style={{fontSize:mob?16:20,fontWeight:700,color:dark?"#E8E8ED":"#1D1D1F",marginBottom:16,fontFamily:"Georgia,serif"}}>Understanding Your MRI Report</h2>
 
           <div style={{fontSize:13,color:"#6E6E73",lineHeight:1.7}}>
             <p style={{marginBottom:14}}>MRI reports are written by radiologists for other physicians — not for patients. Terms like "intrasubstance signal abnormality," "grade III sprain," or "full-thickness tear with retraction" can feel overwhelming when you're reading them for the first time.</p>
@@ -1048,7 +1164,7 @@ function LandingPage({onStart,onSelectCondition,mob}){
       </div>
 
       {/* Footer */}
-      <div style={{padding:"20px 40px",borderTop:"1px solid rgba(0,0,0,0.06)",textAlign:"center",background:"#FAFAF8"}}>
+      <div style={{padding:"20px 40px",borderTop:`1px solid ${dark?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.06)"}`,textAlign:"center",background:dark?"#1A1A1E":"#FAFAF8"}}>
         <div style={{fontSize:10,color:"#AEAEB2",lineHeight:1.6}}>
           ClearScan is an educational tool and does not provide medical advice, diagnosis, or treatment.<br/>
           Always consult a qualified healthcare provider for medical decisions.<br/>
@@ -1717,6 +1833,120 @@ function TreatmentsTab({findings,activeTx,setActiveTx,txFinding}){
 }
 
 /* ═══════════════════ TREATMENT DETAIL (Right Pane) ═══════════════════ */
+/* ═══════════════════ RISK/BENEFIT SECTION ═══════════════════ */
+function RiskBenefitSection({tx}){
+  const name=tx.name?.toLowerCase()||"";
+  const type=tx.type||"conservative";
+
+  // Build risk/benefit data based on treatment type and name keywords
+  let benefits=[],risks=[];
+
+  if(type==="surgical"){
+    benefits.push({text:"Directly addresses the structural problem",level:"high"});
+    benefits.push({text:"Often provides the most definitive long-term fix",level:"high"});
+    if(name.includes("arthroscop"))benefits.push({text:"Minimally invasive — small incisions, faster recovery than open surgery",level:"high"});
+    if(name.includes("reconstruct"))benefits.push({text:"Restores stability for return to sport and high-demand activity",level:"high"});
+    if(name.includes("repair"))benefits.push({text:"Preserves native tissue rather than replacing it",level:"moderate"});
+    if(name.includes("replacement")||name.includes("arthroplasty"))benefits.push({text:"Significant pain relief for end-stage arthritis",level:"high"});
+    if(name.includes("meniscect"))benefits.push({text:"Quick return to activity — often weeks, not months",level:"moderate"});
+    benefits.push({text:"Structured rehab protocol with clear milestones",level:"moderate"});
+
+    risks.push({text:"General surgical risks: infection, blood clots, anesthesia reactions",level:"low",note:"<1-2% for most joint procedures"});
+    risks.push({text:"Stiffness or loss of range of motion during recovery",level:"moderate"});
+    if(name.includes("reconstruct")){
+      risks.push({text:"Graft failure or re-tear (5-15% depending on graft type and activity level)",level:"moderate"});
+      risks.push({text:"Donor site pain if using your own tissue (autograft)",level:"low"});
+    }
+    if(name.includes("repair"))risks.push({text:"Re-tear risk, especially with larger or retracted tears",level:"moderate"});
+    if(name.includes("replacement"))risks.push({text:"Implant loosening or wear over 15-20+ years",level:"low",note:"May need revision"});
+    risks.push({text:"Extended recovery period (weeks to months of rehab)",level:"moderate"});
+    if(!name.includes("arthroscop"))risks.push({text:"Longer recovery compared to arthroscopic options",level:"moderate"});
+  } else if(type==="interventional"){
+    benefits.push({text:"Less invasive than surgery — often done in-office",level:"high"});
+    benefits.push({text:"Quicker recovery — usually days, not weeks",level:"high"});
+    if(name.includes("injection")||name.includes("cortisone")||name.includes("steroid")){
+      benefits.push({text:"Rapid pain relief, often within days",level:"high"});
+      benefits.push({text:"Can serve as diagnostic tool — confirms pain source",level:"moderate"});
+    }
+    if(name.includes("prp")||name.includes("platelet"))benefits.push({text:"Uses your own blood — low allergy or rejection risk",level:"moderate"});
+    if(name.includes("viscosupplementation")||name.includes("hyaluronic"))benefits.push({text:"May delay or avoid need for joint replacement",level:"moderate"});
+    benefits.push({text:"Can be repeated if effective",level:"moderate"});
+
+    if(name.includes("cortisone")||name.includes("steroid")){
+      risks.push({text:"Temporary pain flare for 24-48 hours after injection",level:"low"});
+      risks.push({text:"Repeated injections may weaken tendons or cartilage",level:"moderate",note:"Usually limited to 3-4 per year"});
+      risks.push({text:"Blood sugar elevation in diabetic patients",level:"low"});
+    }
+    if(name.includes("prp")||name.includes("platelet")){
+      risks.push({text:"Limited insurance coverage — often out-of-pocket ($500-1500)",level:"moderate"});
+      risks.push({text:"Evidence is still evolving — results vary",level:"moderate"});
+    }
+    risks.push({text:"Small risk of infection at injection site",level:"low",note:"<0.1%"});
+    risks.push({text:"Results may be temporary — may need repeat treatment",level:"moderate"});
+  } else {
+    // Conservative
+    benefits.push({text:"No surgical risk — safest starting point",level:"high"});
+    benefits.push({text:"Can begin immediately with minimal cost",level:"high"});
+    if(name.includes("physical therapy")||name.includes("pt")||name.includes("rehab")){
+      benefits.push({text:"Builds strength to protect the joint long-term",level:"high"});
+      benefits.push({text:"Addresses underlying muscle imbalances and movement patterns",level:"moderate"});
+      benefits.push({text:"Education on self-management reduces future injury risk",level:"moderate"});
+    }
+    if(name.includes("brace")||name.includes("immobil"))benefits.push({text:"Immediate stability and pain reduction",level:"moderate"});
+    if(name.includes("medication")||name.includes("nsaid")||name.includes("anti-inflam"))benefits.push({text:"Effective at reducing pain and inflammation",level:"moderate"});
+    if(name.includes("rice")||name.includes("rest"))benefits.push({text:"Allows natural healing without intervention",level:"moderate"});
+    benefits.push({text:"Preserves all future treatment options",level:"high"});
+
+    if(name.includes("physical therapy")||name.includes("pt")||name.includes("rehab")){
+      risks.push({text:"Requires consistent effort — results depend on adherence",level:"moderate"});
+      risks.push({text:"May take 6-12 weeks to see significant improvement",level:"moderate"});
+    }
+    if(name.includes("medication")||name.includes("nsaid")){
+      risks.push({text:"GI side effects with prolonged NSAID use",level:"moderate"});
+      risks.push({text:"Masks pain — may lead to overuse if not careful",level:"low"});
+    }
+    risks.push({text:"May not be sufficient for structural problems (tears, instability)",level:"moderate"});
+    risks.push({text:"Delayed treatment if conservative approach fails",level:"low"});
+  }
+
+  // Ensure minimums
+  if(benefits.length<2)benefits.push({text:"Generally well-tolerated by most patients",level:"moderate"});
+  if(risks.length<2)risks.push({text:"Individual results vary — discuss your specific situation with your doctor",level:"low"});
+
+  const levelColors={high:"#2D8B4E",moderate:"#C45D00",low:"#6E6E73"};
+  const riskColors={high:"#BF1029",moderate:"#C45D00",low:"#6E6E73"};
+
+  return(
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+      {/* Benefits */}
+      <div style={{padding:"12px",background:"rgba(45,139,78,0.04)",borderRadius:10,border:"1px solid rgba(45,139,78,0.1)"}}>
+        <div style={{fontSize:10,fontWeight:700,color:"#2D8B4E",textTransform:"uppercase",letterSpacing:.8,marginBottom:8}}>✓ Benefits</div>
+        {benefits.slice(0,5).map((b,i)=>(
+          <div key={i} style={{display:"flex",alignItems:"flex-start",gap:6,marginBottom:6}}>
+            <div style={{width:6,height:6,borderRadius:3,background:levelColors[b.level],marginTop:5,flexShrink:0}} />
+            <div>
+              <div style={{fontSize:11,color:"#1D1D1F",lineHeight:1.45}}>{b.text}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+      {/* Risks */}
+      <div style={{padding:"12px",background:"rgba(191,16,41,0.03)",borderRadius:10,border:"1px solid rgba(191,16,41,0.08)"}}>
+        <div style={{fontSize:10,fontWeight:700,color:"#BF1029",textTransform:"uppercase",letterSpacing:.8,marginBottom:8}}>⚠ Risks</div>
+        {risks.slice(0,5).map((r,i)=>(
+          <div key={i} style={{display:"flex",alignItems:"flex-start",gap:6,marginBottom:6}}>
+            <div style={{width:6,height:6,borderRadius:3,background:riskColors[r.level],marginTop:5,flexShrink:0}} />
+            <div>
+              <div style={{fontSize:11,color:"#1D1D1F",lineHeight:1.45}}>{r.text}</div>
+              {r.note&&<div style={{fontSize:9,color:"#AEAEB2",marginTop:1}}>{r.note}</div>}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function TreatmentDetail({tx,finding,onClose,allFindings,paid,onUnlock}){
   if(!tx||!finding)return null;
   if(!paid) return(
@@ -1787,6 +2017,15 @@ function TreatmentDetail({tx,finding,onClose,allFindings,paid,onUnlock}){
             <h3 style={{fontSize:14,fontWeight:700,color:"#1D1D1F",margin:0}}>What It Involves</h3>
           </div>
           <div style={{padding:"12px 14px",background:"#F5F4F1",borderRadius:10,fontSize:13,lineHeight:1.7,color:"#1D1D1F"}}>{tx.desc}</div>
+        </div>
+
+        {/* Risks & Benefits */}
+        <div style={{marginBottom:16}}>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
+            <div style={{width:24,height:24,borderRadius:7,background:"rgba(0,113,227,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>⚖️</div>
+            <h3 style={{fontSize:14,fontWeight:700,color:"#1D1D1F",margin:0}}>Risks & Benefits</h3>
+          </div>
+          <RiskBenefitSection tx={tx} />
         </div>
 
         {/* Timeline visualization */}
@@ -2592,6 +2831,12 @@ export default function App(){
   const[recoveryStage,setRecoveryStage]=useState(null); // {index, week, label, title}
   const[showReportPreview,setShowReportPreview]=useState(false);
   const[doctorAnswers,setDoctorAnswers]=useState({}); // keyed by "findingId_qIndex"
+  const[dark,setDark]=useState(()=>{try{return localStorage.getItem("cs_dark")==="1"}catch{return false}});
+  const[explorerInfo,setExplorerInfo]=useState(null); // {name, desc, ...} when tapping 3D model structure
+
+  // Apply theme
+  T=dark?TD:TL;
+  const toggleDark=()=>{const nv=!dark;setDark(nv);try{localStorage.setItem("cs_dark",nv?"1":"0")}catch{}};
 
   // Derive assessment from doctor question answers
   const derivedAssess=useMemo(()=>{
@@ -2763,6 +3008,7 @@ export default function App(){
         {joint&&phase!=="input"&&<span style={{fontSize:9,fontWeight:700,color:"#0071E3",background:"rgba(0,113,227,0.07)",padding:"3px 8px",borderRadius:4,marginLeft:6,textTransform:"uppercase",letterSpacing:.5}}>{joint==="knee"?"🦵 Knee":joint==="shoulder"?"💪 Shoulder":joint==="hip"?"🦴 Hip":joint}</span>}
       </div>
       <div style={{display:"flex",alignItems:"center",gap:6}}>
+        <button onClick={toggleDark} style={{background:"none",border:`1px solid ${T.bd}`,color:T.txM,padding:mob?"5px 8px":"6px 10px",borderRadius:7,fontSize:13,cursor:"pointer",lineHeight:1}} title={dark?"Light mode":"Dark mode"}>{dark?"☀️":"🌙"}</button>
         {phase==="summary"&&findings&&<button onClick={hBtn} style={{background:showH?T.ac:T.sf,border:`1px solid ${showH?T.ac:T.bdM}`,color:showH?"#fff":T.txM,padding:mob?"5px 10px":"6px 14px",borderRadius:7,fontSize:11,fontWeight:500,cursor:"pointer",transition:"all .2s"}}>{showH?"✓ Healthy":"Compare Healthy"}</button>}
         {phase!=="landing"&&phase!=="input"&&<button onClick={reset} style={{background:T.bgD,border:`1px solid ${T.bd}`,color:T.txM,padding:mob?"5px 10px":"6px 14px",borderRadius:7,fontSize:11,cursor:"pointer"}}>New Report</button>}
       </div>
@@ -2812,14 +3058,15 @@ export default function App(){
   if(mob)return(
     <div style={{width:"100%",height:"100vh",background:T.bg,display:"flex",flexDirection:"column",overflow:"hidden"}}>
       {phase!=="landing"&&<>{styles}{hdr}</>}
-      {phase==="landing"?<LandingPage onStart={()=>setPhase("input")} onSelectCondition={selectCondition} mob={true} />
+      {phase==="landing"?<LandingPage onStart={()=>setPhase("input")} onSelectCondition={selectCondition} mob={true} dark={dark} toggleDark={toggleDark} />
       :phase==="input"?<div style={{flex:1,overflow:"auto",padding:16,display:"flex",flexDirection:"column"}}>{inputUI()}</div>:(
         <div ref={mobContainerRef} style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden",position:"relative"}}>
           {/* 3D Viewport */}
           <div style={{height:`${mobSplit}%`,position:"relative",flexShrink:0,overflow:"hidden"}}>
-            <JointCanvas findings={findings} active={active} phase={phase} showH={showH} joint={joint} />
+            <JointCanvas findings={findings} active={active} phase={phase} showH={showH} joint={joint} dark={dark} onStructureClick={(name)=>setExplorerInfo(name)} />
             {phase==="summary"&&<SpecialistFinder joint={joint} mob={true} />}
             {phase==="analyzing"&&<AnalyzingSplash joint={joint} mob={true} />}
+            {explorerInfo&&<AnatomyExplorerCard structureName={explorerInfo} onClose={()=>setExplorerInfo(null)} joint={joint} />}
           </div>
           {/* Vertical drag handle */}
           {phase==="summary"&&findings&&(
@@ -2870,7 +3117,7 @@ export default function App(){
   if(phase==="landing")return(
     <div style={{width:"100%",height:"100vh",background:T.bg,overflow:"auto"}}>
       {styles}
-      <LandingPage onStart={()=>setPhase("input")} onSelectCondition={selectCondition} mob={false} />
+      <LandingPage onStart={()=>setPhase("input")} onSelectCondition={selectCondition} mob={false} dark={dark} toggleDark={toggleDark} />
     </div>
   );
   return(
@@ -2904,12 +3151,13 @@ export default function App(){
           show={!!(detailFinding||activeEx||activeTx||showReportPreview)}
           defaultPct={50} minPct={30} maxPct={70}
           left={
-            <div style={{width:"100%",height:"100%",position:"relative",background:`radial-gradient(ellipse at 50% 40%,#faf9f7 0%,${T.bg} 100%)`}}>
-              <JointCanvas findings={findings} active={active} phase={phase} showH={showH} joint={joint} />
+            <div style={{width:"100%",height:"100%",position:"relative",background:`radial-gradient(ellipse at 50% 40%,${dark?"#222226":"#faf9f7"} 0%,${T.bg} 100%)`}}>
+              <JointCanvas findings={findings} active={active} phase={phase} showH={showH} joint={joint} dark={dark} onStructureClick={(name)=>setExplorerInfo(name)} />
               {phase==="analyzing"&&<AnalyzingSplash joint={joint} mob={false} />}
               {phase==="summary"&&<SpecialistFinder joint={joint} mob={false} />}
               {active&&phase==="summary"&&!detailFinding&&!activeEx&&!activeTx&&!showReportPreview&&<div style={{position:"absolute",top:14,left:180,background:T.sf,padding:"7px 14px",borderRadius:9,boxShadow:"0 2px 12px rgba(0,0,0,.05)",fontSize:13,fontWeight:600,color:T.tx,zIndex:10,animation:"fadeIn .3s"}}>{active.str} <span style={{color:T[active.sev].c,fontSize:11,marginLeft:6}}>● {active.path}</span></div>}
-              <div style={{position:"absolute",top:14,right:14,fontSize:10,color:T.txF,pointerEvents:"none"}}>Drag to rotate · Scroll to zoom</div>
+              <div style={{position:"absolute",top:14,right:14,fontSize:10,color:T.txF,pointerEvents:"none"}}>{explorerInfo?"Tap structures to explore":"Drag to rotate · Scroll to zoom"}</div>
+              {explorerInfo&&<AnatomyExplorerCard structureName={explorerInfo} onClose={()=>setExplorerInfo(null)} joint={joint} />}
               {phase==="input"&&<div style={{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",textAlign:"center",pointerEvents:"none"}}><div style={{fontSize:48,marginBottom:14,opacity:.15}}>🦴</div><div style={{fontSize:15,color:T.txL,fontWeight:500}}>Your 3D joint model</div><div style={{fontSize:12,color:T.txF,marginTop:6}}>Paste an MRI report to see findings visualized</div></div>}
               {phase==="summary"&&!detailFinding&&!activeEx&&!activeTx&&!showReportPreview&&<div style={{position:"absolute",bottom:20,left:20,right:20,maxWidth:440,background:paid?"#fff":"linear-gradient(135deg,#0071E3 0%,#0059B3 100%)",borderRadius:11,padding:"14px 18px",boxShadow:"0 4px 20px rgba(0,0,0,.08)",border:paid?`1px solid ${T.bd}`:"none",display:"flex",alignItems:"center",justifyContent:"space-between",zIndex:10,animation:"slideUp .5s cubic-bezier(.16,1,.3,1)"}}><div><div style={{fontSize:13,fontWeight:600,color:paid?T.tx:"#fff"}}>{paid?"Your full report is ready":"Unlock detailed analysis"}</div><div style={{fontSize:11,color:paid?T.txL:"rgba(255,255,255,0.8)",marginTop:2}}>{paid?"Specialist perspectives, exercises, questions":"Specialist insights, exercise guides, treatment deep-dives"}</div></div><button onClick={paid?()=>generateReport(findings,joint,recoveryStage):startCheckout} style={{background:paid?T.ac:"#fff",border:"none",color:paid?"#fff":"#0071E3",padding:"9px 18px",borderRadius:8,fontSize:12,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,marginLeft:14,boxShadow:paid?"none":"0 2px 8px rgba(0,0,0,0.15)"}}>{paid?"Download PDF":`${PRICE} — Unlock Pro`}</button></div>}
             </div>
