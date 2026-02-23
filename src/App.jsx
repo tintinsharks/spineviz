@@ -382,16 +382,20 @@ function Trust(){return(
 )}
 
 /* ═══════════════════ TAB BAR ═══════════════════ */
-function TabBar({tab,setTab,mob}){
-  const tabs=[["findings","Findings"],["exercises","Exercises"],["treatments","Treatments"],["report","Report"]];
+function TabBar({tab,setTab,mob,paid}){
+  const tabs=[["findings","Findings",false],["exercises","Exercises",true],["treatments","Treatments",true],["report","Report",true]];
   return(
     <div style={{display:"flex",gap:3,background:"#ECEAE6",borderRadius:9,padding:3,marginBottom:mob?12:14,flexShrink:0}}>
-      {tabs.map(([k,label])=>(
+      {tabs.map(([k,label,premium])=>(
         <button key={k} onClick={()=>setTab(k)} style={{
-          flex:1,padding:mob?"7px 6px":"7px 10px",borderRadius:7,border:"none",fontSize:11,fontWeight:600,cursor:"pointer",
+          flex:1,padding:mob?"7px 4px":"7px 10px",borderRadius:7,border:"none",fontSize:11,fontWeight:600,cursor:"pointer",
           background:tab===k?"#fff":"transparent",color:tab===k?"#1D1D1F":"#AEAEB2",
-          boxShadow:tab===k?"0 1px 3px rgba(0,0,0,0.06)":"none",transition:"all .15s"
-        }}>{label}</button>
+          boxShadow:tab===k?"0 1px 3px rgba(0,0,0,0.06)":"none",transition:"all .15s",
+          display:"flex",alignItems:"center",justifyContent:"center",gap:3,
+        }}>
+          {label}
+          {premium&&!paid&&<span style={{fontSize:6,fontWeight:800,color:"#0071E3",background:"rgba(0,113,227,0.1)",padding:"1px 3px",borderRadius:2,lineHeight:1}}>PRO</span>}
+        </button>
       ))}
     </div>
   );
@@ -588,14 +592,23 @@ function TreatmentDetail({tx,finding,onClose,allFindings}){
 }
 
 /* ═══════════════════ TABBED PANEL ═══════════════════ */
-function TabbedPanel({findings,active,onSel,mob,tab,setTab,activeEx,setActiveEx,activeTx,setActiveTx,txFinding}){
+function TabbedPanel({findings,active,onSel,mob,tab,setTab,activeEx,setActiveEx,activeTx,setActiveTx,txFinding,paid,onUnlock}){
   return(
     <>
-      <TabBar tab={tab} setTab={setTab} mob={mob} />
+      <TabBar tab={tab} setTab={setTab} mob={mob} paid={paid} />
       {tab==="findings"&&<Summary findings={findings} active={active} onSel={onSel} mob={mob} />}
-      {tab==="exercises"&&<PTLibrary findings={findings} onSelectFinding={onSel} activeEx={activeEx} setActiveEx={setActiveEx} />}
-      {tab==="treatments"&&<TreatmentsTab findings={findings} activeTx={activeTx} setActiveTx={(tx,f)=>setActiveTx(tx,f)} txFinding={txFinding} />}
-      {tab==="report"&&<ReportTab findings={findings} />}
+      {tab==="exercises"&&(paid
+        ? <PTLibrary findings={findings} onSelectFinding={onSel} activeEx={activeEx} setActiveEx={setActiveEx} />
+        : <LockedTab title="PT Exercise Library" onUnlock={onUnlock} features={["18 exercises matched to your findings","3-phase progression (Weeks 1-12)","Video demonstrations","Safety guidelines per exercise"]} />
+      )}
+      {tab==="treatments"&&(paid
+        ? <TreatmentsTab findings={findings} activeTx={activeTx} setActiveTx={(tx,f)=>setActiveTx(tx,f)} txFinding={txFinding} />
+        : <LockedTab title="Treatment Landscape" onUnlock={onUnlock} features={["Conservative to surgical options","Timeline and recovery comparison","Pros and considerations for each","Specialist recommendations"]} />
+      )}
+      {tab==="report"&&(paid
+        ? <ReportTab findings={findings} />
+        : <LockedTab title="Full PDF Report" onUnlock={onUnlock} features={["Multi-specialist analysis","Treatment comparison tables","Self-assessment questionnaire","Printable for your appointment"]} />
+      )}
     </>
   );
 }
@@ -633,8 +646,91 @@ function Summary({findings,active,onSel,mob}){
   );
 }
 
+/* ═══════════════════ PAYWALL COMPONENTS ═══════════════════ */
+const PRICE="$49";
+const PRICE_LABEL="Full ClearScan Report";
+
+function PaywallBanner({onUnlock,compact}){
+  return(
+    <div style={{
+      background:"linear-gradient(135deg,#0071E3 0%,#0059B3 100%)",borderRadius:compact?8:12,
+      padding:compact?"12px 14px":"18px 20px",margin:compact?"8px 0":"12px 0",
+      display:"flex",alignItems:compact?"center":"flex-start",
+      justifyContent:"space-between",gap:12,flexDirection:compact?"row":"column",
+    }}>
+      <div>
+        <div style={{fontSize:compact?12:14,fontWeight:700,color:"#fff",marginBottom:compact?0:4}}>
+          {compact?"Unlock full report":"Unlock Your Complete Report"}
+        </div>
+        {!compact&&<div style={{fontSize:12,color:"rgba(255,255,255,0.8)",lineHeight:1.5}}>
+          Specialist perspectives, treatment comparison, PT exercises with video, self-assessment questions, and downloadable PDF report.
+        </div>}
+      </div>
+      <button onClick={onUnlock} style={{
+        background:"#fff",border:"none",color:"#0071E3",padding:compact?"7px 14px":"11px 22px",
+        borderRadius:8,fontSize:compact?11:13,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,
+        boxShadow:"0 2px 8px rgba(0,0,0,0.15)",
+      }}>{PRICE} — Unlock</button>
+    </div>
+  );
+}
+
+function LockedSection({title,icon,children,paid,onUnlock,previewLines}){
+  if(paid)return children;
+  return(
+    <div style={{position:"relative",marginBottom:16}}>
+      <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
+        <div style={{width:24,height:24,borderRadius:7,background:"rgba(0,0,0,0.04)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>{icon}</div>
+        <h3 style={{fontSize:14,fontWeight:700,color:"#1D1D1F",margin:0}}>{title}</h3>
+        <span style={{fontSize:8,fontWeight:700,color:"#0071E3",background:"rgba(0,113,227,0.08)",padding:"2px 6px",borderRadius:3,textTransform:"uppercase",letterSpacing:1}}>PRO</span>
+      </div>
+      {/* Blurred preview */}
+      <div style={{position:"relative",overflow:"hidden",maxHeight:previewLines?previewLines*22:80}}>
+        <div style={{filter:"blur(4px)",opacity:.5,pointerEvents:"none",userSelect:"none"}}>
+          {children}
+        </div>
+        <div style={{position:"absolute",bottom:0,left:0,right:0,height:"100%",
+          background:"linear-gradient(transparent 0%, rgba(255,255,255,0.9) 60%, #fff 100%)",
+          display:"flex",alignItems:"flex-end",justifyContent:"center",paddingBottom:8}}>
+          <button onClick={onUnlock} style={{
+            background:"#0071E3",border:"none",color:"#fff",padding:"7px 16px",
+            borderRadius:6,fontSize:11,fontWeight:600,cursor:"pointer",
+            boxShadow:"0 2px 8px rgba(0,113,227,0.25)",
+            display:"flex",alignItems:"center",gap:4,
+          }}>🔒 Unlock with {PRICE_LABEL}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LockedTab({title,features,onUnlock}){
+  return(
+    <div style={{animation:"fadeIn .4s",textAlign:"center",padding:"30px 10px"}}>
+      <div style={{fontSize:40,marginBottom:12}}>🔒</div>
+      <div style={{fontSize:17,fontWeight:700,color:"#1D1D1F",marginBottom:6,fontFamily:"Georgia,serif"}}>{title}</div>
+      <div style={{fontSize:12,color:"#AEAEB2",lineHeight:1.6,maxWidth:280,margin:"0 auto 18px"}}>
+        Unlock your full personalized report to access this section.
+      </div>
+      <div style={{textAlign:"left",maxWidth:260,margin:"0 auto 18px"}}>
+        {features.map((f,i)=>(
+          <div key={i} style={{fontSize:12,color:"#6E6E73",padding:"5px 0",display:"flex",alignItems:"center",gap:6}}>
+            <span style={{color:"#0071E3",fontSize:12}}>✓</span>{f}
+          </div>
+        ))}
+      </div>
+      <button onClick={onUnlock} style={{
+        background:"linear-gradient(135deg,#0071E3 0%,#0059B3 100%)",border:"none",color:"#fff",
+        padding:"12px 32px",borderRadius:10,fontSize:14,fontWeight:700,cursor:"pointer",
+        boxShadow:"0 4px 16px rgba(0,113,227,0.3)",
+      }}>{PRICE} — Unlock Full Report</button>
+      <div style={{fontSize:10,color:"#AEAEB2",marginTop:8}}>One-time payment · Instant access · No subscription</div>
+    </div>
+  );
+}
+
 /* ═══════════════════ FINDING DETAIL PANE ═══════════════════ */
-function FindingDetail({finding,onClose,mob,onSelectTx}){
+function FindingDetail({finding,onClose,mob,onSelectTx,paid,onUnlock}){
   if(!finding)return null;
   const sc=T[finding.sev];
   return(
@@ -687,13 +783,11 @@ function FindingDetail({finding,onClose,mob,onSelectTx}){
           <div style={{fontSize:12,lineHeight:1.6,color:"#6E6E73"}}>{finding.ctx}</div>
         </div>
 
-        {/* Self-assessment — clinical intake questions */}
-        {finding.selfAssess&&finding.selfAssess.length>0&&<div style={{marginBottom:16}}>
-          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
-            <div style={{width:24,height:24,borderRadius:7,background:"rgba(0,113,227,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>🩺</div>
-            <h3 style={{fontSize:14,fontWeight:700,color:T.tx,margin:0}}>Questions Your Doctor Will Ask</h3>
-          </div>
-          <div style={{fontSize:11,lineHeight:1.5,color:"#AEAEB2",marginBottom:10,marginLeft:32}}>
+        {/* Self-assessment — clinical intake questions (PREMIUM) */}
+        {finding.selfAssess&&finding.selfAssess.length>0&&(
+        <LockedSection title="Questions Your Doctor Will Ask" icon="🩺" paid={paid} onUnlock={onUnlock} previewLines={4}>
+        <div style={{marginBottom:16}}>
+          <div style={{fontSize:11,lineHeight:1.5,color:"#AEAEB2",marginBottom:10}}>
             Think about your answers before your appointment — these are the same questions a specialist would ask to evaluate this finding.
           </div>
           {finding.selfAssess.map((sa,i)=>(
@@ -709,10 +803,12 @@ function FindingDetail({finding,onClose,mob,onSelectTx}){
           ))}
           <div style={{padding:"8px 10px",background:"rgba(0,113,227,0.04)",borderRadius:6,marginTop:6}}>
             <div style={{fontSize:10,lineHeight:1.5,color:"#0071E3"}}>
-              <strong>Tip:</strong> Write down your answers and bring them to your appointment. Your physician's time is limited — arriving prepared with this information helps them give you the best recommendation.
+              <strong>Tip:</strong> Write down your answers and bring them to your appointment.
             </div>
           </div>
-        </div>}
+        </div>
+        </LockedSection>
+        )}
 
         {/* Expected timeline */}
         {finding.timeline&&<div style={{marginBottom:16}}>
@@ -723,36 +819,32 @@ function FindingDetail({finding,onClose,mob,onSelectTx}){
           <div style={{padding:"12px 14px",background:"#E8F5EC",borderRadius:10,borderLeft:"3px solid #2D8B4E",fontSize:12,lineHeight:1.6,color:"#1D1D1F"}}>{finding.timeline}</div>
         </div>}
 
-        {/* Specialist perspectives */}
-        {finding.lenses&&finding.lenses.length>0&&<div style={{marginBottom:16}}>
-          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
-            <div style={{width:24,height:24,borderRadius:7,background:"rgba(107,63,160,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>👥</div>
-            <h3 style={{fontSize:14,fontWeight:700,color:T.tx,margin:0}}>Specialist Perspectives</h3>
-          </div>
+        {/* Specialist perspectives (PREMIUM) */}
+        {finding.lenses&&finding.lenses.length>0&&(
+        <LockedSection title="Specialist Perspectives" icon="👥" paid={paid} onUnlock={onUnlock} previewLines={3}>
+        <div style={{marginBottom:16}}>
           {finding.lenses.map((l,i)=>(
             <div key={i} style={{padding:"10px 12px",borderRadius:8,marginBottom:6,background:l.color+"06",borderLeft:`3px solid ${l.color}`}}>
               <div style={{fontSize:10,fontWeight:700,color:l.color,marginBottom:3}}>{l.spec}</div>
               <div style={{fontSize:12,lineHeight:1.6,color:"#6E6E73"}}>{l.text}</div>
             </div>
           ))}
-        </div>}
+        </div>
+        </LockedSection>
+        )}
 
-        {/* Treatment options — compact list, click to explore */}
-        {finding.treatments&&finding.treatments.length>0&&<div style={{marginBottom:16}}>
-          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
-            <div style={{width:24,height:24,borderRadius:7,background:"rgba(0,113,227,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>💊</div>
-            <h3 style={{fontSize:14,fontWeight:700,color:T.tx,margin:0}}>Treatment Options</h3>
-          </div>
+        {/* Treatment options — compact list (PREMIUM) */}
+        {finding.treatments&&finding.treatments.length>0&&(
+        <LockedSection title="Treatment Options" icon="💊" paid={paid} onUnlock={onUnlock} previewLines={3}>
+        <div style={{marginBottom:16}}>
           <div style={{borderRadius:10,border:"1px solid rgba(0,0,0,0.06)",overflow:"hidden"}}>
-            {finding.treatments.map((tx,i)=>{
-              const TYPE_ORDER={conservative:0,interventional:1,surgical:2};
-              return(
-              <div key={i} onClick={()=>onSelectTx?.(tx,finding)} style={{
-                padding:"10px 12px",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"space-between",
+            {finding.treatments.map((tx,i)=>(
+              <div key={i} onClick={()=>paid&&onSelectTx?.(tx,finding)} style={{
+                padding:"10px 12px",cursor:paid?"pointer":"default",display:"flex",alignItems:"center",justifyContent:"space-between",
                 borderBottom:i<finding.treatments.length-1?"1px solid rgba(0,0,0,0.04)":"none",
                 transition:"background .15s",
               }}
-              onMouseEnter={e=>e.currentTarget.style.background=tx.color+"06"}
+              onMouseEnter={e=>{if(paid)e.currentTarget.style.background=tx.color+"06"}}
               onMouseLeave={e=>e.currentTarget.style.background="transparent"}
               >
                 <div style={{display:"flex",alignItems:"center",gap:8,flex:1,minWidth:0}}>
@@ -764,17 +856,17 @@ function FindingDetail({finding,onClose,mob,onSelectTx}){
                   <span style={{color:"#AEAEB2",fontSize:11}}>→</span>
                 </div>
               </div>
-            )})}
+            ))}
           </div>
           <div style={{fontSize:10,color:"#AEAEB2",marginTop:6,marginLeft:32}}>Tap to explore details, timeline, and comparison</div>
-        </div>}
+        </div>
+        </LockedSection>
+        )}
 
-        {/* Questions to ask */}
-        {finding.questions&&finding.questions.length>0&&<div style={{marginBottom:16}}>
-          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
-            <div style={{width:24,height:24,borderRadius:7,background:"rgba(196,93,0,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>❓</div>
-            <h3 style={{fontSize:14,fontWeight:700,color:T.tx,margin:0}}>Questions for Your Doctor</h3>
-          </div>
+        {/* Questions to ask (PREMIUM) */}
+        {finding.questions&&finding.questions.length>0&&(
+        <LockedSection title="Questions for Your Doctor" icon="❓" paid={paid} onUnlock={onUnlock} previewLines={2}>
+        <div style={{marginBottom:16}}>
           <div style={{padding:"10px 14px",background:"#FAFAF8",borderRadius:10,border:"1px solid rgba(0,0,0,0.04)"}}>
             {finding.questions.map((q,i)=>(
               <div key={i} style={{display:"flex",gap:8,padding:"6px 0",borderBottom:i<finding.questions.length-1?"1px solid rgba(0,0,0,0.04)":"none"}}>
@@ -783,7 +875,12 @@ function FindingDetail({finding,onClose,mob,onSelectTx}){
               </div>
             ))}
           </div>
-        </div>}
+        </div>
+        </LockedSection>
+        )}
+
+        {/* Paywall banner if not paid */}
+        {!paid&&<PaywallBanner onUnlock={onUnlock} compact={true} />}
 
         {/* Disclaimer */}
         <div style={{padding:"8px 10px",background:"#E6F5F4",borderRadius:8,border:"1px solid rgba(26,127,122,0.12)"}}>
@@ -978,12 +1075,39 @@ export default function App(){
   const[active,setActive]=useState(null);
   const[showH,setShowH]=useState(false);
   const[mob,setMob]=useState(false);
-  const[tab,setTab]=useState("findings"); // "findings" | "exercises" | "report"
-  const[activeEx,setActiveEx]=useState(null); // selected exercise for detail pane
-  const[detailFinding,setDetailFinding]=useState(null); // selected finding for detail pane
-  const[activeTx,setActiveTx]=useState(null); // selected treatment for detail pane
-  const[txFinding,setTxFinding]=useState(null); // which finding the treatment belongs to
+  const[tab,setTab]=useState("findings");
+  const[activeEx,setActiveEx]=useState(null);
+  const[detailFinding,setDetailFinding]=useState(null);
+  const[activeTx,setActiveTx]=useState(null);
+  const[txFinding,setTxFinding]=useState(null);
+  const[paid,setPaid]=useState(false);
+  const[checkingPayment,setCheckingPayment]=useState(false);
   useEffect(()=>{const c=()=>setMob(window.innerWidth<768);c();window.addEventListener("resize",c);return()=>window.removeEventListener("resize",c)},[]);
+
+  // Check for payment return from Stripe
+  useEffect(()=>{
+    const params=new URLSearchParams(window.location.search);
+    const sessionId=params.get("session_id");
+    const paidParam=params.get("paid");
+    if(paidParam==="true"&&sessionId){
+      setCheckingPayment(true);
+      fetch("/api/verify",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({session_id:sessionId})})
+        .then(r=>r.json())
+        .then(d=>{if(d.paid){setPaid(true);try{sessionStorage.setItem("cs_paid","1")}catch(e){}}})
+        .catch(()=>{})
+        .finally(()=>{setCheckingPayment(false);window.history.replaceState({},"",window.location.pathname)});
+    } else {
+      try{if(sessionStorage.getItem("cs_paid")==="1")setPaid(true)}catch(e){}
+    }
+  },[]);
+
+  const startCheckout=async()=>{
+    try{
+      const res=await fetch("/api/checkout",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({})});
+      const data=await res.json();
+      if(data.url)window.location.href=data.url;
+    }catch(e){console.error("Checkout error:",e)}
+  };
 
   const[err,setErr]=useState(null);
 
@@ -1105,7 +1229,7 @@ export default function App(){
     : activeTx
     ? <TreatmentDetail tx={activeTx} finding={txFinding} onClose={handleTxClose} allFindings={findings} />
     : detailFinding
-    ? <FindingDetail finding={detailFinding} onClose={()=>{setDetailFinding(null);setActive(null)}} mob={true} onSelectTx={selectTx} />
+    ? <FindingDetail finding={detailFinding} onClose={()=>{setDetailFinding(null);setActive(null)}} mob={true} onSelectTx={selectTx} paid={paid} onUnlock={startCheckout} />
     : null;
 
   if(mob)return(
@@ -1138,15 +1262,15 @@ export default function App(){
           {phase==="summary"&&findings&&<div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden",background:T.sf}}>
             {/* Persistent tab bar */}
             <div style={{padding:"8px 16px 0",flexShrink:0}}>
-              <TabBar tab={tab} setTab={onTabChange} mob={true} />
+              <TabBar tab={tab} setTab={onTabChange} mob={true} paid={paid} />
             </div>
             {/* Content */}
             <div style={{flex:1,overflow:"auto",padding:"0 16px 16px"}}>
               {hasDetail ? mobDetailContent
                : tab==="findings" ? <Summary findings={findings} active={active} onSel={togSel} mob={true} />
-               : tab==="exercises" ? <PTLibrary findings={findings} onSelectFinding={togSel} activeEx={activeEx} setActiveEx={setActiveEx} />
-               : tab==="treatments" ? <TreatmentsTab findings={findings} activeTx={activeTx} setActiveTx={selectTx} txFinding={txFinding} />
-               : tab==="report" ? <ReportTab findings={findings} />
+               : tab==="exercises" ? (paid ? <PTLibrary findings={findings} onSelectFinding={togSel} activeEx={activeEx} setActiveEx={setActiveEx} /> : <LockedTab title="PT Exercise Library" onUnlock={startCheckout} features={["18 exercises matched to your findings","3-phase progression (Weeks 1-12)","Video demonstrations","Safety guidelines"]} />)
+               : tab==="treatments" ? (paid ? <TreatmentsTab findings={findings} activeTx={activeTx} setActiveTx={selectTx} txFinding={txFinding} /> : <LockedTab title="Treatment Landscape" onUnlock={startCheckout} features={["Conservative to surgical options","Timeline comparison","Pros and considerations","Specialist recommendations"]} />)
+               : tab==="report" ? (paid ? <ReportTab findings={findings} /> : <LockedTab title="Full PDF Report" onUnlock={startCheckout} features={["Multi-specialist analysis","Treatment comparison","Self-assessment questionnaire","Printable for your appointment"]} />)
                : null}
             </div>
           </div>}
@@ -1164,7 +1288,7 @@ export default function App(){
           <div style={{padding:"22px 20px",display:"flex",flexDirection:"column",flex:1,overflow:"auto",minWidth:phase==="input"?400:360}}>
             {phase==="input"&&inputUI()}
             {phase==="analyzing"&&<div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:12}}><div style={{width:32,height:32,border:`3px solid ${T.bgD}`,borderTopColor:T.ac,borderRadius:"50%",animation:"spin .8s linear infinite"}} /><span style={{fontSize:14,color:T.txM,fontWeight:500}}>Analyzing your MRI report...</span><span style={{fontSize:12,color:T.txL}}>Building your visualization</span></div>}
-            {phase==="summary"&&findings&&<TabbedPanel findings={findings} active={active} onSel={togSel} mob={false} tab={tab} setTab={onTabChange} activeEx={activeEx} setActiveEx={setActiveEx} activeTx={activeTx} setActiveTx={selectTx} txFinding={txFinding} />}
+            {phase==="summary"&&findings&&<TabbedPanel findings={findings} active={active} onSel={togSel} mob={false} tab={tab} setTab={onTabChange} activeEx={activeEx} setActiveEx={setActiveEx} activeTx={activeTx} setActiveTx={selectTx} txFinding={txFinding} paid={paid} onUnlock={startCheckout} />}
           </div>
         </div>
         <ResizableSplit
@@ -1177,7 +1301,7 @@ export default function App(){
               {active&&phase==="summary"&&!detailFinding&&!activeEx&&!activeTx&&<div style={{position:"absolute",top:14,left:14,background:T.sf,padding:"7px 14px",borderRadius:9,boxShadow:"0 2px 12px rgba(0,0,0,.05)",fontSize:13,fontWeight:600,color:T.tx,zIndex:10,animation:"fadeIn .3s"}}>{active.str} <span style={{color:T[active.sev].c,fontSize:11,marginLeft:6}}>● {active.path}</span></div>}
               <div style={{position:"absolute",top:14,right:14,fontSize:10,color:T.txF,pointerEvents:"none"}}>Drag to rotate · Scroll to zoom</div>
               {phase==="input"&&<div style={{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",textAlign:"center",pointerEvents:"none"}}><div style={{fontSize:48,marginBottom:14,opacity:.15}}>🦴</div><div style={{fontSize:15,color:T.txL,fontWeight:500}}>Your 3D knee model</div><div style={{fontSize:12,color:T.txF,marginTop:6}}>Paste an MRI report to see findings visualized</div></div>}
-              {phase==="summary"&&!detailFinding&&!activeEx&&!activeTx&&<div style={{position:"absolute",bottom:20,left:20,right:20,maxWidth:440,background:T.sf,borderRadius:11,padding:"14px 18px",boxShadow:"0 4px 20px rgba(0,0,0,.06)",border:`1px solid ${T.bd}`,display:"flex",alignItems:"center",justifyContent:"space-between",zIndex:10,animation:"slideUp .5s cubic-bezier(.16,1,.3,1)"}}><div><div style={{fontSize:13,fontWeight:600,color:T.tx}}>Your full report is ready</div><div style={{fontSize:11,color:T.txL,marginTop:2}}>Specialist perspectives, exercises, questions for your doctor</div></div><button onClick={()=>generateReport(findings)} style={{background:T.ac,border:"none",color:"#fff",padding:"9px 18px",borderRadius:8,fontSize:12,fontWeight:600,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,marginLeft:14}}>Download Report (PDF)</button></div>}
+              {phase==="summary"&&!detailFinding&&!activeEx&&!activeTx&&<div style={{position:"absolute",bottom:20,left:20,right:20,maxWidth:440,background:paid?"#fff":"linear-gradient(135deg,#0071E3 0%,#0059B3 100%)",borderRadius:11,padding:"14px 18px",boxShadow:"0 4px 20px rgba(0,0,0,.08)",border:paid?`1px solid ${T.bd}`:"none",display:"flex",alignItems:"center",justifyContent:"space-between",zIndex:10,animation:"slideUp .5s cubic-bezier(.16,1,.3,1)"}}><div><div style={{fontSize:13,fontWeight:600,color:paid?T.tx:"#fff"}}>{paid?"Your full report is ready":"Unlock your complete report"}</div><div style={{fontSize:11,color:paid?T.txL:"rgba(255,255,255,0.8)",marginTop:2}}>{paid?"Specialist perspectives, exercises, questions":"Specialist analysis, PT exercises, treatment comparison"}</div></div><button onClick={paid?()=>generateReport(findings):startCheckout} style={{background:paid?T.ac:"#fff",border:"none",color:paid?"#fff":"#0071E3",padding:"9px 18px",borderRadius:8,fontSize:12,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,marginLeft:14,boxShadow:paid?"none":"0 2px 8px rgba(0,0,0,0.15)"}}>{paid?"Download PDF":`${PRICE} — Unlock`}</button></div>}
             </div>
           }
           right={
@@ -1185,7 +1309,7 @@ export default function App(){
               ? <ExerciseDetail ex={activeEx} onClose={()=>setActiveEx(null)} mob={false} />
               : activeTx
               ? <TreatmentDetail tx={activeTx} finding={txFinding} onClose={handleTxClose} allFindings={findings} />
-              : <FindingDetail finding={detailFinding} onClose={()=>{setDetailFinding(null);setActive(null)}} mob={false} onSelectTx={selectTx} />
+              : <FindingDetail finding={detailFinding} onClose={()=>{setDetailFinding(null);setActive(null)}} mob={false} onSelectTx={selectTx} paid={paid} onUnlock={startCheckout} />
           }
         />
       </div>
