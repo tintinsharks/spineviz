@@ -37,6 +37,14 @@ const FD=[
     ],
     questions:["Is my meniscal tear contributing to symptoms, or could it be managed conservatively?","If you operate on the ACL, will you also address the meniscus?","Would you repair or trim, and what's the difference in recovery?","How does meniscus repair change the rehabilitation timeline?"],
     timeline:"Conservative: 3-6 weeks to return to most activities. Post-repair: 4-6 weeks restricted weight-bearing, 3-4 months full recovery.",
+    selfAssess:[
+      {q:"Do you experience clicking, popping, or a snapping sensation in the knee?",why:"Mechanical symptoms suggest an unstable fragment that may flip or catch — this often changes the treatment approach from conservative to surgical."},
+      {q:"Does your knee ever lock — get stuck in a position where you can't fully straighten it?",why:"True locking (not just stiffness) indicates a displaced meniscal fragment blocking the joint. This is an important distinction your surgeon needs to know."},
+      {q:"Do you feel catching or something \"getting in the way\" when bending or straightening?",why:"Catching suggests the torn portion is intermittently interfering with joint mechanics, which may indicate an unstable tear."},
+      {q:"Where exactly is your pain — can you point to the spot with one finger?",why:"Pain precisely on the medial joint line supports the meniscus as a pain generator. Diffuse pain suggests other sources may be contributing."},
+      {q:"Is the pain worse going downstairs versus upstairs?",why:"Downstairs loads the meniscus more due to compressive and shear forces during eccentric quad loading. This pattern is classic for meniscal pain."},
+      {q:"Does deep squatting — like sitting on your heels — reproduce the pain?",why:"Deep flexion compresses the posterior horn where your tear is located. If this is pain-free, the tear may be less clinically significant."},
+    ],
   },
   {id:"acl",str:"ACL",path:"Complete Tear",sev:"severe",m:["acl"],
     desc:"Your anterior cruciate ligament is completely torn — the primary stabilizer preventing your shin bone from sliding forward.",
@@ -50,6 +58,14 @@ const FD=[
     ],
     questions:["Based on my age and activity level, would you recommend reconstruction or PT?","If I pursue PT first, what signs would tell us surgery is needed?","What graft type would you recommend, and why?","What is the realistic timeline for returning to my specific activities?","Are there factors in my MRI that make my case more complex than typical?"],
     timeline:"Conservative: 3-6 months structured PT. Surgical: 6-9 months total recovery, return to sport 9-12 months.",
+    selfAssess:[
+      {q:"Does your knee feel like it's going to \"give way\" or buckle — especially when pivoting, turning, or stepping off a curb?",why:"Functional instability is the primary indication for ACL reconstruction. Patients who experience frequent giving-way episodes are more likely to benefit from surgery."},
+      {q:"Did you hear or feel a \"pop\" at the time of injury?",why:"An audible pop at injury is reported in ~70% of ACL tears and helps confirm the diagnosis. Share this with your surgeon — it's part of the clinical picture."},
+      {q:"What activities and sports are important to you? Do you play sports that involve cutting, pivoting, or jumping?",why:"Your activity goals are the single most important factor in the reconstruction vs. conservative decision. Cutting/pivoting sports (basketball, soccer, skiing) generally favor surgical repair."},
+      {q:"Have you had any episodes where the knee gave out and then swelled up significantly afterward?",why:"Recurrent giving-way episodes with re-swelling suggest ongoing joint damage from instability — this shifts the balance toward surgical reconstruction."},
+      {q:"Can you walk without limping? Can you go up and down stairs comfortably?",why:"Good functional baseline walking and stair ability suggest the surrounding muscles are compensating well, which is important for either treatment path."},
+      {q:"Do you feel confident pushing off the injured leg to change direction quickly?",why:"This tests your subjective sense of knee trust. If you instinctively don't trust the knee during quick movements, that's clinically meaningful instability."},
+    ],
   },
   {id:"bone",str:"Bone",path:"Bone Bruise",sev:"mild",m:["condyle_lateral","tibial_plateau"],
     desc:"Bone marrow edema in your lateral femoral condyle and posterolateral tibial plateau — a very common companion finding with ACL tears.",
@@ -62,6 +78,11 @@ const FD=[
     ],
     questions:["Is this bruise pattern typical for my type of injury?","Will this affect the surgical plan or timing?","Do I need to limit weight-bearing because of the bone bruise?"],
     timeline:"Typically resolves in 2-3 months without specific treatment. Pain usually improves significantly within 4-6 weeks.",
+    selfAssess:[
+      {q:"When you press on the outer side of your knee, does it reproduce a deep aching pain?",why:"Point tenderness directly over the bruise location confirms it as an active pain source. If pressing there doesn't hurt, the bruise may not be contributing much to your symptoms."},
+      {q:"Is weight-bearing more painful than expected given your other injuries?",why:"Disproportionate pain with weight-bearing suggests the bone bruise is a significant contributor and may warrant temporary use of crutches or a brace."},
+      {q:"Is the pain improving week over week, even slowly?",why:"Bone bruises should show gradual linear improvement. If pain plateaus or worsens, it's important to share that with your physician."},
+    ],
   },
   {id:"eff",str:"Joint Fluid",path:"Moderate Effusion",sev:"moderate",m:["effusion"],
     desc:"Moderate excess fluid in your knee joint — your body's inflammatory response to the internal injuries.",
@@ -74,6 +95,12 @@ const FD=[
     ],
     questions:["Should the fluid be drained (aspirated)?","What's normal swelling vs. concerning swelling at this stage?","How will effusion affect my rehabilitation timeline?"],
     timeline:"Acute effusion typically resolves in 2-4 weeks with RICE. Persistent effusion beyond 6 weeks may warrant aspiration.",
+    selfAssess:[
+      {q:"Is the swelling getting better, staying the same, or getting worse over the past week?",why:"The trajectory matters more than the amount. Improving swelling suggests the inflammatory process is resolving normally. Worsening or static swelling may need intervention."},
+      {q:"Can you fully straighten your knee? Can you bend it to at least 90 degrees?",why:"Loss of full extension (straightening) is more concerning than loss of flexion. If you can't fully straighten, the effusion may be significant enough to inhibit rehab progress."},
+      {q:"Does the knee feel warm to the touch compared to the other side?",why:"Warmth indicates active inflammation. Persistent warmth beyond 2-3 weeks, especially with increasing swelling, should be reported to your physician."},
+      {q:"Does the swelling increase after activity and then decrease with rest?",why:"Activity-related swelling that resolves with rest is mechanical (expected). Swelling that persists regardless of activity level may indicate ongoing inflammation needing attention."},
+    ],
   },
   {id:"cart",str:"Articular Cartilage",path:"Grade 2 Chondromalacia",sev:"mild",m:["cartilage_medial"],
     desc:"The smooth cartilage on the inner surface of your thigh bone shows softening and early wear — Grade 2 on a 4-point scale.",
@@ -86,6 +113,13 @@ const FD=[
     ],
     questions:["Is this cartilage finding likely causing my pain, or is it incidental?","Will this get worse over time?","Are there any injections (PRP, viscosupplementation) worth considering?","Should I change my exercise habits long-term to protect the cartilage?"],
     timeline:"Grade 2 changes are typically managed long-term with strength maintenance. Not expected to progress rapidly with appropriate exercise.",
+    selfAssess:[
+      {q:"Did you have inner knee pain or grinding before this injury, or is this entirely new?",why:"Pre-existing symptoms suggest the cartilage finding was already symptomatic. If this is entirely new pain, the cartilage change is more likely incidental and the acute injuries are the primary pain sources."},
+      {q:"Do you feel or hear grinding (crepitus) when bending your knee through its range of motion?",why:"Crepitus with Grade 2 changes is common and usually not dangerous, but it helps your physician gauge how symptomatic the cartilage surface is for you specifically."},
+      {q:"Is there pain when sitting for long periods with the knee bent (\"movie theater sign\")?",why:"Anterior knee pain after prolonged sitting is a classic sign of patellofemoral cartilage involvement. If present, your physician may want to assess patellar tracking."},
+      {q:"Does going downstairs cause more pain than going upstairs?",why:"Eccentric loading on stairs creates higher compressive forces through the articular cartilage. This pattern suggests the cartilage is a functional pain contributor."},
+      {q:"Do you notice swelling after activities that don't bother the other knee?",why:"If routine activities cause swelling in the injured knee but not the healthy one, the cartilage surface may be more reactive and worth monitoring long-term."},
+    ],
   },
 ];
 
@@ -372,6 +406,33 @@ function FindingDetail({finding,onClose,mob}){
           <div style={{fontSize:9,fontWeight:700,color:"#AEAEB2",textTransform:"uppercase",letterSpacing:1,marginBottom:4}}>Clinical Context</div>
           <div style={{fontSize:12,lineHeight:1.6,color:"#6E6E73"}}>{finding.ctx}</div>
         </div>
+
+        {/* Self-assessment — clinical intake questions */}
+        {finding.selfAssess&&finding.selfAssess.length>0&&<div style={{marginBottom:16}}>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
+            <div style={{width:24,height:24,borderRadius:7,background:"rgba(0,113,227,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>🩺</div>
+            <h3 style={{fontSize:14,fontWeight:700,color:T.tx,margin:0}}>Questions Your Doctor Will Ask</h3>
+          </div>
+          <div style={{fontSize:11,lineHeight:1.5,color:"#AEAEB2",marginBottom:10,marginLeft:32}}>
+            Think about your answers before your appointment — these are the same questions a specialist would ask to evaluate this finding.
+          </div>
+          {finding.selfAssess.map((sa,i)=>(
+            <div key={i} style={{marginBottom:8,borderRadius:8,border:"1px solid rgba(0,0,0,0.06)",overflow:"hidden"}}>
+              <div style={{padding:"10px 12px",background:"#F5F9FE",display:"flex",gap:8,alignItems:"flex-start"}}>
+                <span style={{color:"#0071E3",fontSize:13,fontWeight:700,flexShrink:0,marginTop:1,fontFamily:"monospace"}}>{i+1}</span>
+                <span style={{fontSize:12.5,lineHeight:1.55,color:T.tx,fontWeight:600}}>{sa.q}</span>
+              </div>
+              <div style={{padding:"8px 12px 8px 32px",background:"#fff",fontSize:11,lineHeight:1.5,color:"#6E6E73",fontStyle:"italic",borderTop:"1px solid rgba(0,0,0,0.04)"}}>
+                <span style={{color:"#0071E3",fontWeight:600,fontStyle:"normal"}}>Why they ask: </span>{sa.why}
+              </div>
+            </div>
+          ))}
+          <div style={{padding:"8px 10px",background:"rgba(0,113,227,0.04)",borderRadius:6,marginTop:6}}>
+            <div style={{fontSize:10,lineHeight:1.5,color:"#0071E3"}}>
+              <strong>Tip:</strong> Write down your answers and bring them to your appointment. Your physician's time is limited — arriving prepared with this information helps them give you the best recommendation.
+            </div>
+          </div>
+        </div>}
 
         {/* Expected timeline */}
         {finding.timeline&&<div style={{marginBottom:16}}>
