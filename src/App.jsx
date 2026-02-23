@@ -599,15 +599,21 @@ function TabbedPanel({findings,active,onSel,mob,tab,setTab,activeEx,setActiveEx,
       {tab==="findings"&&<Summary findings={findings} active={active} onSel={onSel} mob={mob} />}
       {tab==="exercises"&&(paid
         ? <PTLibrary findings={findings} onSelectFinding={onSel} activeEx={activeEx} setActiveEx={setActiveEx} />
-        : <LockedTab title="PT Exercise Library" onUnlock={onUnlock} features={["18 exercises matched to your findings","3-phase progression (Weeks 1-12)","Video demonstrations","Safety guidelines per exercise"]} />
+        : <LockedPreview onUnlock={onUnlock} features={["18 exercises matched to your findings","3-phase progression (Weeks 1-12)","Video demonstrations","Safety guidelines per exercise"]}>
+            <PTLibrary findings={findings} onSelectFinding={()=>{}} activeEx={null} setActiveEx={()=>{}} />
+          </LockedPreview>
       )}
       {tab==="treatments"&&(paid
         ? <TreatmentsTab findings={findings} activeTx={activeTx} setActiveTx={(tx,f)=>setActiveTx(tx,f)} txFinding={txFinding} />
-        : <LockedTab title="Treatment Landscape" onUnlock={onUnlock} features={["Conservative to surgical options","Timeline and recovery comparison","Pros and considerations for each","Specialist recommendations"]} />
+        : <LockedPreview onUnlock={onUnlock} features={["Conservative to surgical options","Timeline and recovery comparison","Pros and considerations for each","Specialist recommendations"]}>
+            <TreatmentsTab findings={findings} activeTx={null} setActiveTx={()=>{}} txFinding={null} />
+          </LockedPreview>
       )}
       {tab==="report"&&(paid
         ? <ReportTab findings={findings} />
-        : <LockedTab title="Full PDF Report" onUnlock={onUnlock} features={["Multi-specialist analysis","Treatment comparison tables","Self-assessment questionnaire","Printable for your appointment"]} />
+        : <LockedPreview onUnlock={onUnlock} features={["Multi-specialist analysis","Treatment comparison tables","Self-assessment questionnaire","Printable for your appointment"]}>
+            <ReportTab findings={findings} />
+          </LockedPreview>
       )}
     </>
   );
@@ -647,7 +653,7 @@ function Summary({findings,active,onSel,mob}){
 }
 
 /* ═══════════════════ PAYWALL COMPONENTS ═══════════════════ */
-const PRICE="$49";
+const PRICE="$10";
 const PRICE_LABEL="Full ClearScan Report";
 
 function PaywallBanner({onUnlock,compact}){
@@ -698,6 +704,40 @@ function LockedSection({title,icon,children,paid,onUnlock,previewLines}){
             boxShadow:"0 2px 8px rgba(0,113,227,0.25)",
             display:"flex",alignItems:"center",gap:4,
           }}>🔒 Unlock with {PRICE_LABEL}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LockedPreview({children,onUnlock,features}){
+  return(
+    <div style={{position:"relative",overflow:"hidden",flex:1,minHeight:0}}>
+      <div style={{filter:"blur(5px)",opacity:.45,pointerEvents:"none",userSelect:"none",overflow:"hidden",maxHeight:"100%"}}>
+        {children}
+      </div>
+      <div style={{position:"absolute",inset:0,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",
+        background:"linear-gradient(transparent 0%, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.92) 60%, rgba(255,255,255,0.98) 100%)",
+        padding:"20px 16px",textAlign:"center"}}>
+        <div style={{background:"#fff",borderRadius:14,padding:"24px 22px",boxShadow:"0 8px 32px rgba(0,0,0,0.08)",border:"1px solid rgba(0,0,0,0.06)",maxWidth:300}}>
+          <div style={{fontSize:32,marginBottom:10}}>🔓</div>
+          <div style={{fontSize:16,fontWeight:700,color:"#1D1D1F",marginBottom:6,fontFamily:"Georgia,serif"}}>Unlock Full Access</div>
+          <div style={{fontSize:12,color:"#6E6E73",lineHeight:1.6,marginBottom:14}}>
+            Get the complete picture — everything you need to prepare for your appointment.
+          </div>
+          <div style={{textAlign:"left",marginBottom:16}}>
+            {features.map((f,i)=>(
+              <div key={i} style={{fontSize:11,color:"#6E6E73",padding:"3px 0",display:"flex",alignItems:"center",gap:6}}>
+                <span style={{color:"#0071E3",fontSize:11,flexShrink:0}}>✓</span>{f}
+              </div>
+            ))}
+          </div>
+          <button onClick={onUnlock} style={{
+            width:"100%",background:"linear-gradient(135deg,#0071E3 0%,#0059B3 100%)",border:"none",color:"#fff",
+            padding:"12px 24px",borderRadius:10,fontSize:14,fontWeight:700,cursor:"pointer",
+            boxShadow:"0 4px 16px rgba(0,113,227,0.3)",
+          }}>{PRICE} — Unlock Full Report</button>
+          <div style={{fontSize:9,color:"#AEAEB2",marginTop:6}}>One-time payment · Instant access · No subscription</div>
         </div>
       </div>
     </div>
@@ -1246,16 +1286,21 @@ export default function App(){
           {/* Vertical drag handle */}
           {phase==="summary"&&findings&&(
             <div
-              onMouseDown={mobDragStart}
-              onTouchStart={mobDragStart}
               style={{
-                height:10,flexShrink:0,cursor:"row-resize",background:T.sf,
+                height:paid?10:28,flexShrink:0,background:T.sf,
                 borderTop:"1px solid rgba(0,0,0,0.06)",borderBottom:"1px solid rgba(0,0,0,0.06)",
                 display:"flex",alignItems:"center",justifyContent:"center",
-                touchAction:"none",zIndex:5,
+                touchAction:"none",zIndex:5,gap:8,
               }}
             >
-              <div style={{width:36,height:3,borderRadius:2,background:"rgba(0,0,0,0.12)"}} />
+              <div onMouseDown={mobDragStart} onTouchStart={mobDragStart} style={{cursor:"row-resize",padding:"4px 12px",display:"flex",alignItems:"center"}}>
+                <div style={{width:36,height:3,borderRadius:2,background:"rgba(0,0,0,0.12)"}} />
+              </div>
+              {!paid&&<button onClick={()=>setPaid(true)} style={{
+                background:"linear-gradient(135deg,#0071E3,#0059B3)",border:"none",color:"#fff",
+                padding:"3px 10px",borderRadius:5,fontSize:9,fontWeight:700,cursor:"pointer",
+                letterSpacing:.5,boxShadow:"0 2px 6px rgba(0,113,227,0.2)",
+              }}>🔓 Unlock Pro</button>}
             </div>
           )}
           {/* Bottom panel */}
@@ -1268,9 +1313,9 @@ export default function App(){
             <div style={{flex:1,overflow:"auto",padding:"0 16px 16px"}}>
               {hasDetail ? mobDetailContent
                : tab==="findings" ? <Summary findings={findings} active={active} onSel={togSel} mob={true} />
-               : tab==="exercises" ? (paid ? <PTLibrary findings={findings} onSelectFinding={togSel} activeEx={activeEx} setActiveEx={setActiveEx} /> : <LockedTab title="PT Exercise Library" onUnlock={startCheckout} features={["18 exercises matched to your findings","3-phase progression (Weeks 1-12)","Video demonstrations","Safety guidelines"]} />)
-               : tab==="treatments" ? (paid ? <TreatmentsTab findings={findings} activeTx={activeTx} setActiveTx={selectTx} txFinding={txFinding} /> : <LockedTab title="Treatment Landscape" onUnlock={startCheckout} features={["Conservative to surgical options","Timeline comparison","Pros and considerations","Specialist recommendations"]} />)
-               : tab==="report" ? (paid ? <ReportTab findings={findings} /> : <LockedTab title="Full PDF Report" onUnlock={startCheckout} features={["Multi-specialist analysis","Treatment comparison","Self-assessment questionnaire","Printable for your appointment"]} />)
+               : tab==="exercises" ? (paid ? <PTLibrary findings={findings} onSelectFinding={togSel} activeEx={activeEx} setActiveEx={setActiveEx} /> : <LockedPreview onUnlock={startCheckout} features={["18 exercises matched to your findings","3-phase progression","Video demonstrations","Safety guidelines"]}><PTLibrary findings={findings} onSelectFinding={()=>{}} activeEx={null} setActiveEx={()=>{}} /></LockedPreview>)
+               : tab==="treatments" ? (paid ? <TreatmentsTab findings={findings} activeTx={activeTx} setActiveTx={selectTx} txFinding={txFinding} /> : <LockedPreview onUnlock={startCheckout} features={["Conservative to surgical options","Timeline comparison","Pros and considerations","Specialist recommendations"]}><TreatmentsTab findings={findings} activeTx={null} setActiveTx={()=>{}} txFinding={null} /></LockedPreview>)
+               : tab==="report" ? (paid ? <ReportTab findings={findings} /> : <LockedPreview onUnlock={startCheckout} features={["Multi-specialist analysis","Treatment comparison","Self-assessment questionnaire","Printable for your appointment"]}><ReportTab findings={findings} /></LockedPreview>)
                : null}
             </div>
           </div>}
@@ -1288,7 +1333,24 @@ export default function App(){
           <div style={{padding:"22px 20px",display:"flex",flexDirection:"column",flex:1,overflow:"auto",minWidth:phase==="input"?400:360}}>
             {phase==="input"&&inputUI()}
             {phase==="analyzing"&&<div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:12}}><div style={{width:32,height:32,border:`3px solid ${T.bgD}`,borderTopColor:T.ac,borderRadius:"50%",animation:"spin .8s linear infinite"}} /><span style={{fontSize:14,color:T.txM,fontWeight:500}}>Analyzing your MRI report...</span><span style={{fontSize:12,color:T.txL}}>Building your visualization</span></div>}
-            {phase==="summary"&&findings&&<TabbedPanel findings={findings} active={active} onSel={togSel} mob={false} tab={tab} setTab={onTabChange} activeEx={activeEx} setActiveEx={setActiveEx} activeTx={activeTx} setActiveTx={selectTx} txFinding={txFinding} paid={paid} onUnlock={startCheckout} />}
+            {phase==="summary"&&findings&&<>
+              {!paid&&<div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10,padding:"6px 10px",background:"linear-gradient(135deg,rgba(0,113,227,0.06),rgba(0,89,179,0.04))",borderRadius:8,border:"1px solid rgba(0,113,227,0.1)"}}>
+                <span style={{fontSize:11,color:"#0071E3",fontWeight:600}}>Preview Mode</span>
+                <button onClick={()=>setPaid(true)} style={{
+                  background:"linear-gradient(135deg,#0071E3,#0059B3)",border:"none",color:"#fff",
+                  padding:"5px 12px",borderRadius:6,fontSize:10,fontWeight:700,cursor:"pointer",
+                  letterSpacing:.3,boxShadow:"0 2px 8px rgba(0,113,227,0.25)",display:"flex",alignItems:"center",gap:4,
+                }}>🔓 Unlock Pro</button>
+              </div>}
+              {paid&&<div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10,padding:"6px 10px",background:"rgba(45,139,78,0.06)",borderRadius:8,border:"1px solid rgba(45,139,78,0.1)"}}>
+                <span style={{fontSize:11,color:"#2D8B4E",fontWeight:600}}>✓ Pro Unlocked</span>
+                <button onClick={()=>setPaid(false)} style={{
+                  background:"transparent",border:"1px solid rgba(0,0,0,0.08)",color:"#AEAEB2",
+                  padding:"4px 10px",borderRadius:5,fontSize:9,fontWeight:600,cursor:"pointer",
+                }}>Lock</button>
+              </div>}
+              <TabbedPanel findings={findings} active={active} onSel={togSel} mob={false} tab={tab} setTab={onTabChange} activeEx={activeEx} setActiveEx={setActiveEx} activeTx={activeTx} setActiveTx={selectTx} txFinding={txFinding} paid={paid} onUnlock={startCheckout} />
+            </>}
           </div>
         </div>
         <ResizableSplit
