@@ -537,6 +537,65 @@ function ExerciseDetail({ex,onClose,mob}){
   );
 }
 
+/* ═══════════════════ RESIZABLE SPLIT PANE ═══════════════════ */
+function ResizableSplit({left,right,show,minPct=25,maxPct=75,defaultPct=50}){
+  const containerRef=useRef(null);
+  const [pct,setPct]=useState(defaultPct);
+  const dragging=useRef(false);
+
+  const onMouseDown=useCallback((e)=>{
+    e.preventDefault();
+    dragging.current=true;
+    const onMove=(ev)=>{
+      if(!dragging.current||!containerRef.current)return;
+      const rect=containerRef.current.getBoundingClientRect();
+      const x=ev.clientX-rect.left;
+      const p=Math.max(minPct,Math.min(maxPct,(x/rect.width)*100));
+      setPct(p);
+    };
+    const onUp=()=>{dragging.current=false;document.removeEventListener("mousemove",onMove);document.removeEventListener("mouseup",onUp);document.body.style.cursor="";document.body.style.userSelect=""};
+    document.addEventListener("mousemove",onMove);
+    document.addEventListener("mouseup",onUp);
+    document.body.style.cursor="col-resize";
+    document.body.style.userSelect="none";
+  },[minPct,maxPct]);
+
+  // Touch support
+  const onTouchStart=useCallback((e)=>{
+    dragging.current=true;
+    const onMove=(ev)=>{
+      if(!dragging.current||!containerRef.current)return;
+      const rect=containerRef.current.getBoundingClientRect();
+      const x=ev.touches[0].clientX-rect.left;
+      const p=Math.max(minPct,Math.min(maxPct,(x/rect.width)*100));
+      setPct(p);
+    };
+    const onEnd=()=>{dragging.current=false;document.removeEventListener("touchmove",onMove);document.removeEventListener("touchend",onEnd)};
+    document.addEventListener("touchmove",onMove,{passive:false});
+    document.addEventListener("touchend",onEnd);
+  },[minPct,maxPct]);
+
+  if(!show)return <div ref={containerRef} style={{flex:1,display:"flex",overflow:"hidden"}}>{left}</div>;
+
+  return(
+    <div ref={containerRef} style={{flex:1,display:"flex",overflow:"hidden"}}>
+      <div style={{width:`${pct}%`,flexShrink:0,position:"relative",overflow:"hidden"}}>{left}</div>
+      {/* Drag handle */}
+      <div onMouseDown={onMouseDown} onTouchStart={onTouchStart} style={{
+        width:6,flexShrink:0,cursor:"col-resize",background:"#fff",borderLeft:"1px solid rgba(0,0,0,0.06)",
+        borderRight:"1px solid rgba(0,0,0,0.06)",display:"flex",alignItems:"center",justifyContent:"center",
+        position:"relative",zIndex:5,transition:"background .15s",
+      }}
+      onMouseEnter={e=>e.currentTarget.style.background="rgba(0,113,227,0.06)"}
+      onMouseLeave={e=>{if(!dragging.current)e.currentTarget.style.background="#fff"}}
+      >
+        <div style={{width:2,height:32,borderRadius:1,background:"rgba(0,0,0,0.12)"}} />
+      </div>
+      <div style={{flex:1,overflow:"hidden",animation:"slideInRight .3s cubic-bezier(.16,1,.3,1)"}}>{right}</div>
+    </div>
+  );
+}
+
 /* ═══════════════════ APP ═══════════════════ */
 export default function App(){
   const[text,setText]=useState("");
@@ -636,26 +695,25 @@ export default function App(){
             {phase==="summary"&&findings&&<TabbedPanel findings={findings} active={active} onSel={togSel} mob={false} tab={tab} setTab={onTabChange} activeEx={activeEx} setActiveEx={setActiveEx} />}
           </div>
         </div>
-        <div style={{flex:1,display:"flex",overflow:"hidden"}}>
-          {/* 3D Viewport — shrinks when detail pane is open */}
-          <div style={{flex:1,position:"relative",background:`radial-gradient(ellipse at 50% 40%,#faf9f7 0%,${T.bg} 100%)`,transition:"flex .3s ease"}}>
-            <KneeCanvas findings={findings} active={active} phase={phase} showH={showH} />
-            {phase==="revealing"&&<NCard f={active} i={ri} n={FD.length} onN={()=>setRi(i=>i+1)} onP={()=>setRi(i=>Math.max(0,i-1))} mob={false} />}
-            {active&&phase==="summary"&&!detailFinding&&!activeEx&&<div style={{position:"absolute",top:14,left:14,background:T.sf,padding:"7px 14px",borderRadius:9,boxShadow:"0 2px 12px rgba(0,0,0,.05)",fontSize:13,fontWeight:600,color:T.tx,zIndex:10,animation:"fadeIn .3s"}}>{active.str} <span style={{color:T[active.sev].c,fontSize:11,marginLeft:6}}>● {active.path}</span></div>}
-            <div style={{position:"absolute",top:14,right:14,fontSize:10,color:T.txF,pointerEvents:"none"}}>Drag to rotate · Scroll to zoom</div>
-            {phase==="input"&&<div style={{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",textAlign:"center",pointerEvents:"none"}}><div style={{fontSize:48,marginBottom:14,opacity:.15}}>🦴</div><div style={{fontSize:15,color:T.txL,fontWeight:500}}>Your 3D knee model</div><div style={{fontSize:12,color:T.txF,marginTop:6}}>Paste an MRI report to see findings visualized</div></div>}
-            {phase==="summary"&&!detailFinding&&!activeEx&&<div style={{position:"absolute",bottom:20,left:20,right:20,maxWidth:440,background:T.sf,borderRadius:11,padding:"14px 18px",boxShadow:"0 4px 20px rgba(0,0,0,.06)",border:`1px solid ${T.bd}`,display:"flex",alignItems:"center",justifyContent:"space-between",zIndex:10,animation:"slideUp .5s cubic-bezier(.16,1,.3,1)"}}><div><div style={{fontSize:13,fontWeight:600,color:T.tx}}>Your full report is ready</div><div style={{fontSize:11,color:T.txL,marginTop:2}}>Specialist perspectives, exercises, questions for your doctor</div></div><button onClick={()=>generateReport(FD)} style={{background:T.ac,border:"none",color:"#fff",padding:"9px 18px",borderRadius:8,fontSize:12,fontWeight:600,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,marginLeft:14}}>Download Report (PDF)</button></div>}
-          </div>
-          {/* Detail Pane — Finding or Exercise */}
-          {(detailFinding||activeEx)&&(
-            <div style={{width:400,borderLeft:`1px solid ${T.bd}`,flexShrink:0,animation:"slideInRight .3s cubic-bezier(.16,1,.3,1)"}}>
-              {activeEx
-                ? <ExerciseDetail ex={activeEx} onClose={()=>setActiveEx(null)} mob={false} />
-                : <FindingDetail finding={detailFinding} onClose={()=>{setDetailFinding(null);setActive(null)}} mob={false} />
-              }
+        <ResizableSplit
+          show={!!(detailFinding||activeEx)}
+          defaultPct={50} minPct={30} maxPct={70}
+          left={
+            <div style={{width:"100%",height:"100%",position:"relative",background:`radial-gradient(ellipse at 50% 40%,#faf9f7 0%,${T.bg} 100%)`}}>
+              <KneeCanvas findings={findings} active={active} phase={phase} showH={showH} />
+              {phase==="revealing"&&<NCard f={active} i={ri} n={FD.length} onN={()=>setRi(i=>i+1)} onP={()=>setRi(i=>Math.max(0,i-1))} mob={false} />}
+              {active&&phase==="summary"&&!detailFinding&&!activeEx&&<div style={{position:"absolute",top:14,left:14,background:T.sf,padding:"7px 14px",borderRadius:9,boxShadow:"0 2px 12px rgba(0,0,0,.05)",fontSize:13,fontWeight:600,color:T.tx,zIndex:10,animation:"fadeIn .3s"}}>{active.str} <span style={{color:T[active.sev].c,fontSize:11,marginLeft:6}}>● {active.path}</span></div>}
+              <div style={{position:"absolute",top:14,right:14,fontSize:10,color:T.txF,pointerEvents:"none"}}>Drag to rotate · Scroll to zoom</div>
+              {phase==="input"&&<div style={{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",textAlign:"center",pointerEvents:"none"}}><div style={{fontSize:48,marginBottom:14,opacity:.15}}>🦴</div><div style={{fontSize:15,color:T.txL,fontWeight:500}}>Your 3D knee model</div><div style={{fontSize:12,color:T.txF,marginTop:6}}>Paste an MRI report to see findings visualized</div></div>}
+              {phase==="summary"&&!detailFinding&&!activeEx&&<div style={{position:"absolute",bottom:20,left:20,right:20,maxWidth:440,background:T.sf,borderRadius:11,padding:"14px 18px",boxShadow:"0 4px 20px rgba(0,0,0,.06)",border:`1px solid ${T.bd}`,display:"flex",alignItems:"center",justifyContent:"space-between",zIndex:10,animation:"slideUp .5s cubic-bezier(.16,1,.3,1)"}}><div><div style={{fontSize:13,fontWeight:600,color:T.tx}}>Your full report is ready</div><div style={{fontSize:11,color:T.txL,marginTop:2}}>Specialist perspectives, exercises, questions for your doctor</div></div><button onClick={()=>generateReport(FD)} style={{background:T.ac,border:"none",color:"#fff",padding:"9px 18px",borderRadius:8,fontSize:12,fontWeight:600,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,marginLeft:14}}>Download Report (PDF)</button></div>}
             </div>
-          )}
-        </div>
+          }
+          right={
+            activeEx
+              ? <ExerciseDetail ex={activeEx} onClose={()=>setActiveEx(null)} mob={false} />
+              : <FindingDetail finding={detailFinding} onClose={()=>{setDetailFinding(null);setActive(null)}} mob={false} />
+          }
+        />
       </div>
     </div>
   );
