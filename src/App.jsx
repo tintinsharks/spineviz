@@ -3,8 +3,7 @@ import * as THREE from "three";
 import * as Tone from "tone";
 import { generateReport } from "./reportGenerator";
 import PTLibrary from "./PTLibrary";
-import { extractFindings, dedupeFindings } from "./kneeNLP";
-import { mapToVisualization } from "./kneeContentLibrary";
+import { detectJoint, parseReport, JOINT_INFO } from "./jointRouter";
 
 /* ═══════════════════ DESIGN TOKENS ═══════════════════ */
 const T = {
@@ -25,6 +24,13 @@ const SAMPLE=`IMPRESSION:
 3. Moderate joint effusion.
 4. Grade 2 chondromalacia of the medial femoral condyle.
 5. Small Baker's cyst.`;
+
+const SHOULDER_SAMPLE=`IMPRESSION:
+1. Full-thickness tear of the supraspinatus tendon with 1cm retraction.
+2. Partial articular-side tear of the infraspinatus tendon.
+3. Superior labral tear (SLAP lesion) extending from anterior to posterior.
+4. Moderate subacromial bursitis with type 2 acromion.
+5. Small glenohumeral joint effusion.`;
 
 const DEMO_FD=[
   {id:"men",str:"Medial Meniscus",path:"Horizontal Tear",sev:"moderate",m:["meniscus_medial"],
@@ -406,57 +412,87 @@ const MEDICAL_CONDITIONS=[
 ];
 
 // Generate finding-aware questions
-function getIntakeQuestions(findings){
+function getIntakeQuestions(findings, joint){
+  const j = joint || "knee";
+
+  // Knee-specific flags
   const hasACL=findings.some(f=>f.id?.includes("acl")||f.str?.includes("ACL"));
   const hasMeniscus=findings.some(f=>f.id?.includes("meniscus")||f.str?.includes("Meniscus"));
-  const hasSurgical=findings.some(f=>f.sev==="severe");
   const hasCartilage=findings.some(f=>f.id?.includes("cartilage")||f.str?.includes("Cartilage"));
 
+  // Shoulder-specific flags
+  const hasRC=findings.some(f=>/supraspinatus|infraspinatus|subscapularis|teres/i.test(f.id||"")||/rotator|cuff/i.test(f.str||""));
+  const hasLabrum=findings.some(f=>/labrum/i.test(f.id||"")||/labr|bankart|SLAP/i.test(f.str||""));
+  const hasInstabilityFinding=findings.some(f=>/bankart|hill.sachs|disloc/i.test(f.path||""));
+
+  const hasSurgical=findings.some(f=>f.sev==="severe");
   const qs=[];
 
-  // Q1 — always: instability / mechanical symptoms (yes/no)
-  qs.push({
-    id:"instability",type:"yesno",
-    q: hasACL
-      ? "Does your knee give way or feel unstable when changing direction or stepping off a curb?"
-      : hasMeniscus
-      ? "Does your knee catch, lock, or feel like something is getting in the way?"
-      : "Do you have difficulty bearing full weight on the affected knee?",
-    why: hasACL
-      ? "Functional instability is the primary factor in deciding between reconstruction and conservative management."
-      : "Mechanical symptoms help determine whether surgical intervention may be needed.",
-  });
+  // Q1 — functional symptom (yes/no)
+  if(j==="shoulder"){
+    qs.push({id:"instability",type:"yesno",
+      q: hasInstabilityFinding
+        ? "Has your shoulder ever dislocated or felt like it was about to slip out of the socket?"
+        : hasRC
+        ? "Do you have difficulty raising your arm overhead or significant night pain?"
+        : "Do you have pain reaching overhead, behind your back, or across your body?",
+      why: hasInstabilityFinding
+        ? "History of instability events is the primary factor in deciding between conservative treatment and surgical stabilization."
+        : "Functional limitations help gauge severity and guide treatment approach.",
+    });
+  } else {
+    qs.push({id:"instability",type:"yesno",
+      q: hasACL
+        ? "Does your knee give way or feel unstable when changing direction or stepping off a curb?"
+        : hasMeniscus
+        ? "Does your knee catch, lock, or feel like something is getting in the way?"
+        : "Do you have difficulty bearing full weight on the affected knee?",
+      why: hasACL
+        ? "Functional instability is the primary factor in deciding between reconstruction and conservative management."
+        : "Mechanical symptoms help determine whether surgical intervention may be needed.",
+    });
+  }
 
-  // Q2 — always: pain severity (slider 0-10)
-  qs.push({
-    id:"pain",type:"slider",min:0,max:10,
+  // Q2 — pain severity (slider)
+  qs.push({id:"pain",type:"slider",min:0,max:10,
     q:"Rate your current pain level at its worst during daily activities.",
     labels:["No pain","Moderate","Severe"],
     why:"Pain severity helps calibrate treatment urgency and guides medication recommendations.",
   });
 
-  // Q3 — always: activity goals (multi-select)
-  qs.push({
-    id:"goals",type:"tags",
+  // Q3 — activity goals (tags) — joint-specific options
+  const goalOptions = j==="shoulder"
+    ? ["Overhead Sports (Tennis, Volleyball)","Throwing Sports (Baseball, Football)","Weightlifting","Swimming","Yoga/Flexibility","CrossFit","Climbing","Desk Work Only","Daily Activities (Dressing, Reaching)","Return to Competition"]
+    : ["Running","Cutting/Pivoting Sports","Weightlifting","Hiking","Cycling","Swimming","Yoga/Flexibility","Walking Daily","Desk Work Only","Return to Competition"];
+  qs.push({id:"goals",type:"tags",
     q:"What activities are important to you? Select all that apply.",
-    options:["Running","Cutting/Pivoting Sports","Weightlifting","Hiking","Cycling","Swimming","Yoga/Flexibility","Walking Daily","Desk Work Only","Return to Competition"],
+    options:goalOptions,
     why:"Your activity goals are the single most important factor in choosing between treatment approaches.",
   });
 
-  // Q4 — contextual: prior treatment or surgery history (yes/no + conditional)
-  qs.push({
-    id:"prior",type:"yesno",
-    q: hasSurgical
-      ? "Have you had any previous surgery on this knee?"
-      : hasCartilage
-      ? "Have you had knee injections (cortisone, gel, PRP) in the past?"
-      : "Have you tried physical therapy for this knee before?",
-    why:"Prior treatments and their outcomes significantly influence the next steps your physician will recommend.",
-  });
+  // Q4 — prior treatment (yes/no)
+  if(j==="shoulder"){
+    qs.push({id:"prior",type:"yesno",
+      q: hasSurgical
+        ? "Have you had any previous surgery on this shoulder?"
+        : hasRC
+        ? "Have you had shoulder injections (cortisone, PRP) in the past?"
+        : "Have you tried physical therapy for this shoulder before?",
+      why:"Prior treatments and their outcomes significantly influence the next steps your physician will recommend.",
+    });
+  } else {
+    qs.push({id:"prior",type:"yesno",
+      q: hasSurgical
+        ? "Have you had any previous surgery on this knee?"
+        : hasCartilage
+        ? "Have you had knee injections (cortisone, gel, PRP) in the past?"
+        : "Have you tried physical therapy for this knee before?",
+      why:"Prior treatments and their outcomes significantly influence the next steps your physician will recommend.",
+    });
+  }
 
-  // Q5 — always: medical history (tag selector)
-  qs.push({
-    id:"history",type:"conditions",
+  // Q5 — medical history
+  qs.push({id:"history",type:"conditions",
     q:"Do you have any of these conditions? Select all that apply.",
     options:MEDICAL_CONDITIONS,
     why:"Certain conditions affect healing, surgical risk, and medication options. This helps your care team plan safely.",
@@ -465,10 +501,10 @@ function getIntakeQuestions(findings){
   return qs;
 }
 
-function ReportTab({findings,onGenerateReport,onComplete}){
-  const[step,setStep]=useState(0); // 0=intro, 1-5=questions, 6=complete
+function ReportTab({findings,onGenerateReport,onComplete,joint}){
+  const[step,setStep]=useState(0);
   const[answers,setAnswers]=useState({});
-  const questions=getIntakeQuestions(findings||[]);
+  const questions=getIntakeQuestions(findings||[],joint);
   const total=questions.length;
 
   const setAnswer=(id,val)=>setAnswers(p=>({...p,[id]:val}));
@@ -855,14 +891,14 @@ function TreatmentDetail({tx,finding,onClose,allFindings,paid,onUnlock}){
 }
 
 /* ═══════════════════ TABBED PANEL ═══════════════════ */
-function TabbedPanel({findings,active,onSel,mob,tab,setTab,activeEx,setActiveEx,activeTx,setActiveTx,txFinding,paid,onUnlock,assessAnswers,onAssessComplete,onGenerateReport}){
+function TabbedPanel({findings,active,onSel,mob,tab,setTab,activeEx,setActiveEx,activeTx,setActiveTx,txFinding,paid,onUnlock,assessAnswers,onAssessComplete,onGenerateReport,joint}){
   return(
     <>
       <TabBar tab={tab} setTab={setTab} mob={mob} paid={paid} />
       {tab==="findings"&&<Summary findings={findings} active={active} onSel={onSel} mob={mob} />}
-      {tab==="exercises"&&<PTLibrary findings={findings} onSelectFinding={onSel} activeEx={activeEx} setActiveEx={setActiveEx} assessAnswers={assessAnswers} paid={paid} onUnlock={onUnlock} onGoToReport={()=>setTab("report")} />}
+      {tab==="exercises"&&<PTLibrary findings={findings} onSelectFinding={onSel} activeEx={activeEx} setActiveEx={setActiveEx} assessAnswers={assessAnswers} paid={paid} onUnlock={onUnlock} onGoToReport={()=>setTab("report")} joint={joint} />}
       {tab==="treatments"&&<TreatmentsTab findings={findings} activeTx={activeTx} setActiveTx={(tx,f)=>setActiveTx(tx,f)} txFinding={txFinding} />}
-      {tab==="report"&&<ReportTab findings={findings} onGenerateReport={onGenerateReport} onComplete={onAssessComplete} />}
+      {tab==="report"&&<ReportTab findings={findings} onGenerateReport={onGenerateReport} onComplete={onAssessComplete} joint={joint} />}
     </>
   );
 }
@@ -1450,7 +1486,8 @@ export default function App(){
   const[txFinding,setTxFinding]=useState(null);
   const[paid,setPaid]=useState(false);
   const[checkingPayment,setCheckingPayment]=useState(false);
-  const[assessAnswers,setAssessAnswers]=useState(null); // null = not completed
+  const[assessAnswers,setAssessAnswers]=useState(null);
+  const[joint,setJoint]=useState(null); // "knee"|"shoulder"|"hip"|null // null = not completed
   useEffect(()=>{const c=()=>setMob(window.innerWidth<768);c();window.addEventListener("resize",c);return()=>window.removeEventListener("resize",c)},[]);
 
   // Check for payment return from Stripe
@@ -1489,26 +1526,34 @@ export default function App(){
     const isDemo = text.trim() === SAMPLE.trim();
 
     if(isDemo){
-      // Use hardcoded demo data — instant, no API call
+      setJoint("knee");
       setTimeout(()=>{pTrans();setFindings(DEMO_FD);setPhase("revealing");setRi(0)},2000);
     } else {
-      // Real NLP extraction via Claude API
       try {
-        const raw = await extractFindings(text);
-        const deduped = dedupeFindings(raw);
-        if(deduped.length === 0){
-          setErr("No pathological findings detected. Make sure you're pasting the IMPRESSION section of a knee MRI report.");
+        // Detect joint type
+        const detected = detectJoint(text);
+        if(!detected){
+          setErr("Could not identify the joint type. Please paste the IMPRESSION section of a knee, shoulder, or hip MRI report.");
           setPhase("input");
           return;
         }
-        const mapped = mapToVisualization(deduped);
+        setJoint(detected);
+
+        // Parse with the correct pipeline
+        const { findings: mapped } = await parseReport(text, detected);
+        if(mapped.length === 0){
+          const info = JOINT_INFO[detected];
+          setErr(`No pathological findings detected. Make sure you're pasting the IMPRESSION section of a ${info?.label || detected} MRI report.`);
+          setPhase("input");
+          return;
+        }
         pTrans();
         setFindings(mapped);
         setPhase("revealing");
         setRi(0);
       } catch(e) {
-        console.error('NLP failed:', e);
-        setErr("Unable to analyze this report. Please check that you've pasted a knee MRI impression and try again.");
+        console.error('Parse failed:', e);
+        setErr(e.message || "Unable to analyze this report. Please check the text and try again.");
         setPhase("input");
       }
     }
@@ -1519,7 +1564,7 @@ export default function App(){
     if(phase==="revealing"&&findings&&ri>=findings.length){setPhase("summary");setActive(null)}
   },[ri,phase,findings]);
 
-  const reset=()=>{setPhase("input");setFindings(null);setRi(-1);setActive(null);setShowH(false);setText("");setTab("findings");setActiveEx(null);setDetailFinding(null);setActiveTx(null);setTxFinding(null);setErr(null);setAssessAnswers(null)};
+  const reset=()=>{setPhase("input");setFindings(null);setRi(-1);setActive(null);setShowH(false);setText("");setTab("findings");setActiveEx(null);setDetailFinding(null);setActiveTx(null);setTxFinding(null);setErr(null);setAssessAnswers(null);setJoint(null)};
   const togSel=f=>{
     const deselecting = active?.id===f.id;
     setActive(deselecting?null:f);
@@ -1536,12 +1581,13 @@ export default function App(){
   const inputUI=(pad)=>(
     <>
       <h2 style={{fontSize:mob?20:24,fontWeight:700,color:T.tx,margin:"0 0 6px",fontFamily:"Georgia,serif"}}>Understand Your Knee MRI</h2>
-      <p style={{fontSize:mob?13:14,color:T.txL,margin:"0 0 18px",lineHeight:1.55}}>Paste the Impression section from your knee MRI report. We'll visualize each finding in 3D and explain what it means.</p>
+      <p style={{fontSize:mob?13:14,color:T.txL,margin:"0 0 18px",lineHeight:1.55}}>Paste the Impression section from your MRI report. We support <strong>knee</strong>, <strong>shoulder</strong>, and <strong>hip</strong> — we'll auto-detect the joint and visualize each finding in 3D.</p>
       {err&&<div style={{padding:"10px 12px",background:"rgba(191,16,41,0.06)",border:"1px solid rgba(191,16,41,0.15)",borderRadius:8,marginBottom:12,fontSize:12,lineHeight:1.5,color:"#BF1029"}}>{err}</div>}
       <textarea value={text} onChange={e=>{setText(e.target.value);setErr(null)}} placeholder="Paste your MRI impression here..." style={{flex:1,minHeight:mob?120:160,background:T.bgD,border:`1px solid ${err?"rgba(191,16,41,0.3)":T.bd}`,borderRadius:12,padding:14,color:T.tx,fontSize:13,fontFamily:"'SF Mono',Consolas,monospace",lineHeight:1.7,resize:"none"}} />
       <div style={{display:"flex",gap:8,marginTop:12}}>
         <button onClick={go} disabled={!text.trim()} style={{flex:1,padding:"11px 18px",borderRadius:10,border:"none",background:text.trim()?T.ac:T.bgD,color:text.trim()?"#fff":T.txL,fontSize:14,fontWeight:600,cursor:text.trim()?"pointer":"not-allowed"}}>Visualize Findings</button>
-        <button onClick={()=>setText(SAMPLE)} style={{padding:"11px 14px",borderRadius:10,border:`1px solid ${T.bd}`,background:T.sf,color:T.txM,fontSize:12,fontWeight:500,cursor:"pointer"}}>Demo</button>
+        <button onClick={()=>setText(SAMPLE)} style={{padding:"11px 12px",borderRadius:10,border:`1px solid ${T.bd}`,background:T.sf,color:T.txM,fontSize:11,fontWeight:500,cursor:"pointer"}}>🦵 Knee</button>
+        <button onClick={()=>setText(SHOULDER_SAMPLE)} style={{padding:"11px 12px",borderRadius:10,border:`1px solid ${T.bd}`,background:T.sf,color:T.txM,fontSize:11,fontWeight:500,cursor:"pointer"}}>💪 Shoulder</button>
       </div>
       <Trust />
     </>
@@ -1642,9 +1688,9 @@ export default function App(){
             <div style={{flex:1,overflow:"auto",padding:"0 16px 16px"}}>
               {hasDetail ? mobDetailContent
                : tab==="findings" ? <Summary findings={findings} active={active} onSel={togSel} mob={true} />
-               : tab==="exercises" ? <PTLibrary findings={findings} onSelectFinding={togSel} activeEx={activeEx} setActiveEx={setActiveEx} assessAnswers={assessAnswers} paid={paid} onUnlock={startCheckout} onGoToReport={()=>onTabChange("report")} />
+               : tab==="exercises" ? <PTLibrary findings={findings} onSelectFinding={togSel} activeEx={activeEx} setActiveEx={setActiveEx} assessAnswers={assessAnswers} paid={paid} onUnlock={startCheckout} onGoToReport={()=>onTabChange("report")} joint={joint} />
                : tab==="treatments" ? <TreatmentsTab findings={findings} activeTx={activeTx} setActiveTx={selectTx} txFinding={txFinding} />
-               : tab==="report" ? <ReportTab findings={findings} onGenerateReport={(f,a)=>generateReport(f)} onComplete={(a)=>setAssessAnswers(a)} />
+               : tab==="report" ? <ReportTab findings={findings} onGenerateReport={(f,a)=>generateReport(f)} onComplete={(a)=>setAssessAnswers(a)} joint={joint} />
                : null}
             </div>
           </div>}
@@ -1678,7 +1724,7 @@ export default function App(){
                   padding:"4px 10px",borderRadius:5,fontSize:9,fontWeight:600,cursor:"pointer",
                 }}>Lock</button>
               </div>}
-              <TabbedPanel findings={findings} active={active} onSel={togSel} mob={false} tab={tab} setTab={onTabChange} activeEx={activeEx} setActiveEx={setActiveEx} activeTx={activeTx} setActiveTx={selectTx} txFinding={txFinding} paid={paid} onUnlock={startCheckout} assessAnswers={assessAnswers} onAssessComplete={(a)=>setAssessAnswers(a)} onGenerateReport={(f,a)=>generateReport(f)} />
+              <TabbedPanel findings={findings} active={active} onSel={togSel} mob={false} tab={tab} setTab={onTabChange} activeEx={activeEx} setActiveEx={setActiveEx} activeTx={activeTx} setActiveTx={selectTx} txFinding={txFinding} paid={paid} onUnlock={startCheckout} assessAnswers={assessAnswers} onAssessComplete={(a)=>setAssessAnswers(a)} onGenerateReport={(f,a)=>generateReport(f)} joint={joint} />
             </>}
           </div>
         </div>
@@ -1691,7 +1737,7 @@ export default function App(){
               {phase==="revealing"&&<NCard f={active} i={ri} n={findings?.length||0} onN={()=>setRi(i=>i+1)} onP={()=>setRi(i=>Math.max(0,i-1))} mob={false} />}
               {active&&phase==="summary"&&!detailFinding&&!activeEx&&!activeTx&&<div style={{position:"absolute",top:14,left:14,background:T.sf,padding:"7px 14px",borderRadius:9,boxShadow:"0 2px 12px rgba(0,0,0,.05)",fontSize:13,fontWeight:600,color:T.tx,zIndex:10,animation:"fadeIn .3s"}}>{active.str} <span style={{color:T[active.sev].c,fontSize:11,marginLeft:6}}>● {active.path}</span></div>}
               <div style={{position:"absolute",top:14,right:14,fontSize:10,color:T.txF,pointerEvents:"none"}}>Drag to rotate · Scroll to zoom</div>
-              {phase==="input"&&<div style={{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",textAlign:"center",pointerEvents:"none"}}><div style={{fontSize:48,marginBottom:14,opacity:.15}}>🦴</div><div style={{fontSize:15,color:T.txL,fontWeight:500}}>Your 3D knee model</div><div style={{fontSize:12,color:T.txF,marginTop:6}}>Paste an MRI report to see findings visualized</div></div>}
+              {phase==="input"&&<div style={{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",textAlign:"center",pointerEvents:"none"}}><div style={{fontSize:48,marginBottom:14,opacity:.15}}>🦴</div><div style={{fontSize:15,color:T.txL,fontWeight:500}}>Your 3D joint model</div><div style={{fontSize:12,color:T.txF,marginTop:6}}>Paste an MRI report to see findings visualized</div></div>}
               {phase==="summary"&&!detailFinding&&!activeEx&&!activeTx&&<div style={{position:"absolute",bottom:20,left:20,right:20,maxWidth:440,background:paid?"#fff":"linear-gradient(135deg,#0071E3 0%,#0059B3 100%)",borderRadius:11,padding:"14px 18px",boxShadow:"0 4px 20px rgba(0,0,0,.08)",border:paid?`1px solid ${T.bd}`:"none",display:"flex",alignItems:"center",justifyContent:"space-between",zIndex:10,animation:"slideUp .5s cubic-bezier(.16,1,.3,1)"}}><div><div style={{fontSize:13,fontWeight:600,color:paid?T.tx:"#fff"}}>{paid?"Your full report is ready":"Unlock detailed analysis"}</div><div style={{fontSize:11,color:paid?T.txL:"rgba(255,255,255,0.8)",marginTop:2}}>{paid?"Specialist perspectives, exercises, questions":"Specialist insights, exercise guides, treatment deep-dives"}</div></div><button onClick={paid?()=>generateReport(findings):startCheckout} style={{background:paid?T.ac:"#fff",border:"none",color:paid?"#fff":"#0071E3",padding:"9px 18px",borderRadius:8,fontSize:12,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,marginLeft:14,boxShadow:paid?"none":"0 2px 8px rgba(0,0,0,0.15)"}}>{paid?"Download PDF":`${PRICE} — Unlock Pro`}</button></div>}
             </div>
           }

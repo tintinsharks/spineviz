@@ -145,12 +145,103 @@ const EXERCISES = [
     video:"rice-protocol", finding:"Effusion / Bone Bruise" },
 ];
 
+/* ═══════════════════ SHOULDER EXERCISES ═══════════════════ */
+const SHOULDER_EXERCISES = [
+  // ── PHASE 1: PROTECTION & EARLY MOTION ──
+  { id:"sh_pend", name:"Pendulum Swings", targets:["supraspinatus","infraspinatus","subscapularis","labrum_anterior","labrum_superior","biceps_tendon","capsule"], phase:1, joint:"shoulder",
+    rx:"3 sets × 1 min each direction", duration:"Gentle, gravity-assisted",
+    desc:"Lean forward with your good arm on a table. Let the injured arm hang. Gently swing in small circles (clockwise, counterclockwise), then forward-back and side-to-side.",
+    why:"The only exercise safe for virtually all shoulder pathologies in Phase 1. Gravity does the work — no muscular effort required. Prevents adhesions while protecting the repair.",
+    avoid:"Do NOT actively lift the arm. Let gravity and body sway create the motion.",
+    video:"pendulums", finding:"Rotator Cuff / Labrum / Capsule" },
+  { id:"sh_sqa", name:"Scapular Squeezes", targets:["supraspinatus","infraspinatus","subacromial","ac_joint","capsule"], phase:1, joint:"shoulder",
+    rx:"3 sets × 10 reps", duration:"Hold 5 seconds",
+    desc:"Sit or stand tall. Squeeze your shoulder blades together and down, as if putting them in your back pockets. Hold 5 seconds, release.",
+    why:"Activates the scapular stabilizers without stressing the rotator cuff. Poor scapular position is the #1 biomechanical contributor to shoulder impingement.",
+    avoid:"Don't shrug your shoulders up. The motion is back and DOWN.",
+    video:"scap-squeeze", finding:"Rotator Cuff / Subacromial / AC Joint" },
+  { id:"sh_aarom", name:"Assisted Overhead Reach (Supine)", targets:["supraspinatus","capsule","labrum_superior"], phase:1, joint:"shoulder",
+    rx:"3 sets × 10 reps", duration:"Slow, use good arm to assist",
+    desc:"Lie on your back. Hold a stick or towel with both hands. Use your good arm to push the injured arm overhead as far as comfortable.",
+    why:"Restores flexion range without muscular effort from the injured side. The supine position eliminates gravity's resistance.",
+    avoid:"Stop at first sign of pain. Don't force range.",
+    video:"supine-aarom", finding:"Supraspinatus / Capsule / Labrum" },
+  { id:"sh_erp", name:"External Rotation with Stick", targets:["infraspinatus","teres_minor","capsule","labrum_anterior"], phase:1, joint:"shoulder",
+    rx:"3 sets × 10 reps", duration:"Gentle, assisted",
+    desc:"Hold a stick with both hands, elbows at sides and bent 90°. Use your good arm to push the injured arm outward (external rotation).",
+    why:"Restores external rotation range — one of the first motions lost with shoulder pathology. Essential for reaching behind your head.",
+    avoid:"Keep elbow pinned to your side. Don't force rotation.",
+    video:"er-stick", finding:"Infraspinatus / Capsule / Labrum" },
+
+  // ── PHASE 2: PROGRESSIVE STRENGTHENING ──
+  { id:"sh_sler", name:"Side-Lying External Rotation", targets:["infraspinatus","teres_minor","subacromial"], phase:2, joint:"shoulder",
+    rx:"3 sets × 12 reps", duration:"Slow, controlled",
+    desc:"Lie on your uninjured side with a towel roll under the elbow of your injured arm. Bend elbow 90°. Rotate forearm up toward ceiling, then slowly lower.",
+    why:"The gold standard rotator cuff exercise. Isolates the external rotators with minimal impingement stress. The towel roll is critical — it positions the shoulder for optimal muscle activation.",
+    avoid:"Don't let the elbow drift away from the towel roll. Control the lowering phase.",
+    video:"sidelying-er", finding:"Infraspinatus / Subacromial" },
+  { id:"sh_isoy", name:"Isometric Y-T-W", targets:["supraspinatus","infraspinatus","subscapularis","subacromial"], phase:2, joint:"shoulder",
+    rx:"3 sets × 8 reps each position", duration:"Hold 5 seconds each",
+    desc:"Stand facing a wall with arms in Y (overhead), T (out to sides), and W (elbows bent, hands up) positions. Press gently into the wall and hold.",
+    why:"Activates all rotator cuff tendons in functional positions without through-range motion. The wall provides feedback and limits range to a safe zone.",
+    avoid:"Press gently — 30% effort maximum. This is activation, not strengthening yet.",
+    video:"iso-ytw", finding:"Rotator Cuff / Subacromial" },
+  { id:"sh_rows", name:"Scapular Rows (Band)", targets:["supraspinatus","infraspinatus","subacromial","ac_joint"], phase:2, joint:"shoulder",
+    rx:"3 sets × 12 reps", duration:"Squeeze and hold 2 sec",
+    desc:"Anchor a resistance band at chest height. Pull back with both arms, squeezing shoulder blades together. Hold 2 seconds at end range.",
+    why:"Builds the posterior chain (rhomboids, middle trapezius, posterior deltoid) that counterbalances the forward shoulder posture contributing to impingement.",
+    avoid:"Don't shrug. Lead with the shoulder blades, not the arms.",
+    video:"band-rows", finding:"Rotator Cuff / Subacromial / AC Joint" },
+  { id:"sh_flex", name:"Supine Flexion (Light Weight)", targets:["supraspinatus","biceps_tendon","labrum_superior"], phase:2, joint:"shoulder",
+    rx:"3 sets × 10 reps", duration:"Slow through full range",
+    desc:"Lie on your back. Hold a light weight (1-3 lbs). Raise arm from your side to overhead in a controlled arc.",
+    why:"Reintroduces active overhead motion against gravity in the safest position (supine reduces demand by ~50% compared to standing).",
+    avoid:"Start with no weight if painful. The supine position is key — don't do this standing yet.",
+    video:"supine-flexion", finding:"Supraspinatus / Biceps / Labrum" },
+
+  // ── PHASE 3: FUNCTIONAL PROGRESSION ──
+  { id:"sh_erband", name:"Standing ER with Band", targets:["infraspinatus","teres_minor","labrum_anterior","labrum_posterior"], phase:3, joint:"shoulder",
+    rx:"3 sets × 12 reps", duration:"Controlled",
+    desc:"Stand with band anchored at elbow height. Elbow at side, bent 90°. Rotate forearm outward against band resistance. Slowly return.",
+    why:"Functional external rotation strengthening — this is the position and movement pattern that stabilizes the shoulder during daily activities and sport.",
+    avoid:"Don't let the band snap your arm back. Control both directions.",
+    video:"standing-er-band", finding:"Infraspinatus / Labrum" },
+  { id:"sh_scap", name:"Scaption (Plane of Scapula)", targets:["supraspinatus","subacromial"], phase:3, joint:"shoulder",
+    rx:"3 sets × 10 reps", duration:"Controlled raise and lower",
+    desc:"Stand with light weight. Raise arm in the plane of the scapula (about 30° forward of pure sideways) to shoulder height. Thumb points up. Slowly lower.",
+    why:"The most functional overhead strengthening exercise. The scapular plane reduces impingement and optimizes supraspinatus activation. This replaces traditional lateral raises.",
+    avoid:"Don't go above shoulder height. Thumb up is critical — it opens the subacromial space.",
+    video:"scaption", finding:"Supraspinatus / Subacromial" },
+  { id:"sh_pushplus", name:"Push-Up Plus", targets:["subscapularis","subacromial"], phase:3, joint:"shoulder",
+    rx:"3 sets × 10 reps", duration:"Protract at top",
+    desc:"Standard push-up position (or wall/incline modification). At the top of the push-up, push further to round the upper back (serratus anterior activation).",
+    why:"The serratus anterior is the most important scapular stabilizer. The 'plus' motion at the top is what makes this exercise special — regular push-ups don't activate it adequately.",
+    avoid:"Start on a wall if needed. The 'plus' protraction at the top is the critical part.",
+    video:"pushup-plus", finding:"Subscapularis / Subacromial" },
+  { id:"sh_plyo", name:"Rhythmic Stabilization Drills", targets:["supraspinatus","infraspinatus","subscapularis","labrum_anterior"], phase:3, joint:"shoulder",
+    rx:"3 sets × 30 sec", duration:"Per PT guidance",
+    desc:"Hold arm in various positions (overhead, 90° abduction, reaching forward). Partner or PT applies gentle, unpredictable perturbations while you resist.",
+    why:"Trains reactive stabilization — the dynamic muscle response that prevents shoulder subluxation during real-world activities and sport.",
+    avoid:"Only begin when cleared by PT. Start with simple positions before progressing to overhead.",
+    video:"rhythmic-stab", finding:"Rotator Cuff / Labrum" },
+
+  // ── SWELLING / GENERAL ──
+  { id:"sh_ice", name:"Ice + Compression", targets:["effusion","subacromial","ac_joint","supraspinatus","infraspinatus"], phase:1, joint:"shoulder",
+    rx:"20 minutes, 4-6x daily", duration:"First 2-4 weeks",
+    desc:"Apply ice wrapped in thin cloth over the shoulder. Use a compression wrap if tolerated. Repeat throughout the day, especially after exercises.",
+    why:"Reduces inflammation and pain. Enables earlier participation in rehabilitation exercises.",
+    avoid:"Don't apply ice directly to skin. Don't ice for more than 20 minutes at a time.",
+    video:"shoulder-ice", finding:"Effusion / Rotator Cuff / AC Joint" },
+];
+
+const ALL_EXERCISES = { knee: EXERCISES, shoulder: SHOULDER_EXERCISES };
+
 const PHASE_NAMES = { 1: "Phase 1: Early Recovery", 2: "Phase 2: Building Strength", 3: "Phase 3: Functional Progression" };
 const PHASE_TIME = { 1: "Weeks 1-2", 2: "Weeks 3-6", 3: "Weeks 7-12" };
 const PHASE_COLOR = { 1: "#0071E3", 2: "#2D8B4E", 3: "#6B3FA0" };
 
-export default function PTLibrary({ findings, onSelectFinding, activeEx, setActiveEx, assessAnswers, paid, onUnlock, onGoToReport }) {
-  const [viewMode, setViewMode] = useState("byPhase"); // byPhase | byFinding
+export default function PTLibrary({ findings, onSelectFinding, activeEx, setActiveEx, assessAnswers, paid, onUnlock, onGoToReport, joint }) {
+  const [viewMode, setViewMode] = useState("byPhase");
   const [activePhase, setActivePhase] = useState(null);
 
   if (!findings || findings.length === 0) return null;
@@ -191,7 +282,7 @@ export default function PTLibrary({ findings, onSelectFinding, activeEx, setActi
   const isLowImpactGoal = goals.some(g => ["Cycling","Swimming","Yoga/Flexibility","Walking Daily","Desk Work Only"].includes(g));
 
   // Map finding IDs to exercise target tags
-  const STRUCTURE_TO_TAG = {
+  const KNEE_TAG_MAP = {
     acl: "acl", pcl: "pcl", mcl: "mcl", lcl: "lcl",
     meniscus_medial: "men", meniscus_lateral: "men",
     cartilage_medial: "cart", cartilage_lateral: "cart",
@@ -202,21 +293,24 @@ export default function PTLibrary({ findings, onSelectFinding, activeEx, setActi
     bone_patella: "bone",
     patella_tendon: "cart", quad_tendon: "acl",
   };
+  // Shoulder exercises use structure IDs directly as targets — no mapping needed
+  const STRUCTURE_TO_TAG = joint === "shoulder" ? {} : KNEE_TAG_MAP;
 
   const findingTags = new Set();
   const tagToFinding = {};
   findings.forEach(f => {
-    // Try to extract structure from NLP-style ID (e.g., "acl_0" → "acl")
     const structKey = f.id.replace(/_\d+$/, '');
-    const tag = STRUCTURE_TO_TAG[structKey] || f.id; // fallback to raw id for demo data
+    const tag = STRUCTURE_TO_TAG[structKey] || structKey;
     findingTags.add(tag);
-    // Also add the raw ID for demo data compatibility
+    findingTags.add(structKey);
     findingTags.add(f.id);
     if (!tagToFinding[tag]) tagToFinding[tag] = f;
+    if (!tagToFinding[structKey]) tagToFinding[structKey] = f;
     if (!tagToFinding[f.id]) tagToFinding[f.id] = f;
   });
 
-  const relevantExercises = EXERCISES.filter(ex => ex.targets.some(t => findingTags.has(t)));
+  const exerciseBank = ALL_EXERCISES[joint] || ALL_EXERCISES.knee;
+  const relevantExercises = exerciseBank.filter(ex => ex.targets.some(t => findingTags.has(t)));
 
   // ── Customize exercises based on assessment ──
   const customizedExercises = relevantExercises.map(ex => {
