@@ -833,14 +833,14 @@ function TreatmentDetail({tx,finding,onClose,allFindings,paid,onUnlock}){
 }
 
 /* ═══════════════════ TABBED PANEL ═══════════════════ */
-function TabbedPanel({findings,active,onSel,mob,tab,setTab,activeEx,setActiveEx,activeTx,setActiveTx,txFinding,paid,onUnlock}){
+function TabbedPanel({findings,active,onSel,mob,tab,setTab,activeEx,setActiveEx,activeTx,setActiveTx,txFinding,paid,onUnlock,assessAnswers,onAssessComplete,onGenerateReport}){
   return(
     <>
       <TabBar tab={tab} setTab={setTab} mob={mob} paid={paid} />
       {tab==="findings"&&<Summary findings={findings} active={active} onSel={onSel} mob={mob} />}
-      {tab==="exercises"&&<PTLibrary findings={findings} onSelectFinding={onSel} activeEx={activeEx} setActiveEx={setActiveEx} assessAnswers={assessAnswers} paid={paid} onUnlock={startCheckout} onGoToReport={()=>setTab("report")} />}
+      {tab==="exercises"&&<PTLibrary findings={findings} onSelectFinding={onSel} activeEx={activeEx} setActiveEx={setActiveEx} assessAnswers={assessAnswers} paid={paid} onUnlock={onUnlock} onGoToReport={()=>setTab("report")} />}
       {tab==="treatments"&&<TreatmentsTab findings={findings} activeTx={activeTx} setActiveTx={(tx,f)=>setActiveTx(tx,f)} txFinding={txFinding} />}
-      {tab==="report"&&<ReportTab findings={findings} onGenerateReport={(f,a)=>generateReport(f)} onComplete={(a)=>setAssessAnswers(a)} />}
+      {tab==="report"&&<ReportTab findings={findings} onGenerateReport={onGenerateReport} onComplete={onAssessComplete} />}
     </>
   );
 }
@@ -1619,7 +1619,7 @@ export default function App(){
                   padding:"4px 10px",borderRadius:5,fontSize:9,fontWeight:600,cursor:"pointer",
                 }}>Lock</button>
               </div>}
-              <TabbedPanel findings={findings} active={active} onSel={togSel} mob={false} tab={tab} setTab={onTabChange} activeEx={activeEx} setActiveEx={setActiveEx} activeTx={activeTx} setActiveTx={selectTx} txFinding={txFinding} paid={paid} onUnlock={startCheckout} />
+              <TabbedPanel findings={findings} active={active} onSel={togSel} mob={false} tab={tab} setTab={onTabChange} activeEx={activeEx} setActiveEx={setActiveEx} activeTx={activeTx} setActiveTx={selectTx} txFinding={txFinding} paid={paid} onUnlock={startCheckout} assessAnswers={assessAnswers} onAssessComplete={(a)=>setAssessAnswers(a)} onGenerateReport={(f,a)=>generateReport(f)} />
             </>}
           </div>
         </div>
