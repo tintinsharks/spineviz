@@ -41,6 +41,7 @@ function txt(d,s,x,y,{sz=10,st="normal",c=P.tx,mw,lh,align}={}){
 
 function line(d,x1,y1,x2,y2,c=P.bd,w=0.3){d.setDrawColor(...c);d.setLineWidth(w);d.line(x1,y1,x2,y2);}
 function circle(d,x,y,r,fill,stroke){if(fill){d.setFillColor(...fill);d.circle(x,y,r,"F");}if(stroke){d.setDrawColor(...stroke);d.setLineWidth(0.3);d.circle(x,y,r,"S");}}
+function hexToRgb(hex){if(!hex||typeof hex!=="string")return null;const m=hex.match(/^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);if(!m)return null;return[parseInt(m[1],16),parseInt(m[2],16),parseInt(m[3],16)];}
 
 /* ═══════ HEADER / FOOTER ═══════ */
 function header(d){
@@ -387,7 +388,9 @@ const EXERCISES = {
 /* ═══════════════════════════════════════════════════════════════
    MAIN REPORT GENERATOR
    ═══════════════════════════════════════════════════════════════ */
-export function generateReport(findings) {
+export function generateReport(findings, joint) {
+  const j = joint || "knee";
+  const jLabel = j === "knee" ? "Knee" : j === "shoulder" ? "Shoulder" : j === "hip" ? "Hip" : "Joint";
   const d = new jsPDF({ unit:"mm", format:"letter" });
   W = d.internal.pageSize.getWidth();
   PW = W - ML - MR;
@@ -401,9 +404,8 @@ export function generateReport(findings) {
   // ═══════════════════════════════════════════
   y = 26;
 
-  // Title with accent
   box(d, ML, y, 3, 12, P.blue);
-  txt(d, "Your MRI Report", ML+7, y+4, {sz:26, st:"bold"});
+  txt(d, `Your ${jLabel} MRI`, ML+7, y+4, {sz:26, st:"bold"});
   txt(d, "Explained", ML+7, y+11, {sz:26, st:"bold"});
   y += 18;
   txt(d, "A guide to understanding your findings before you see your specialist", ML+7, y, {sz:11, c:P.txM});
@@ -462,7 +464,7 @@ export function generateReport(findings) {
   txt(d, "The specialists above contributed to the clinical framework. They have not personally reviewed your specific imaging.", ML, y, {sz:7.5, st:"italic", c:P.txL, mw:PW, lh:3});
 
   // ═══════════════════════════════════════════
-  // FINDINGS PAGES
+  // FINDINGS PAGES — DYNAMIC
   // ═══════════════════════════════════════════
   y = newPg(d);
 
@@ -471,72 +473,60 @@ export function generateReport(findings) {
   txt(d, "Plain language explanations with specialist perspectives", ML+7, y+9, {sz:9, c:P.txM});
   y += 16;
 
-  const FD = [
-    {id:"acl",str:"ACL (Anterior Cruciate Ligament)",path:"Complete Tear",sev:"severe",
-      what:"Your anterior cruciate ligament — the main stabilizing ligament in the center of your knee — is completely torn. The ACL prevents your shin bone from sliding forward relative to your thigh bone and provides rotational stability.",
-      feel:"A feeling of instability or \"giving way\" during pivoting, cutting, or sudden direction changes. Straight-line activities like walking and cycling are typically unaffected.",
-      lenses:[[P.blue,"Sports Medicine Ortho","Reconstruction vs. conservative management depends on your activity goals. For cutting/pivoting sports, reconstruction is generally recommended. For straight-line activities, structured PT may restore functional stability."],[P.purple,"Pain Medicine","The ACL itself is often not the primary pain generator after the acute phase. Ongoing pain may come from bone bruising, effusion, and altered biomechanics."],[P.green,"Physiatry / Rehab","Early rehabilitation (quad activation, ROM, swelling control) is universally recommended regardless of surgical decision. \"Prehab\" improves post-op outcomes."]]},
-    {id:"men",str:"Medial Meniscus",path:"Horizontal Tear — Posterior Horn",sev:"moderate",
-      what:"Your medial meniscus has a horizontal cleavage tear in its posterior horn — the C-shaped shock absorber on the inner side of your knee.",
-      feel:"Pain along the inner knee line with squats, twisting, or stairs. Possible catching or locking sensations.",
-      lenses:[[P.blue,"Sports Medicine Ortho","Horizontal tears are often degenerative and many respond to conservative management. The key question is whether the tear is stable or unstable."],[P.teal,"Physical Therapy","Targeted quad and hip strengthening reduces load through the medial compartment. Avoid deep squatting and pivoting until cleared."],[P.orange,"Trauma Ortho","Posterior horn location matters — options range from partial meniscectomy to repair. Repair is preferred when feasible for long-term joint protection."]]},
-    {id:"eff",str:"Joint Fluid",path:"Moderate Effusion",sev:"moderate",
-      what:"Moderate excess fluid in your knee joint — your body's inflammatory response to the ACL and meniscal injuries.",
-      feel:"Stiffness, tightness, difficulty fully bending or straightening. The knee may feel warm and swollen.",
-      lenses:[[P.green,"Physiatry / Rehab","Reducing effusion is priority #1 — swelling directly inhibits quad activation (arthrogenic muscle inhibition). RICE protocol and gentle ROM exercises are first-line."],[P.purple,"Pain Medicine","If effusion persists beyond 4–6 weeks, aspiration with or without corticosteroid injection may break the inflammatory cycle."]]},
-    {id:"cart",str:"Articular Cartilage (Medial)",path:"Grade 2 Chondromalacia",sev:"mild",
-      what:"The cartilage on the inner surface of your thigh bone shows softening and early irregularity — Grade 2 on the Outerbridge 4-point scale.",
-      feel:"Dull ache with prolonged sitting or weight-bearing. Mild grinding sensation possible.",
-      lenses:[[P.purple,"Pain Medicine","Grade 2 changes are found on a large proportion of knee MRIs in adults over 30, often incidentally. This finding may be unrelated to your current symptoms."],[P.teal,"Physical Therapy","Quad and gluteal strengthening reduces compressive load through the affected compartment. Cycling and swimming are well-tolerated."]]},
-    {id:"bone",str:"Bone (Lateral Femoral Condyle / Tibial Plateau)",path:"Bone Bruise",sev:"mild",
-      what:"Bone marrow bruising in a characteristic \"kissing contusion\" pattern — seen in over 80% of ACL injuries when these bone surfaces impact each other.",
-      feel:"Deep aching pain, most noticeable in the first few weeks. Improves gradually without specific treatment.",
-      lenses:[[P.orange,"Trauma Ortho","This pattern confirms the ACL injury mechanism. It does not require treatment and resolves within 2–3 months."],[P.purple,"Pain Medicine","If pain is disproportionate to expectations, your physician can discuss protective weight-bearing modifications."]]},
-  ];
-
-  FD.forEach((f,fi) => {
+  findings.forEach((f,fi) => {
     y = checkPg(d, y, 65);
-    const sc = SC[f.sev];
+    const sc = SC[f.sev] || P.txM;
 
     // Finding header bar
-    box(d, ML, y, PW, 8, SBG[f.sev], SBD[f.sev], 1.5);
-    txt(d, f.str, ML+4, y+5, {sz:12, st:"bold", c:P.tx});
-    txt(d, f.sev.toUpperCase(), W-MR-4, y+5, {sz:8, st:"bold", c:sc, align:"right"});
+    box(d, ML, y, PW, 8, SBG[f.sev] || P.bg, SBD[f.sev] || P.bd, 1.5);
+    txt(d, f.str || "Finding", ML+4, y+5, {sz:12, st:"bold", c:P.tx});
+    txt(d, (f.sev||"").toUpperCase(), W-MR-4, y+5, {sz:8, st:"bold", c:sc, align:"right"});
     y += 10;
 
     // Pathology
-    txt(d, f.path, ML, y, {sz:11, st:"bold", c:sc}); y += 5;
+    if(f.path) { txt(d, f.path, ML, y, {sz:11, st:"bold", c:sc}); y += 5; }
 
     // Description
-    y += txt(d, f.what, ML, y, {sz:9.5, c:P.tx, mw:PW, lh:4}) + 2;
+    if(f.desc) { y += txt(d, f.desc, ML, y, {sz:9.5, c:P.tx, mw:PW, lh:4}) + 2; }
 
     // What you may feel
-    y = checkPg(d, y, 16);
-    const feelLines = d.splitTextToSize(f.feel, PW-10);
-    const feelH = feelLines.length * 3.8 + 8;
-    box(d, ML, y, PW, feelH, P.bg, P.bd, 1.5);
-    txt(d, "What you may experience:", ML+4, y+4, {sz:8.5, st:"bold", c:P.tx});
-    d.setFontSize(8.5); d.setFont("helvetica","normal"); d.setTextColor(...P.txM);
-    d.text(feelLines, ML+4, y+8);
-    y += feelH + 3;
+    if(f.imp) {
+      y = checkPg(d, y, 16);
+      const feelLines = d.splitTextToSize(f.imp, PW-10);
+      const feelH = feelLines.length * 3.8 + 8;
+      box(d, ML, y, PW, feelH, P.bg, P.bd, 1.5);
+      txt(d, "What you may experience:", ML+4, y+4, {sz:8.5, st:"bold", c:P.tx});
+      d.setFontSize(8.5); d.setFont("helvetica","normal"); d.setTextColor(...P.txM);
+      d.text(feelLines, ML+4, y+8);
+      y += feelH + 3;
+    }
 
     // Specialist perspectives
-    y = checkPg(d, y, 8);
-    txt(d, "Specialist Perspectives", ML, y, {sz:10, st:"bold", c:P.tx}); y += 5;
+    if(f.lenses && f.lenses.length > 0) {
+      y = checkPg(d, y, 8);
+      txt(d, "Specialist Perspectives", ML, y, {sz:10, st:"bold", c:P.tx}); y += 5;
 
-    f.lenses.forEach(([color, label, text]) => {
-      y = checkPg(d, y, 14);
-      circle(d, ML+2, y+1, 1.2, color);
-      txt(d, label+":", ML+5, y+2, {sz:8.5, st:"bold", c:color});
-      y += 4;
-      y += txt(d, text, ML+5, y, {sz:8.5, c:P.txM, mw:PW-8, lh:3.6}) + 2;
-    });
+      f.lenses.forEach(lens => {
+        y = checkPg(d, y, 14);
+        const lColor = hexToRgb(lens.color) || P.blue;
+        circle(d, ML+2, y+1, 1.2, lColor);
+        txt(d, (lens.spec||"Specialist")+":", ML+5, y+2, {sz:8.5, st:"bold", c:lColor});
+        y += 4;
+        y += txt(d, lens.text, ML+5, y, {sz:8.5, c:P.txM, mw:PW-8, lh:3.6}) + 2;
+      });
+    }
 
-    if (fi < FD.length-1) { y += 3; line(d, ML, y, W-MR, y); y += 5; }
+    // Context
+    if(f.ctx) {
+      y = checkPg(d, y, 8);
+      y += txt(d, f.ctx, ML, y, {sz:8.5, st:"italic", c:P.txL, mw:PW, lh:3.5}) + 2;
+    }
+
+    if (fi < findings.length-1) { y += 3; line(d, ML, y, W-MR, y); y += 5; }
   });
 
   // ═══════════════════════════════════════════
-  // QUESTIONS PAGE
+  // QUESTIONS PAGE — DYNAMIC
   // ═══════════════════════════════════════════
   y = newPg(d);
   box(d, ML, y, 3, 10, P.blue);
@@ -546,20 +536,27 @@ export function generateReport(findings) {
   txt(d, "Check the ones that matter to you. Bring this page to your visit.", ML+7, y, {sz:10, c:P.txM});
   y += 10;
 
-  const QS = [
-    ["About Your ACL", P.blue, ["Based on my age and activity level, would you recommend reconstruction or a trial of PT?","If I pursue PT first, what signs would indicate surgery is needed?","What graft type would you recommend, and why?","What's the realistic timeline for returning to [my activity]?","Are there factors that make my case more or less complex than typical?"]],
-    ["About Your Meniscus", P.orange, ["Is my meniscal tear contributing to symptoms or could it be managed conservatively?","If you operate on the ACL, will you also address the meniscus?","How does meniscus repair change the rehab timeline?"]],
-    ["About Pain Management", P.purple, ["What should I expect for pain levels over the next few weeks?","Are there injections that might help while I decide on treatment?","Is my cartilage finding a pain generator, or incidental?"]],
-    ["About Rehabilitation", P.green, ["Can you refer me to a PT experienced with ACL injuries?","Should I start prehab exercises now?","What activities should I avoid right now?"]],
-    ["Logistics", P.txM, ["If surgery is recommended, what's the typical wait time?","What do the first few days post-surgery look like?","How much time off work should I plan for?"]],
-  ];
+  // Build question groups from findings
+  const qGroups = [];
+  findings.forEach(f => {
+    if (f.questions && f.questions.length > 0) {
+      qGroups.push([`About Your ${f.str}`, SC[f.sev] || P.blue, f.questions.slice(0, 5)]);
+    }
+  });
+  // Always add general logistics
+  qGroups.push(["General Questions", P.txM, [
+    "What is the most important thing I should focus on right now?",
+    "Should I start physical therapy before any other decisions?",
+    "Are there activities I should avoid?",
+    "What's the expected timeline for improvement?",
+    "When should I follow up, and what would change your recommendation?",
+  ]]);
 
-  QS.forEach(([sec, color, qs]) => {
+  qGroups.forEach(([sec, color, qs]) => {
     y = checkPg(d, y, 8 + qs.length*5.5);
     circle(d, ML+2, y+1, 1.5, color);
     txt(d, sec, ML+6, y+2, {sz:11, st:"bold", c:P.tx}); y += 6;
     qs.forEach(q => {
-      // Checkbox
       box(d, ML+4, y-1.5, 3, 3, null, P.bd);
       txt(d, q, ML+10, y+0.5, {sz:9, c:P.tx}); y += 5.5;
     });
@@ -567,34 +564,49 @@ export function generateReport(findings) {
   });
 
   // ═══════════════════════════════════════════
-  // TREATMENT LANDSCAPE
+  // TREATMENT LANDSCAPE — DYNAMIC
   // ═══════════════════════════════════════════
   y = newPg(d);
   y = sectionTitle(d, y, "Treatment Landscape", "Overview of pathways — not a recommendation");
   y += 2;
   y += txt(d, "The right path depends on factors only your physician can assess: examination findings, functional demands, health, and goals.", ML, y, {sz:9, c:P.txM, mw:PW, lh:3.6}) + 4;
 
-  const TX = [
-    ["Conservative Management (PT Only)", P.green, [["What it involves","Structured PT, 3–6 months, focused on strength and stability without surgery."],["Who it may suit","Straight-line activity patients, older adults, or trial-of-PT-first approach."],["Key point","Trying PT first does not burn bridges — surgery remains an option."]]],
-    ["ACL Reconstruction", P.blue, [["What it involves","Outpatient surgery replacing the ACL with a graft + 6–9 months structured rehab."],["Who it may suit","Active individuals wanting to return to cutting/pivoting sports."],["Key point","Multiple graft types exist. Your surgeon will recommend based on your situation."]]],
-    ["Reconstruction + Meniscus Repair", P.purple, [["What it involves","ACL reconstruction combined with meniscal suturing in one procedure."],["Who it may suit","Patients whose tear is in a repairable zone with adequate blood supply."],["Key point","Healing rate 80–90% when combined with ACL reconstruction."]]],
-    ["Interventional Options", P.orange, [["Corticosteroid injection","May reduce acute inflammation, facilitating earlier rehabilitation."],["PRP (Platelet-Rich Plasma)","Emerging evidence for cartilage and meniscal healing. Discuss with your physician."],["Genicular nerve block","May help persistent pain limiting rehabilitation participation."]]],
-  ];
+  // Collect unique treatments from all findings
+  const seenTx = new Set();
+  findings.forEach(f => {
+    if (!f.treatments) return;
+    f.treatments.forEach(tx => {
+      const key = tx.name;
+      if (seenTx.has(key)) return;
+      seenTx.add(key);
 
-  TX.forEach(([title, color, items]) => {
-    y = checkPg(d, y, 10 + items.length*9);
-    circle(d, ML+2, y+1.5, 1.5, color);
-    txt(d, title, ML+6, y+2.5, {sz:11, st:"bold", c:P.tx}); y += 7;
-    items.forEach(([label, desc]) => {
-      txt(d, label+":", ML+8, y, {sz:8.5, st:"bold", c:P.tx}); y += 3.5;
-      y += txt(d, desc, ML+8, y, {sz:8.5, c:P.txM, mw:PW-12, lh:3.5}) + 2;
+      y = checkPg(d, y, 22);
+      const txColor = hexToRgb(tx.color) || P.blue;
+      circle(d, ML+2, y+1.5, 1.5, txColor);
+      txt(d, tx.name, ML+6, y+2.5, {sz:11, st:"bold", c:P.tx}); y += 7;
+
+      if (tx.desc) { y += txt(d, tx.desc, ML+8, y, {sz:8.5, c:P.txM, mw:PW-12, lh:3.5}) + 2; }
+      if (tx.timeline) {
+        txt(d, "Timeline:", ML+8, y, {sz:8, st:"bold", c:P.tx});
+        y += txt(d, " "+tx.timeline, ML+22, y, {sz:8, c:P.txM, mw:PW-26, lh:3.5}) + 1;
+      }
+      if (tx.pros) {
+        txt(d, "Pros:", ML+8, y, {sz:8, st:"bold", c:P.green});
+        y += txt(d, " "+tx.pros, ML+18, y, {sz:8, c:P.txM, mw:PW-22, lh:3.5}) + 1;
+      }
+      if (tx.cons) {
+        txt(d, "Cons:", ML+8, y, {sz:8, st:"bold", c:P.sev});
+        y += txt(d, " "+tx.cons, ML+18, y, {sz:8, c:P.txM, mw:PW-22, lh:3.5}) + 1;
+      }
+      y += 3;
     });
-    y += 3;
   });
 
   // ═══════════════════════════════════════════
-  // EXERCISE PAGES — ILLUSTRATED
+  // EXERCISE PAGES — FROM FINDINGS EXERCISES
   // ═══════════════════════════════════════════
+  // Collect unique exercises from findings' treatments that mention PT
+  // Use the static EXERCISES data but filter to relevant
   Object.values(EXERCISES).forEach(phase => {
     y = newPg(d);
 
@@ -605,14 +617,12 @@ export function generateReport(findings) {
     txt(d, "Goal: "+phase.goal, ML+5, y+10.5, {sz:8, c:P.txM});
     y += 19;
 
-    // Important notice for Phase 1
     if (phase.color === P.blue) {
       box(d, ML, y, PW, 10, P.tealBg, P.teal, 1.5);
       txt(d, "Discuss all exercises with your PT before beginning. Do not start without clearance.", ML+4, y+4, {sz:8, st:"bold", c:P.teal, mw:PW-8});
       y += 14;
     }
 
-    // Exercise cards — 2 columns, up to 3 rows per page
     const cardW = (PW - 4) / 2;
     const cardH = 52;
     const gap = 4;
@@ -620,50 +630,65 @@ export function generateReport(findings) {
     phase.exercises.forEach((ex, i) => {
       const col = i % 2;
       const row = Math.floor(i / 2);
-
       if (col === 0 && row > 0 && i > 0) { y += cardH + gap; }
       if (col === 0) { y = checkPg(d, y, cardH + 4); }
-
       const cx = ML + col * (cardW + gap);
       const cy = y;
-
       exerciseCard(d, cx, cy, cardW, cardH, ex, phase.color);
     });
-
-    // Adjust y for last row
     y += cardH + 6;
   });
 
   // ═══════════════════════════════════════════
-  // TIMELINE
+  // TIMELINE — DYNAMIC
   // ═══════════════════════════════════════════
   y = checkPg(d, y, 70);
   if (y > 30) { y = newPg(d); }
   y = sectionTitle(d, y, "Recovery Timeline", "General guide — your timeline depends on treatment path and healing");
   y += 4;
 
-  const TL = [
-    ["Week 1–2","Swelling mgmt, ROM, quad activation","Post-surgical recovery, gentle ROM"],
-    ["Week 3–6","Progressive strengthening, balance","Weight-bearing, bike, quad strength"],
-    ["Month 2–3","Functional strengthening","Single-leg work, gait normalization"],
-    ["Month 4–6","Return to most activities","Running program, sport-specific"],
-    ["Month 6–9+","Full activity for most","Return-to-sport testing, gradual return"],
-  ];
-
-  box(d, ML, y, PW, 6, P.blueLt, P.bd);
-  txt(d, "Timeframe", ML+3, y+4, {sz:7.5, st:"bold", c:P.txL});
-  txt(d, "Conservative (PT)", ML+35, y+4, {sz:7.5, st:"bold", c:P.txL});
-  txt(d, "ACL Reconstruction", ML+105, y+4, {sz:7.5, st:"bold", c:P.txL});
-  y += 7;
-
-  TL.forEach(([time,cons,surg],i) => {
-    const bg = i%2===0 ? P.sf : P.bg;
-    box(d, ML, y, PW, 7, bg, P.bd);
-    txt(d, time, ML+3, y+4.5, {sz:8, st:"bold", c:P.tx});
-    txt(d, cons, ML+35, y+4.5, {sz:8, c:P.txM});
-    txt(d, surg, ML+105, y+4.5, {sz:8, c:P.txM});
-    y += 7;
+  // Collect timelines from findings
+  const tlEntries = [];
+  findings.forEach(f => {
+    if (f.timeline) tlEntries.push({ str: f.str, timeline: f.timeline });
   });
+
+  if (tlEntries.length > 0) {
+    box(d, ML, y, PW, 6, P.blueLt, P.bd);
+    txt(d, "Finding", ML+3, y+4, {sz:7.5, st:"bold", c:P.txL});
+    txt(d, "Expected Timeline", ML+60, y+4, {sz:7.5, st:"bold", c:P.txL});
+    y += 7;
+    tlEntries.forEach(({str, timeline}, i) => {
+      y = checkPg(d, y, 8);
+      const bg = i%2===0 ? P.sf : P.bg;
+      const lines = d.splitTextToSize(timeline, PW-65);
+      const rowH = Math.max(7, lines.length * 3.5 + 3);
+      box(d, ML, y, PW, rowH, bg, P.bd);
+      txt(d, str, ML+3, y+4.5, {sz:8, st:"bold", c:P.tx});
+      d.setFontSize(8); d.setFont("helvetica","normal"); d.setTextColor(...P.txM);
+      d.text(lines, ML+60, y+4.5);
+      y += rowH;
+    });
+  } else {
+    // Fallback generic timeline
+    const TL = [
+      ["Week 1–2","Swelling management, range of motion, muscle activation"],
+      ["Week 3–6","Progressive strengthening, balance restoration"],
+      ["Month 2–3","Functional strengthening, gait normalization"],
+      ["Month 4–6","Return to most activities, sport-specific training"],
+    ];
+    box(d, ML, y, PW, 6, P.blueLt, P.bd);
+    txt(d, "Timeframe", ML+3, y+4, {sz:7.5, st:"bold", c:P.txL});
+    txt(d, "Focus", ML+40, y+4, {sz:7.5, st:"bold", c:P.txL});
+    y += 7;
+    TL.forEach(([time,focus],i) => {
+      const bg = i%2===0 ? P.sf : P.bg;
+      box(d, ML, y, PW, 7, bg, P.bd);
+      txt(d, time, ML+3, y+4.5, {sz:8, st:"bold", c:P.tx});
+      txt(d, focus, ML+40, y+4.5, {sz:8, c:P.txM});
+      y += 7;
+    });
+  }
 
   // ═══════════════════════════════════════════
   // CLOSING
@@ -687,5 +712,5 @@ export function generateReport(findings) {
   txt(d, "Methodology: Generated using ACR standard terminology. Clinical perspectives reflect AAOS and APTA Guidelines. Exercise framework designed by the ClearScan PT Advisory Team. For educational purposes only.", ML, y, {sz:7.5, c:P.txL, mw:PW, lh:3});
 
   // Save
-  d.save("ClearScan_Knee_MRI_Report.pdf");
+  d.save(`ClearScan_${jLabel}_MRI_Report.pdf`);
 }

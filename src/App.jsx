@@ -474,6 +474,127 @@ function Trust(){return(
   </div>
 )}
 
+/* ═══════════════════ SPECIALIST FINDER ═══════════════════ */
+function SpecialistFinder({joint,mob}){
+  const[open,setOpen]=useState(false);
+  const[zip,setZip]=useState("");
+  const[searched,setSearched]=useState(false);
+
+  const jLabel=joint==="shoulder"?"Shoulder":"Knee";
+
+  const physicianSearches=[
+    {icon:"🦴",label:`Orthopedic ${jLabel} Surgeon`,query:`orthopedic ${jLabel.toLowerCase()} surgeon`},
+    {icon:"⚕️",label:"Sports Medicine Physician",query:"sports medicine doctor"},
+    {icon:"💊",label:"Pain Management Specialist",query:"pain management doctor"},
+  ];
+  const ptSearches=[
+    {icon:"🏋️",label:"Orthopedic Physical Therapist",query:"orthopedic physical therapist"},
+    {icon:"🤸",label:"Sports Rehab PT",query:"sports rehabilitation physical therapy"},
+  ];
+
+  const doSearch=()=>{if(zip.length>=5)setSearched(true)};
+  const mapsLink=(query)=>`https://www.google.com/maps/search/${encodeURIComponent(`${query} near ${zip}`)}`;
+
+  const ResultLink=({icon,label,query})=>(
+    <a href={mapsLink(query)} target="_blank" rel="noopener noreferrer" style={{
+      display:"flex",alignItems:"center",gap:8,padding:"8px 10px",
+      borderRadius:8,border:"1px solid rgba(0,0,0,0.05)",background:"#fff",
+      textDecoration:"none",marginBottom:5,transition:"background .15s",
+    }}
+    onMouseEnter={e=>e.currentTarget.style.background="rgba(0,113,227,0.03)"}
+    onMouseLeave={e=>e.currentTarget.style.background="#fff"}
+    >
+      <span style={{fontSize:14,flexShrink:0}}>{icon}</span>
+      <div style={{flex:1,minWidth:0}}>
+        <div style={{fontSize:11,fontWeight:600,color:"#1D1D1F",lineHeight:1.3}}>{label}</div>
+        <div style={{fontSize:9,color:"#AEAEB2",marginTop:1}}>Google Maps · sorted by reviews</div>
+      </div>
+      <span style={{fontSize:12,color:"#0071E3",flexShrink:0}}>→</span>
+    </a>
+  );
+
+  if(!open)return(
+    <button onClick={()=>setOpen(true)} style={{
+      position:"absolute",top:mob?8:14,left:mob?8:14,zIndex:15,
+      background:"rgba(255,255,255,0.92)",backdropFilter:"blur(12px)",
+      border:"1px solid rgba(0,0,0,0.08)",borderRadius:9,padding:"7px 12px",
+      cursor:"pointer",display:"flex",alignItems:"center",gap:6,
+      boxShadow:"0 2px 12px rgba(0,0,0,0.06)",animation:"fadeIn .3s",
+    }}>
+      <span style={{fontSize:14}}>🩺</span>
+      <span style={{fontSize:11,fontWeight:600,color:"#1D1D1F"}}>Find a Specialist</span>
+    </button>
+  );
+
+  const panelW=mob?290:540;
+
+  return(
+    <div style={{
+      position:"absolute",top:mob?8:14,left:mob?8:14,zIndex:20,
+      width:panelW,maxWidth:"calc(100% - 16px)",
+      background:"#fff",borderRadius:12,
+      boxShadow:"0 8px 32px rgba(0,0,0,0.12)",border:"1px solid rgba(0,0,0,0.06)",
+      animation:"fadeIn .25s",overflow:"hidden",
+    }}>
+      {/* Header */}
+      <div style={{padding:"12px 14px 10px",borderBottom:"1px solid rgba(0,0,0,0.06)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+        <div style={{display:"flex",alignItems:"center",gap:6}}>
+          <span style={{fontSize:16}}>🩺</span>
+          <span style={{fontSize:13,fontWeight:700,color:"#1D1D1F"}}>Find a Specialist</span>
+        </div>
+        <button onClick={()=>{setOpen(false);setSearched(false)}} style={{background:"none",border:"none",fontSize:16,color:"#AEAEB2",cursor:"pointer",padding:"2px 4px"}}>✕</button>
+      </div>
+
+      {/* Zip input */}
+      <div style={{padding:"10px 14px",borderBottom:searched?"1px solid rgba(0,0,0,0.06)":"none"}}>
+        <div style={{display:"flex",gap:6}}>
+          <input type="text" value={zip} onChange={e=>setZip(e.target.value.replace(/\D/g,"").slice(0,5))}
+            placeholder="Enter ZIP code" maxLength={5}
+            onKeyDown={e=>{if(e.key==="Enter")doSearch()}}
+            style={{flex:1,padding:"9px 10px",borderRadius:7,border:"1px solid rgba(0,0,0,0.1)",fontSize:13,outline:"none",letterSpacing:1,fontFamily:"monospace"}}
+          />
+          <button onClick={doSearch} disabled={zip.length<5} style={{
+            padding:"9px 16px",borderRadius:7,border:"none",fontSize:12,fontWeight:700,
+            background:zip.length>=5?"#0071E3":"#ECEAE6",color:zip.length>=5?"#fff":"#AEAEB2",
+            cursor:zip.length>=5?"pointer":"not-allowed",whiteSpace:"nowrap",
+          }}>Search</button>
+        </div>
+        {!searched&&<div style={{fontSize:10,color:"#AEAEB2",marginTop:6,lineHeight:1.4}}>Enter your ZIP code to find top-rated specialists within 10 miles, sorted by patient reviews.</div>}
+      </div>
+
+      {/* Split results */}
+      {searched&&(
+        <div style={{display:"flex",flexDirection:mob?"column":"row",maxHeight:mob?360:320,overflow:"auto"}}>
+          {/* LEFT — Physicians */}
+          <div style={{flex:1,padding:"10px 12px",borderRight:mob?"none":"1px solid rgba(0,0,0,0.06)",borderBottom:mob?"1px solid rgba(0,0,0,0.06)":"none",minWidth:0}}>
+            <div style={{display:"flex",alignItems:"center",gap:5,marginBottom:8}}>
+              <div style={{width:20,height:20,borderRadius:5,background:"rgba(0,113,227,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11}}>👨‍⚕️</div>
+              <span style={{fontSize:11,fontWeight:700,color:"#1D1D1F"}}>Physicians</span>
+            </div>
+            {physicianSearches.map((s,i)=><ResultLink key={i} {...s} />)}
+          </div>
+
+          {/* RIGHT — Physical Therapists */}
+          <div style={{flex:1,padding:"10px 12px",minWidth:0}}>
+            <div style={{display:"flex",alignItems:"center",gap:5,marginBottom:8}}>
+              <div style={{width:20,height:20,borderRadius:5,background:"rgba(26,127,122,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11}}>🏋️</div>
+              <span style={{fontSize:11,fontWeight:700,color:"#1D1D1F"}}>Physical Therapists</span>
+            </div>
+            {ptSearches.map((s,i)=><ResultLink key={i} {...s} />)}
+          </div>
+        </div>
+      )}
+
+      {/* Footer */}
+      {searched&&(
+        <div style={{padding:"8px 14px",borderTop:"1px solid rgba(0,0,0,0.04)",background:"#FAFAF8"}}>
+          <div style={{fontSize:9,color:"#AEAEB2",lineHeight:1.4}}>Results from Google Maps, sorted by relevance and reviews. ClearScan does not endorse any specific provider.</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ═══════════════════ TAB BAR ═══════════════════ */
 function TabBar({tab,setTab,mob,paid}){
   const tabs=[["findings","Findings"],["treatments","Treatments"],["report","Report"],["exercises","Exercises"]];
@@ -588,9 +709,11 @@ function getIntakeQuestions(findings, joint){
   return qs;
 }
 
-function ReportTab({findings,onGenerateReport,onComplete,joint}){
+function ReportTab({findings,onGenerateReport,onComplete,joint,onGoToExercises,paid}){
   const[step,setStep]=useState(0);
   const[answers,setAnswers]=useState({});
+  const[email,setEmail]=useState("");
+  const[emailSubmitted,setEmailSubmitted]=useState(false);
   const questions=getIntakeQuestions(findings||[],joint);
   const total=questions.length;
 
@@ -647,11 +770,56 @@ function ReportTab({findings,onGenerateReport,onComplete,joint}){
         Your personalized report is ready with recommendations based on your {findings?.length||0} findings, activity goals, and medical history.
       </div>
       <ClinicalBadges />
-      <button onClick={()=>onGenerateReport?.(findings,answers)} style={{
-        background:"#0071E3",border:"none",color:"#fff",padding:"11px 28px",borderRadius:10,
-        fontSize:14,fontWeight:600,cursor:"pointer",boxShadow:"0 4px 12px rgba(0,113,227,0.2)",marginBottom:10,
-      }}>Download PDF Report</button>
-      <div style={{fontSize:10,color:"#AEAEB2",marginBottom:14}}>Generated instantly in your browser</div>
+
+      {/* Exercise program CTA */}
+      {paid&&<button onClick={()=>onGoToExercises?.()} style={{
+        width:"100%",maxWidth:300,margin:"0 auto 12px",padding:"12px 16px",borderRadius:10,
+        background:"linear-gradient(135deg,#2D8B4E 0%,#1A7F7A 100%)",border:"none",color:"#fff",
+        cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:8,
+        boxShadow:"0 4px 12px rgba(45,139,78,0.2)",
+      }}>
+        <span style={{fontSize:18}}>🏋️</span>
+        <div style={{textAlign:"left"}}>
+          <div style={{fontSize:13,fontWeight:700}}>View Your Exercise Program</div>
+          <div style={{fontSize:10,opacity:.85}}>Customized to your assessment</div>
+        </div>
+        <span style={{fontSize:14,marginLeft:"auto"}}>→</span>
+      </button>}
+
+      {/* Email capture + PDF download */}
+      <div style={{maxWidth:300,margin:"0 auto 12px",padding:"14px 16px",background:"#FAFAF8",borderRadius:10,border:"1px solid rgba(0,0,0,0.06)"}}>
+        {!emailSubmitted?(
+          <>
+            <div style={{fontSize:11,fontWeight:700,color:"#1D1D1F",marginBottom:2}}>Download Your PDF Report</div>
+            <div style={{fontSize:10,color:"#AEAEB2",marginBottom:10,lineHeight:1.4}}>Enter your email to receive your report. We'll also send updates if new research affects your findings.</div>
+            <div style={{display:"flex",gap:6}}>
+              <input type="email" value={email} onChange={e=>setEmail(e.target.value)}
+                placeholder="your@email.com"
+                style={{flex:1,padding:"9px 10px",borderRadius:7,border:"1px solid rgba(0,0,0,0.1)",fontSize:12,outline:"none",background:"#fff"}}
+                onKeyDown={e=>{if(e.key==="Enter"&&email.includes("@")){setEmailSubmitted(true)}}}
+              />
+              <button onClick={()=>{if(email.includes("@"))setEmailSubmitted(true)}} disabled={!email.includes("@")} style={{
+                padding:"9px 14px",borderRadius:7,border:"none",fontSize:11,fontWeight:700,cursor:email.includes("@")?"pointer":"not-allowed",
+                background:email.includes("@")?"#0071E3":"#ECEAE6",color:email.includes("@")?"#fff":"#AEAEB2",
+              }}>→</button>
+            </div>
+            <button onClick={()=>setEmailSubmitted(true)} style={{
+              marginTop:8,background:"none",border:"none",color:"#AEAEB2",fontSize:9,cursor:"pointer",textDecoration:"underline",
+            }}>Skip — download without email</button>
+          </>
+        ):(
+          <>
+            {email.includes("@")&&<div style={{fontSize:10,color:"#2D8B4E",fontWeight:600,marginBottom:8}}>✓ We'll send updates to {email}</div>}
+            <button onClick={()=>onGenerateReport?.(findings,answers,joint)} style={{
+              width:"100%",padding:"11px 20px",borderRadius:8,border:"none",
+              background:"#0071E3",color:"#fff",fontSize:13,fontWeight:600,cursor:"pointer",
+              boxShadow:"0 4px 12px rgba(0,113,227,0.2)",
+            }}>Download PDF Report</button>
+            <div style={{fontSize:9,color:"#AEAEB2",marginTop:6}}>Generated instantly in your browser</div>
+          </>
+        )}
+      </div>
+
       {/* Answer summary */}
       <div style={{textAlign:"left",padding:"10px 12px",background:"#FAFAF8",borderRadius:8,border:"1px solid rgba(0,0,0,0.06)"}}>
         <div style={{fontSize:9,fontWeight:700,textTransform:"uppercase",letterSpacing:1.5,color:"#AEAEB2",marginBottom:8}}>Your Responses</div>
@@ -670,7 +838,7 @@ function ReportTab({findings,onGenerateReport,onComplete,joint}){
           );
         })}
       </div>
-      <button onClick={()=>{setStep(0);setAnswers({})}} style={{marginTop:10,background:"none",border:"1px solid rgba(0,0,0,0.08)",color:"#AEAEB2",padding:"6px 14px",borderRadius:6,fontSize:10,cursor:"pointer"}}>Retake Assessment</button>
+      <button onClick={()=>{setStep(0);setAnswers({});setEmailSubmitted(false)}} style={{marginTop:10,background:"none",border:"1px solid rgba(0,0,0,0.08)",color:"#AEAEB2",padding:"6px 14px",borderRadius:6,fontSize:10,cursor:"pointer"}}>Retake Assessment</button>
       <div style={{marginTop:12,textAlign:"left"}}><ClinicalBadge /></div>
     </div>
   );
@@ -985,7 +1153,7 @@ function TabbedPanel({findings,active,onSel,mob,tab,setTab,activeEx,setActiveEx,
       {tab==="findings"&&<Summary findings={findings} active={active} onSel={onSel} mob={mob} />}
       {tab==="exercises"&&<PTLibrary findings={findings} onSelectFinding={onSel} activeEx={activeEx} setActiveEx={setActiveEx} assessAnswers={assessAnswers} paid={paid} onUnlock={onUnlock} onGoToReport={()=>setTab("report")} joint={joint} />}
       {tab==="treatments"&&<TreatmentsTab findings={findings} activeTx={activeTx} setActiveTx={(tx,f)=>setActiveTx(tx,f)} txFinding={txFinding} />}
-      {tab==="report"&&<ReportTab findings={findings} onGenerateReport={onGenerateReport} onComplete={onAssessComplete} joint={joint} />}
+      {tab==="report"&&<ReportTab findings={findings} onGenerateReport={onGenerateReport} onComplete={onAssessComplete} joint={joint} onGoToExercises={()=>setTab("exercises")} paid={paid} />}
     </>
   );
 }
@@ -1668,7 +1836,7 @@ export default function App(){
   const inputUI=(pad)=>(
     <>
       <h2 style={{fontSize:mob?20:24,fontWeight:700,color:T.tx,margin:"0 0 6px",fontFamily:"Georgia,serif"}}>Understand Your MRI</h2>
-      <p style={{fontSize:mob?13:14,color:T.txL,margin:"0 0 18px",lineHeight:1.55}}>Paste the Impression section from your MRI report. We support <strong>knee</strong>, <strong>shoulder</strong>, and <strong>hip</strong> — we'll auto-detect the joint and visualize each finding in 3D.</p>
+      <p style={{fontSize:mob?13:14,color:T.txL,margin:"0 0 18px",lineHeight:1.55}}>Paste the Impression section from your MRI report. We support <strong>knee</strong> and <strong>shoulder</strong> — we'll auto-detect the joint and visualize each finding in 3D.</p>
       {err&&<div style={{padding:"10px 12px",background:"rgba(191,16,41,0.06)",border:"1px solid rgba(191,16,41,0.15)",borderRadius:8,marginBottom:12,fontSize:12,lineHeight:1.5,color:"#BF1029"}}>{err}</div>}
       <textarea value={text} onChange={e=>{setText(e.target.value);setErr(null)}} placeholder="Paste your MRI impression here..." style={{flex:1,minHeight:mob?120:160,background:T.bgD,border:`1px solid ${err?"rgba(191,16,41,0.3)":T.bd}`,borderRadius:12,padding:14,color:T.tx,fontSize:13,fontFamily:"'SF Mono',Consolas,monospace",lineHeight:1.7,resize:"none"}} />
       <div style={{display:"flex",gap:8,marginTop:12}}>
@@ -1743,6 +1911,7 @@ export default function App(){
           {/* 3D Viewport */}
           <div style={{height:`${mobSplit}%`,position:"relative",flexShrink:0,overflow:"hidden"}}>
             <JointCanvas findings={findings} active={active} phase={phase} showH={showH} joint={joint} />
+            {phase==="summary"&&<SpecialistFinder joint={joint} mob={true} />}
             {phase==="revealing"&&<NCard f={active} i={ri} n={findings?.length||0} onN={()=>setRi(i=>i+1)} onP={()=>setRi(i=>Math.max(0,i-1))} mob={true} />}
             {phase==="analyzing"&&<div style={{position:"absolute",inset:0,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",background:"rgba(245,244,241,.6)"}}><div style={{width:28,height:28,border:`3px solid ${T.bgD}`,borderTopColor:T.ac,borderRadius:"50%",animation:"spin .8s linear infinite"}} /><span style={{fontSize:13,color:T.txM,marginTop:10}}>Analyzing...</span></div>}
           </div>
@@ -1778,7 +1947,7 @@ export default function App(){
                : tab==="findings" ? <Summary findings={findings} active={active} onSel={togSel} mob={true} />
                : tab==="exercises" ? <PTLibrary findings={findings} onSelectFinding={togSel} activeEx={activeEx} setActiveEx={setActiveEx} assessAnswers={assessAnswers} paid={paid} onUnlock={startCheckout} onGoToReport={()=>onTabChange("report")} joint={joint} />
                : tab==="treatments" ? <TreatmentsTab findings={findings} activeTx={activeTx} setActiveTx={selectTx} txFinding={txFinding} />
-               : tab==="report" ? <ReportTab findings={findings} onGenerateReport={(f,a)=>generateReport(f)} onComplete={(a)=>setAssessAnswers(a)} joint={joint} />
+               : tab==="report" ? <ReportTab findings={findings} onGenerateReport={(f,a,j)=>generateReport(f,j)} onComplete={(a)=>setAssessAnswers(a)} joint={joint} onGoToExercises={()=>onTabChange("exercises")} paid={paid} />
                : null}
             </div>
           </div>}
@@ -1812,7 +1981,7 @@ export default function App(){
                   padding:"4px 10px",borderRadius:5,fontSize:9,fontWeight:600,cursor:"pointer",
                 }}>Lock</button>
               </div>}
-              <TabbedPanel findings={findings} active={active} onSel={togSel} mob={false} tab={tab} setTab={onTabChange} activeEx={activeEx} setActiveEx={setActiveEx} activeTx={activeTx} setActiveTx={selectTx} txFinding={txFinding} paid={paid} onUnlock={startCheckout} assessAnswers={assessAnswers} onAssessComplete={(a)=>setAssessAnswers(a)} onGenerateReport={(f,a)=>generateReport(f)} joint={joint} />
+              <TabbedPanel findings={findings} active={active} onSel={togSel} mob={false} tab={tab} setTab={onTabChange} activeEx={activeEx} setActiveEx={setActiveEx} activeTx={activeTx} setActiveTx={selectTx} txFinding={txFinding} paid={paid} onUnlock={startCheckout} assessAnswers={assessAnswers} onAssessComplete={(a)=>setAssessAnswers(a)} onGenerateReport={(f,a,j)=>generateReport(f,j)} joint={joint} />
             </>}
           </div>
         </div>
@@ -1823,7 +1992,8 @@ export default function App(){
             <div style={{width:"100%",height:"100%",position:"relative",background:`radial-gradient(ellipse at 50% 40%,#faf9f7 0%,${T.bg} 100%)`}}>
               <JointCanvas findings={findings} active={active} phase={phase} showH={showH} joint={joint} />
               {phase==="revealing"&&<NCard f={active} i={ri} n={findings?.length||0} onN={()=>setRi(i=>i+1)} onP={()=>setRi(i=>Math.max(0,i-1))} mob={false} />}
-              {active&&phase==="summary"&&!detailFinding&&!activeEx&&!activeTx&&<div style={{position:"absolute",top:14,left:14,background:T.sf,padding:"7px 14px",borderRadius:9,boxShadow:"0 2px 12px rgba(0,0,0,.05)",fontSize:13,fontWeight:600,color:T.tx,zIndex:10,animation:"fadeIn .3s"}}>{active.str} <span style={{color:T[active.sev].c,fontSize:11,marginLeft:6}}>● {active.path}</span></div>}
+              {phase==="summary"&&<SpecialistFinder joint={joint} mob={false} />}
+              {active&&phase==="summary"&&!detailFinding&&!activeEx&&!activeTx&&<div style={{position:"absolute",top:14,left:180,background:T.sf,padding:"7px 14px",borderRadius:9,boxShadow:"0 2px 12px rgba(0,0,0,.05)",fontSize:13,fontWeight:600,color:T.tx,zIndex:10,animation:"fadeIn .3s"}}>{active.str} <span style={{color:T[active.sev].c,fontSize:11,marginLeft:6}}>● {active.path}</span></div>}
               <div style={{position:"absolute",top:14,right:14,fontSize:10,color:T.txF,pointerEvents:"none"}}>Drag to rotate · Scroll to zoom</div>
               {phase==="input"&&<div style={{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",textAlign:"center",pointerEvents:"none"}}><div style={{fontSize:48,marginBottom:14,opacity:.15}}>🦴</div><div style={{fontSize:15,color:T.txL,fontWeight:500}}>Your 3D joint model</div><div style={{fontSize:12,color:T.txF,marginTop:6}}>Paste an MRI report to see findings visualized</div></div>}
               {phase==="summary"&&!detailFinding&&!activeEx&&!activeTx&&<div style={{position:"absolute",bottom:20,left:20,right:20,maxWidth:440,background:paid?"#fff":"linear-gradient(135deg,#0071E3 0%,#0059B3 100%)",borderRadius:11,padding:"14px 18px",boxShadow:"0 4px 20px rgba(0,0,0,.08)",border:paid?`1px solid ${T.bd}`:"none",display:"flex",alignItems:"center",justifyContent:"space-between",zIndex:10,animation:"slideUp .5s cubic-bezier(.16,1,.3,1)"}}><div><div style={{fontSize:13,fontWeight:600,color:paid?T.tx:"#fff"}}>{paid?"Your full report is ready":"Unlock detailed analysis"}</div><div style={{fontSize:11,color:paid?T.txL:"rgba(255,255,255,0.8)",marginTop:2}}>{paid?"Specialist perspectives, exercises, questions":"Specialist insights, exercise guides, treatment deep-dives"}</div></div><button onClick={paid?()=>generateReport(findings):startCheckout} style={{background:paid?T.ac:"#fff",border:"none",color:paid?"#fff":"#0071E3",padding:"9px 18px",borderRadius:8,fontSize:12,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,marginLeft:14,boxShadow:paid?"none":"0 2px 8px rgba(0,0,0,0.15)"}}>{paid?"Download PDF":`${PRICE} — Unlock Pro`}</button></div>}
