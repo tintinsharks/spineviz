@@ -811,6 +811,254 @@ function ReportPreview({findings,joint,paid,onUnlock,onDismiss,onDownload}){
   );
 }
 
+/* ═══════════════════ SEO LANDING PAGE ═══════════════════ */
+function LandingPage({onStart,onSelectCondition,mob}){
+  const[selJoint,setSelJoint]=useState(null);
+
+  const CONDITIONS={
+    knee:{
+      label:"Knee",icon:"🦵",color:"#0071E3",
+      conditions:[
+        {name:"ACL Tear",desc:"Anterior cruciate ligament tear — instability, swelling after pivoting injury",sev:"severe",common:true,
+          sample:"1. Complete tear of the anterior cruciate ligament with surrounding edema.\n2. Small joint effusion.\n3. Bone bruising of the lateral femoral condyle and posterior tibial plateau."},
+        {name:"Meniscus Tear",desc:"Torn cartilage cushion — catching, locking, pain along joint line",sev:"moderate",common:true,
+          sample:"1. Complex tear of the posterior horn of the medial meniscus extending to the inferior articular surface.\n2. Small joint effusion.\n3. Mild chondral thinning of the medial compartment."},
+        {name:"MCL Sprain",desc:"Medial collateral ligament injury — inner knee pain after impact or twist",sev:"moderate",
+          sample:"1. Grade II sprain of the medial collateral ligament with surrounding edema and partial fiber disruption.\n2. Mild joint effusion.\n3. Intact cruciate ligaments."},
+        {name:"Cartilage Damage",desc:"Articular cartilage thinning or defect — deep aching, stiffness",sev:"moderate",common:true,
+          sample:"1. Full-thickness cartilage defect of the medial femoral condyle measuring approximately 1.5 cm.\n2. Moderate joint effusion.\n3. Early osteoarthritic changes with marginal osteophytes."},
+        {name:"Baker's Cyst",desc:"Fluid-filled cyst behind knee — tightness, swelling in back of knee",sev:"mild",
+          sample:"1. Baker's cyst measuring 3.2 x 1.8 cm in the popliteal fossa.\n2. Small joint effusion.\n3. Mild degenerative changes of the medial compartment."},
+        {name:"PCL Injury",desc:"Posterior cruciate ligament — less common, dashboard-type injuries",sev:"severe",
+          sample:"1. Partial tear of the posterior cruciate ligament with intrasubstance signal abnormality.\n2. Moderate joint effusion.\n3. Bone contusion of the anterior tibial plateau."},
+        {name:"Patellar Tendinitis",desc:"Jumper's knee — pain below kneecap with activity",sev:"mild",
+          sample:"1. Thickening and increased signal within the proximal patellar tendon consistent with tendinopathy.\n2. No full-thickness tear identified.\n3. Trace joint effusion."},
+        {name:"Bone Bruise",desc:"Bone marrow edema from impact — deep ache, weight-bearing pain",sev:"moderate",
+          sample:"1. Bone marrow edema pattern involving the lateral femoral condyle and posterolateral tibial plateau.\n2. Intact anterior and posterior cruciate ligaments.\n3. Small joint effusion."},
+        {name:"Joint Effusion",desc:"Excess fluid in the knee — swelling, stiffness, limited range",sev:"mild",
+          sample:"1. Moderate joint effusion with suprapatellar extension.\n2. No internal derangement identified.\n3. Mild synovial thickening suggesting inflammatory etiology."},
+        {name:"LCL Injury",desc:"Lateral collateral ligament — outer knee instability",sev:"moderate",
+          sample:"1. Grade II sprain of the lateral collateral ligament with partial fiber disruption.\n2. Intact cruciate ligaments.\n3. Small joint effusion."},
+      ]
+    },
+    shoulder:{
+      label:"Shoulder",icon:"💪",color:"#6B3FA0",
+      conditions:[
+        {name:"Rotator Cuff Tear",desc:"Supraspinatus tear — pain reaching overhead, weakness lifting arm",sev:"severe",common:true,
+          sample:"1. Full-thickness tear of the supraspinatus tendon with 1.5 cm retraction.\n2. Moderate subacromial/subdeltoid bursitis.\n3. Superior labral fraying."},
+        {name:"SLAP Tear",desc:"Superior labrum tear — deep shoulder pain, clicking with overhead motion",sev:"moderate",common:true,
+          sample:"1. Superior labral tear extending from anterior to posterior (SLAP type II).\n2. Paralabral cyst extending posteriorly.\n3. Intact rotator cuff tendons."},
+        {name:"Labral Tear",desc:"Cartilage ring damage — instability, catching, popping",sev:"moderate",common:true,
+          sample:"1. Anterior-inferior labral tear with associated periosteal stripping (Bankart lesion).\n2. Small glenohumeral effusion.\n3. Hill-Sachs deformity of the posterolateral humeral head."},
+        {name:"Biceps Tendinitis",desc:"Long head biceps inflammation — front shoulder pain, clicking",sev:"mild",
+          sample:"1. Tendinosis of the long head of the biceps tendon with fluid in the bicipital groove.\n2. Intact rotator cuff.\n3. Mild subacromial bursitis."},
+        {name:"Rotator Cuff Tendinosis",desc:"Tendon degeneration without tear — gradual onset, night pain",sev:"moderate",
+          sample:"1. Intrasubstance signal abnormality of the supraspinatus tendon consistent with tendinosis without discrete tear.\n2. Type II acromion with mild subacromial bursitis.\n3. Mild AC joint osteoarthritis."},
+        {name:"AC Joint Arthritis",desc:"Acromioclavicular joint degeneration — top-of-shoulder pain",sev:"mild",
+          sample:"1. Moderate osteoarthritis of the acromioclavicular joint with inferior osteophyte formation.\n2. Mild subacromial narrowing.\n3. Intact rotator cuff tendons."},
+        {name:"Shoulder Impingement",desc:"Subacromial narrowing — pain reaching overhead or behind back",sev:"moderate",
+          sample:"1. Type III hooked acromion with significant subacromial narrowing.\n2. Moderate subacromial/subdeltoid bursitis.\n3. Intrasubstance signal in the supraspinatus tendon suggesting early tendinosis."},
+        {name:"Frozen Shoulder",desc:"Adhesive capsulitis — progressive stiffness and pain",sev:"moderate",
+          sample:"1. Thickening and enhancement of the inferior glenohumeral ligament and axillary recess consistent with adhesive capsulitis.\n2. Reduced joint volume.\n3. Intact rotator cuff."},
+      ]
+    }
+  };
+
+  const joints=Object.keys(CONDITIONS);
+
+  return(
+    <div style={{minHeight:"100vh",background:"#FAFAF8",overflow:"auto"}}>
+
+      {/* Header */}
+      <div style={{position:"sticky",top:0,zIndex:20,background:"rgba(250,249,247,0.92)",backdropFilter:"blur(12px)",borderBottom:"1px solid rgba(0,0,0,0.06)"}}>
+        <div style={{maxWidth:900,margin:"0 auto",padding:mob?"10px 20px":"12px 40px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+          <div style={{display:"flex",alignItems:"center",gap:mob?8:10}}>
+            <div style={{width:mob?26:30,height:mob?26:30,borderRadius:mob?7:9,background:"linear-gradient(135deg,#0071E3,#5BA3F5)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:mob?13:15,fontWeight:800,color:"#fff"}}>C</div>
+            <span style={{fontSize:mob?15:17,fontWeight:700,color:"#1D1D1F"}}>ClearScan</span>
+            {!mob&&<span style={{fontSize:11,color:"#AEAEB2",fontWeight:500,marginLeft:4}}>MRI Interpreter</span>}
+          </div>
+          <button onClick={()=>onStart()} style={{
+            padding:mob?"7px 14px":"8px 18px",borderRadius:8,border:"none",
+            background:"#0071E3",color:"#fff",fontSize:12,fontWeight:600,cursor:"pointer",
+          }}>Upload MRI →</button>
+        </div>
+      </div>
+
+      {/* Hero Section */}
+      <div style={{maxWidth:900,margin:"0 auto",padding:mob?"40px 20px 30px":"60px 40px 40px",textAlign:"center"}}>
+        <div style={{display:"inline-flex",alignItems:"center",gap:8,background:"rgba(0,113,227,0.06)",border:"1px solid rgba(0,113,227,0.12)",borderRadius:20,padding:"6px 14px",marginBottom:mob?16:24}}>
+          <span style={{fontSize:12,fontWeight:600,color:"#0071E3"}}>Free MRI interpretation in seconds</span>
+        </div>
+
+        <h1 style={{fontSize:mob?28:44,fontWeight:800,color:"#1D1D1F",margin:"0 0 12px",lineHeight:1.15,fontFamily:"Georgia,serif",letterSpacing:"-0.02em"}}>
+          Understand Your MRI Results.<br/><span style={{color:"#0071E3"}}>Prepare for Your Appointment.</span>
+        </h1>
+
+        <p style={{fontSize:mob?15:18,color:"#6E6E73",margin:"0 auto 28px",maxWidth:560,lineHeight:1.6}}>
+          Paste your MRI report and instantly get plain-language explanations, questions for your doctor, treatment comparisons, and a personalized exercise program.
+        </p>
+
+        <div style={{display:"flex",gap:10,justifyContent:"center",flexWrap:"wrap"}}>
+          <button onClick={()=>onStart()} style={{
+            padding:"14px 28px",borderRadius:12,border:"none",
+            background:"linear-gradient(135deg,#0071E3 0%,#0059B3 100%)",
+            color:"#fff",fontSize:16,fontWeight:700,cursor:"pointer",
+            boxShadow:"0 4px 20px rgba(0,113,227,0.3)",
+          }}>I Have My MRI Report →</button>
+          <a href="#conditions" style={{
+            padding:"14px 28px",borderRadius:12,
+            border:"1px solid rgba(0,0,0,0.1)",background:"#fff",
+            color:"#1D1D1F",fontSize:16,fontWeight:600,cursor:"pointer",textDecoration:"none",
+            display:"inline-block",
+          }}>Browse by Diagnosis ↓</a>
+        </div>
+
+        {/* Trust badges */}
+        <div style={{display:"flex",gap:mob?12:24,justifyContent:"center",marginTop:28,flexWrap:"wrap"}}>
+          {[["🔒","No data stored"],["⚡","Instant results"],["🧠","No AI hallucination"],["📋","PDF report"]].map(([ic,tx],i)=>(
+            <div key={i} style={{display:"flex",alignItems:"center",gap:5}}>
+              <span style={{fontSize:14}}>{ic}</span>
+              <span style={{fontSize:11,color:"#AEAEB2",fontWeight:600}}>{tx}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* How It Works */}
+      <div style={{maxWidth:800,margin:"0 auto",padding:mob?"0 20px 40px":"0 40px 50px"}}>
+        <h2 style={{fontSize:mob?18:22,fontWeight:700,color:"#1D1D1F",textAlign:"center",marginBottom:24,fontFamily:"Georgia,serif"}}>How It Works</h2>
+        <div style={{display:"grid",gridTemplateColumns:mob?"1fr":"1fr 1fr 1fr",gap:16}}>
+          {[
+            {step:"1",title:"Paste Your Report",desc:"Copy the Impression section from your MRI report and paste it in. We auto-detect knee or shoulder."},
+            {step:"2",title:"See What It Means",desc:"Every finding explained in plain language with severity ratings, 3D visualization, and what you might feel."},
+            {step:"3",title:"Prepare for Your Visit",desc:"Get personalized doctor questions, treatment comparisons, exercises, and a downloadable PDF report."},
+          ].map((s,i)=>(
+            <div key={i} style={{padding:20,borderRadius:12,background:"#fff",border:"1px solid rgba(0,0,0,0.06)"}}>
+              <div style={{width:32,height:32,borderRadius:"50%",background:"rgba(0,113,227,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,fontWeight:800,color:"#0071E3",marginBottom:10}}>{s.step}</div>
+              <div style={{fontSize:14,fontWeight:700,color:"#1D1D1F",marginBottom:4}}>{s.title}</div>
+              <div style={{fontSize:12,color:"#6E6E73",lineHeight:1.5}}>{s.desc}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Body Part Selector + Condition Browser */}
+      <div id="conditions" style={{maxWidth:800,margin:"0 auto",padding:mob?"0 20px 40px":"0 40px 60px"}}>
+        <h2 style={{fontSize:mob?18:22,fontWeight:700,color:"#1D1D1F",textAlign:"center",marginBottom:6,fontFamily:"Georgia,serif"}}>Don't Have Your MRI Report?</h2>
+        <p style={{fontSize:13,color:"#6E6E73",textAlign:"center",marginBottom:24,lineHeight:1.5}}>Select your body part and diagnosis below. We'll load a representative MRI report so you can explore what ClearScan shows.</p>
+
+        {/* Joint selector */}
+        <div style={{display:"flex",gap:10,justifyContent:"center",marginBottom:24}}>
+          {joints.map(j=>{
+            const jd=CONDITIONS[j];
+            const isSel=selJoint===j;
+            return(
+              <button key={j} onClick={()=>setSelJoint(isSel?null:j)} style={{
+                padding:mob?"12px 20px":"14px 28px",borderRadius:12,
+                border:isSel?`2px solid ${jd.color}`:"1px solid rgba(0,0,0,0.08)",
+                background:isSel?jd.color+"08":"#fff",
+                cursor:"pointer",display:"flex",alignItems:"center",gap:8,
+                transition:"all .2s",
+              }}>
+                <span style={{fontSize:mob?24:32}}>{jd.icon}</span>
+                <div style={{textAlign:"left"}}>
+                  <div style={{fontSize:mob?14:16,fontWeight:700,color:isSel?jd.color:"#1D1D1F"}}>{jd.label}</div>
+                  <div style={{fontSize:10,color:"#AEAEB2"}}>{jd.conditions.length} conditions</div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Condition grid */}
+        {selJoint&&<div style={{animation:"fadeIn .3s"}}>
+          <div style={{display:"grid",gridTemplateColumns:mob?"1fr":"1fr 1fr",gap:10}}>
+            {CONDITIONS[selJoint].conditions.map((c,i)=>{
+              const sc=c.sev==="severe"?"#BF1029":c.sev==="moderate"?"#C45D00":"#A68B00";
+              return(
+                <div key={i} onClick={()=>onSelectCondition(c.sample,selJoint)} style={{
+                  padding:"14px 16px",borderRadius:10,background:"#fff",
+                  border:"1px solid rgba(0,0,0,0.06)",cursor:"pointer",
+                  transition:"all .15s",position:"relative",overflow:"hidden",
+                }} onMouseEnter={e=>{e.currentTarget.style.borderColor=CONDITIONS[selJoint].color+"40";e.currentTarget.style.transform="translateY(-1px)";e.currentTarget.style.boxShadow="0 4px 12px rgba(0,0,0,0.06)"}}
+                   onMouseLeave={e=>{e.currentTarget.style.borderColor="rgba(0,0,0,0.06)";e.currentTarget.style.transform="none";e.currentTarget.style.boxShadow="none"}}>
+                  <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
+                    <span style={{fontSize:14,fontWeight:700,color:"#1D1D1F"}}>{c.name}</span>
+                    <span style={{fontSize:8,fontWeight:700,color:sc,background:sc+"12",padding:"2px 6px",borderRadius:3,textTransform:"uppercase"}}>{c.sev}</span>
+                    {c.common&&<span style={{fontSize:8,fontWeight:600,color:"#0071E3",background:"rgba(0,113,227,0.06)",padding:"2px 6px",borderRadius:3}}>COMMON</span>}
+                  </div>
+                  <div style={{fontSize:11,color:"#6E6E73",lineHeight:1.45}}>{c.desc}</div>
+                  <div style={{fontSize:10,color:CONDITIONS[selJoint].color,fontWeight:600,marginTop:6}}>Explore this diagnosis →</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>}
+
+        {!selJoint&&<div style={{textAlign:"center",padding:20,color:"#AEAEB2",fontSize:13}}>
+          Select a body part above to browse conditions
+        </div>}
+      </div>
+
+      {/* SEO Content Section */}
+      <div style={{background:"#fff",borderTop:"1px solid rgba(0,0,0,0.06)",padding:mob?"30px 20px":"40px 40px"}}>
+        <div style={{maxWidth:700,margin:"0 auto"}}>
+          <h2 style={{fontSize:mob?16:20,fontWeight:700,color:"#1D1D1F",marginBottom:16,fontFamily:"Georgia,serif"}}>Understanding Your MRI Report</h2>
+
+          <div style={{fontSize:13,color:"#6E6E73",lineHeight:1.7}}>
+            <p style={{marginBottom:14}}>MRI reports are written by radiologists for other physicians — not for patients. Terms like "intrasubstance signal abnormality," "grade III sprain," or "full-thickness tear with retraction" can feel overwhelming when you're reading them for the first time.</p>
+            <p style={{marginBottom:14}}>ClearScan translates your MRI impression into plain language you can understand. Each finding is explained individually: what the structure is, what went wrong, how severe it is, and what you might feel. More importantly, we help you prepare for the conversation that matters — your next doctor's appointment.</p>
+            <p style={{marginBottom:14}}>Our clinical content is developed with input from board-certified orthopedic surgeons, physiatrists, and physical therapists. All analysis runs instantly on your device — your MRI text is never sent to a server or stored anywhere.</p>
+          </div>
+
+          <h3 style={{fontSize:15,fontWeight:700,color:"#1D1D1F",marginTop:20,marginBottom:10}}>What ClearScan Includes</h3>
+          <div style={{display:"grid",gridTemplateColumns:mob?"1fr":"1fr 1fr",gap:10}}>
+            {[
+              ["🩺","Appointment Questions","Finding-specific questions to ask your orthopedist, with checkboxes you can print"],
+              ["📊","Treatment Comparison","Conservative vs. surgical vs. interventional options with pros, cons, and timelines"],
+              ["🏋️","Exercise Program","Personalized PT exercises matched to your findings, pain level, and activity goals"],
+              ["📋","PDF Report","Downloadable report you can share with your doctor or physical therapist"],
+              ["🗺️","Specialist Finder","Find top-rated orthopedic surgeons and PTs near your ZIP code"],
+              ["📈","Recovery Timeline","Stage-by-stage recovery guide describing what you'll be able to do and when"],
+            ].map(([ic,title,desc],i)=>(
+              <div key={i} style={{padding:"12px 14px",borderRadius:8,background:"#FAFAF8",border:"1px solid rgba(0,0,0,0.04)"}}>
+                <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:4}}>
+                  <span style={{fontSize:14}}>{ic}</span>
+                  <span style={{fontSize:12,fontWeight:700,color:"#1D1D1F"}}>{title}</span>
+                </div>
+                <div style={{fontSize:11,color:"#6E6E73",lineHeight:1.4}}>{desc}</div>
+              </div>
+            ))}
+          </div>
+
+          <h3 style={{fontSize:15,fontWeight:700,color:"#1D1D1F",marginTop:24,marginBottom:10}}>Frequently Asked Questions</h3>
+          {[
+            ["Is my MRI data stored anywhere?","No. ClearScan runs entirely in your browser. Your MRI text is never sent to a server, database, or AI service. When you close the tab, everything is gone."],
+            ["How accurate is the interpretation?","ClearScan uses pattern-matching rules developed with orthopedic specialists — not AI language models. This means consistent, reproducible results with no hallucination risk. However, ClearScan is an educational tool, not a medical diagnosis."],
+            ["What joints are supported?","Currently knee and shoulder MRI reports. We auto-detect the joint type from your report text. Hip and spine support are in development."],
+            ["How much does it cost?","The basic interpretation and findings summary are free. The full report — including doctor questions, treatment comparison, personalized exercises, and PDF download — is a one-time $5 purchase."],
+            ["Can I share the report with my doctor?","Yes. The PDF report is designed to bring to your appointment. The Questions page includes printable checkboxes."],
+          ].map(([q,a],i)=>(
+            <div key={i} style={{marginBottom:12}}>
+              <div style={{fontSize:13,fontWeight:700,color:"#1D1D1F",marginBottom:3}}>{q}</div>
+              <div style={{fontSize:12,color:"#6E6E73",lineHeight:1.55}}>{a}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div style={{padding:"20px 40px",borderTop:"1px solid rgba(0,0,0,0.06)",textAlign:"center",background:"#FAFAF8"}}>
+        <div style={{fontSize:10,color:"#AEAEB2",lineHeight:1.6}}>
+          ClearScan is an educational tool and does not provide medical advice, diagnosis, or treatment.<br/>
+          Always consult a qualified healthcare provider for medical decisions.<br/>
+          © {new Date().getFullYear()} ClearScan. All rights reserved.
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Trust(){return(
   <div style={{padding:"10px 14px",background:T.sfA,borderRadius:8,border:`1px solid ${T.bd}`,marginTop:12}}>
     <div style={{fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:1.5,color:T.txL,marginBottom:6}}>Methodology</div>
@@ -2326,7 +2574,7 @@ function ResizableSplit({left,right,show,minPct=25,maxPct=75,defaultPct=50}){
 /* ═══════════════════ APP ═══════════════════ */
 export default function App(){
   const[text,setText]=useState("");
-  const[phase,setPhase]=useState("input");
+  const[phase,setPhase]=useState("landing");
   const[findings,setFindings]=useState(null);
   const[ri,setRi]=useState(-1);
   const[tourProgress,setTourProgress]=useState(0);
@@ -2455,9 +2703,29 @@ export default function App(){
     }
   },[text]);
 
+  // Select condition from landing page → set text and auto-analyze
+  const selectCondition=useCallback((sampleText)=>{
+    setText("IMPRESSION:\n"+sampleText);
+    // Need a tick for setText to propagate, then run
+    setTimeout(async()=>{
+      await Tone.start().catch(()=>{});initS();
+      setPhase("analyzing");setErr(null);pAmb();
+      try{
+        const fullText="IMPRESSION:\n"+sampleText;
+        const detected=detectJoint(fullText);
+        if(!detected){setErr("Could not identify the joint type.");setPhase("input");return}
+        setJoint(detected);
+        const{findings:mapped}=await parseReport(fullText,detected);
+        if(mapped.length===0){setErr("No findings detected from this sample.");setPhase("input");return}
+        pTrans();setFindings(mapped);
+        setTimeout(()=>{setPhase("summary");setActive(null)},1500);
+      }catch(e){console.error(e);setErr(e.message||"Unable to analyze.");setPhase("input")}
+    },50);
+  },[]);
+
   // (revealing phase removed — go straight to summary)
 
-  const reset=()=>{setPhase("input");setFindings(null);setRi(-1);setActive(null);setShowH(false);setText("");setTab("findings");setActiveEx(null);setDetailFinding(null);setActiveTx(null);setTxFinding(null);setErr(null);setAssessAnswers(null);setRecoveryStage(null);setShowReportPreview(false);setDoctorAnswers({});setJoint(null);setTourProgress(0)};
+  const reset=()=>{setPhase("landing");setFindings(null);setRi(-1);setActive(null);setShowH(false);setText("");setTab("findings");setActiveEx(null);setDetailFinding(null);setActiveTx(null);setTxFinding(null);setErr(null);setAssessAnswers(null);setRecoveryStage(null);setShowReportPreview(false);setDoctorAnswers({});setJoint(null);setTourProgress(0)};
   const togSel=f=>{
     const deselecting = active?.id===f.id;
     setActive(deselecting?null:f);
@@ -2488,7 +2756,7 @@ export default function App(){
 
   const hdr=(
     <div style={{height:mob?48:56,borderBottom:`1px solid ${T.bd}`,display:"flex",alignItems:"center",justifyContent:"space-between",padding:`0 ${mob?16:24}px`,background:T.sf,flexShrink:0}}>
-      <div style={{display:"flex",alignItems:"center",gap:mob?8:12}}>
+      <div onClick={reset} style={{display:"flex",alignItems:"center",gap:mob?8:12,cursor:"pointer"}}>
         <div style={{width:mob?26:30,height:mob?26:30,borderRadius:mob?7:9,background:"linear-gradient(135deg,#0071E3,#5BA3F5)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:mob?13:15,fontWeight:800,color:"#fff"}}>C</div>
         <span style={{fontSize:mob?15:16,fontWeight:700,color:T.tx}}>ClearScan</span>
         {!mob&&<span style={{fontSize:11,color:T.txL,fontWeight:500,marginLeft:4}}>MRI Interpreter</span>}
@@ -2496,7 +2764,7 @@ export default function App(){
       </div>
       <div style={{display:"flex",alignItems:"center",gap:6}}>
         {phase==="summary"&&findings&&<button onClick={hBtn} style={{background:showH?T.ac:T.sf,border:`1px solid ${showH?T.ac:T.bdM}`,color:showH?"#fff":T.txM,padding:mob?"5px 10px":"6px 14px",borderRadius:7,fontSize:11,fontWeight:500,cursor:"pointer",transition:"all .2s"}}>{showH?"✓ Healthy":"Compare Healthy"}</button>}
-        {phase!=="input"&&<button onClick={reset} style={{background:T.bgD,border:`1px solid ${T.bd}`,color:T.txM,padding:mob?"5px 10px":"6px 14px",borderRadius:7,fontSize:11,cursor:"pointer"}}>Reset</button>}
+        {phase!=="landing"&&phase!=="input"&&<button onClick={reset} style={{background:T.bgD,border:`1px solid ${T.bd}`,color:T.txM,padding:mob?"5px 10px":"6px 14px",borderRadius:7,fontSize:11,cursor:"pointer"}}>New Report</button>}
       </div>
     </div>
   );
@@ -2543,8 +2811,9 @@ export default function App(){
 
   if(mob)return(
     <div style={{width:"100%",height:"100vh",background:T.bg,display:"flex",flexDirection:"column",overflow:"hidden"}}>
-      {styles}{hdr}
-      {phase==="input"?<div style={{flex:1,overflow:"auto",padding:16,display:"flex",flexDirection:"column"}}>{inputUI()}</div>:(
+      {phase!=="landing"&&<>{styles}{hdr}</>}
+      {phase==="landing"?<LandingPage onStart={()=>setPhase("input")} onSelectCondition={selectCondition} mob={true} />
+      :phase==="input"?<div style={{flex:1,overflow:"auto",padding:16,display:"flex",flexDirection:"column"}}>{inputUI()}</div>:(
         <div ref={mobContainerRef} style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden",position:"relative"}}>
           {/* 3D Viewport */}
           <div style={{height:`${mobSplit}%`,position:"relative",flexShrink:0,overflow:"hidden"}}>
@@ -2598,6 +2867,12 @@ export default function App(){
   );
 
   // ─── DESKTOP ───
+  if(phase==="landing")return(
+    <div style={{width:"100%",height:"100vh",background:T.bg,overflow:"auto"}}>
+      {styles}
+      <LandingPage onStart={()=>setPhase("input")} onSelectCondition={selectCondition} mob={false} />
+    </div>
+  );
   return(
     <div style={{width:"100%",height:"100vh",background:T.bg,display:"flex",flexDirection:"column",overflow:"hidden"}}>
       {styles}{hdr}
