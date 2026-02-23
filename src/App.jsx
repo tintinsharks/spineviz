@@ -591,7 +591,7 @@ function RecoveryTimeline({finding,joint,selected,onSelect}){
   const selIdx=selected?.index??null;
 
   return(
-    <div style={{position:"relative",padding:"0 0 0 2px"}}>
+    <div style={{padding:"0 0 0 2px"}}>
       {/* Instruction */}
       {!selected&&<div style={{marginBottom:8,padding:"6px 10px",background:"rgba(0,113,227,0.04)",borderRadius:6,border:"1px solid rgba(0,113,227,0.08)"}}>
         <div style={{fontSize:10,color:"#0071E3",fontWeight:600}}>👆 Tap your current phase to personalize exercises & report</div>
@@ -600,9 +600,6 @@ function RecoveryTimeline({finding,joint,selected,onSelect}){
         <div style={{fontSize:10,color:teal,fontWeight:600}}>✓ Phase {selected.index+1}: {selected.title} — exercises & report personalized</div>
         <button onClick={()=>onSelect?.(null)} style={{background:"none",border:"none",fontSize:10,color:"#AEAEB2",cursor:"pointer",textDecoration:"underline"}}>Clear</button>
       </div>}
-
-      {/* Vertical line */}
-      <div style={{position:"absolute",left:17,top:selected?56:64,bottom:16,width:3,background:`linear-gradient(180deg, ${teal} 0%, ${teal}40 100%)`,borderRadius:2}} />
 
       {phases.map((ph,i)=>{
         const isSel=selIdx===i;
@@ -613,10 +610,10 @@ function RecoveryTimeline({finding,joint,selected,onSelect}){
           onClick={()=>onSelect?.({index:i,week:ph.week,label:ph.label,title:ph.title})}
           style={{display:"flex",gap:12,position:"relative",cursor:"pointer",opacity:isFuture?.5:1,transition:"opacity .2s"}}
         >
-          {/* Left — week badge */}
+          {/* Left — week badge + connector line below */}
           <div style={{display:"flex",flexDirection:"column",alignItems:"center",width:32,flexShrink:0,zIndex:1}}>
             <div style={{
-              width:32,height:32,borderRadius:"50%",
+              width:32,height:32,borderRadius:"50%",flexShrink:0,
               background:isSel?teal:isPast?"rgba(26,127,122,0.15)":i===phases.length-1?teal:"#fff",
               border:`3px solid ${isSel?teal:isPast?teal+"80":teal}`,
               display:"flex",alignItems:"center",justifyContent:"center",
@@ -624,12 +621,13 @@ function RecoveryTimeline({finding,joint,selected,onSelect}){
               boxShadow:isSel?"0 0 0 4px rgba(26,127,122,0.2)":"0 2px 6px rgba(26,127,122,0.15)",
               transition:"all .2s",
             }}>{isPast?"✓":ph.week}</div>
-            {i<phases.length-1&&<div style={{flex:1,minHeight:8}} />}
+            {/* Connector line between this circle and the next */}
+            {i<phases.length-1&&<div style={{width:3,flex:1,minHeight:12,background:isPast?teal+"80":`${teal}40`,borderRadius:2,margin:"4px 0"}} />}
           </div>
 
           {/* Right — content card */}
           <div style={{
-            flex:1,padding:"10px 12px",marginBottom:12,
+            flex:1,padding:"10px 12px",marginBottom:i<phases.length-1?0:0,
             background:isSel?"rgba(26,127,122,0.08)":isPast?"rgba(26,127,122,0.02)":"#FAFAF8",
             borderRadius:10,
             border:isSel?`2px solid ${teal}`:`1px solid ${isPast?"rgba(26,127,122,0.1)":"rgba(0,0,0,0.05)"}`,
