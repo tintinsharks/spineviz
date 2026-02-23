@@ -641,51 +641,43 @@ function RecoveryTimeline({finding,joint,selected,onSelect}){
             border:isSel?`2px solid ${teal}`:`1px solid ${isPast?"rgba(26,127,122,0.1)":"rgba(0,0,0,0.05)"}`,
             transition:"all .2s",marginBottom:0,
           }}>
-            {/* Header row: title left, meters right */}
-            <div style={{display:"flex",alignItems:"flex-start",gap:8}}>
-              <div style={{flex:1,minWidth:0}}>
-                <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
-                  <span style={{fontSize:12,fontWeight:700,color:isPast?"#AEAEB2":isSel?"#1D1D1F":"#6E6E73"}}>{ph.title}</span>
-                  {isSel&&<span style={{fontSize:8,fontWeight:700,color:"#fff",background:teal,padding:"2px 6px",borderRadius:3}}>YOU ARE HERE</span>}
-                  {isPast&&<span style={{fontSize:8,fontWeight:600,color:teal,background:"rgba(26,127,122,0.08)",padding:"2px 6px",borderRadius:3}}>✓ DONE</span>}
-                </div>
-                <div style={{fontSize:9,color:"#AEAEB2",fontWeight:600}}>Week {ph.week}</div>
-              </div>
-              {/* Functional meters */}
-              {ph.meters&&<div style={{width:90,flexShrink:0}}>
+            {/* Header */}
+            <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
+              <span style={{fontSize:12,fontWeight:700,color:isPast?"#AEAEB2":isSel?"#1D1D1F":"#6E6E73"}}>{ph.title}</span>
+              {isSel&&<span style={{fontSize:8,fontWeight:700,color:"#fff",background:teal,padding:"2px 6px",borderRadius:3}}>YOU ARE HERE</span>}
+              {isPast&&<span style={{fontSize:8,fontWeight:600,color:teal,background:"rgba(26,127,122,0.08)",padding:"2px 6px",borderRadius:3}}>✓ DONE</span>}
+              <span style={{fontSize:9,color:"#AEAEB2",fontWeight:600,marginLeft:"auto"}}>Week {ph.week}</span>
+            </div>
+            {/* Expanded content */}
+            {isSel&&<>
+              <div style={{fontSize:10,color:"#6E6E73",marginTop:4,marginBottom:6,fontStyle:"italic"}}>{ph.desc}</div>
+              {/* Functional snapshot — compact pills */}
+              {ph.meters&&<div style={{display:"flex",gap:6,marginBottom:8,flexWrap:"wrap"}}>
                 {[
-                  {label:"Pain",val:ph.meters.pain,color:"#BF1029",inverted:true},
-                  {label:"Mobility",val:ph.meters.mobility,color:"#0071E3"},
-                  {label:"Strength",val:ph.meters.strength,color:"#2D8B4E"},
+                  {label:"Pain",val:ph.meters.pain,icon:ph.meters.pain>50?"🔴":ph.meters.pain>20?"🟡":"🟢",text:ph.meters.pain>50?"High":ph.meters.pain>20?"Moderate":"Low"},
+                  {label:"Mobility",val:ph.meters.mobility,icon:ph.meters.mobility<40?"🔴":ph.meters.mobility<70?"🟡":"🟢",text:`${ph.meters.mobility}%`},
+                  {label:"Strength",val:ph.meters.strength,icon:ph.meters.strength<40?"🔴":ph.meters.strength<70?"🟡":"🟢",text:`${ph.meters.strength}%`},
                 ].map((m,mi)=>(
-                  <div key={mi} style={{marginBottom:mi<2?4:0}}>
-                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:1}}>
-                      <span style={{fontSize:7,fontWeight:700,color:isFuture?"#D0D0D0":isPast?"#AEAEB2":"#6E6E73",textTransform:"uppercase",letterSpacing:.5}}>{m.label}</span>
-                      <span style={{fontSize:7,fontWeight:700,color:isFuture?"#D0D0D0":m.inverted?(m.val>50?"#BF1029":m.val>20?"#C45D00":"#2D8B4E"):m.color}}>{m.inverted?(m.val>50?"High":m.val>20?"Med":"Low"):`${m.val}%`}</span>
-                    </div>
-                    <div style={{height:4,background:isFuture?"#ECEAE6":"rgba(0,0,0,0.06)",borderRadius:2,overflow:"hidden"}}>
-                      <div style={{
-                        width:`${m.val}%`,height:"100%",borderRadius:2,
-                        background:isFuture?"#D0D0D0":m.inverted?
-                          (m.val>50?"#BF1029":m.val>20?"#C45D00":"#2D8B4E")
-                          :m.color,
-                        opacity:isPast?.5:1,
-                        transition:"width .4s ease-out",
-                      }} />
-                    </div>
+                  <div key={mi} style={{
+                    display:"flex",alignItems:"center",gap:4,
+                    padding:"4px 8px",borderRadius:6,
+                    background:"rgba(0,0,0,0.03)",border:"1px solid rgba(0,0,0,0.05)",
+                  }}>
+                    <span style={{fontSize:9}}>{m.icon}</span>
+                    <span style={{fontSize:9,fontWeight:700,color:"#6E6E73"}}>{m.label}</span>
+                    <span style={{fontSize:9,fontWeight:600,color:"#1D1D1F"}}>{m.text}</span>
                   </div>
                 ))}
               </div>}
-            </div>
-            {isSel&&<div style={{fontSize:10,color:"#6E6E73",marginBottom:4,marginTop:4,fontStyle:"italic"}}>{ph.desc}</div>}
-            {isSel&&<div style={{marginTop:2}}>
-              {ph.items.map((item,j)=>(
-                <div key={j} style={{display:"flex",alignItems:"flex-start",gap:6,marginBottom:3}}>
-                  <span style={{color:teal,fontSize:10,marginTop:2,flexShrink:0}}>•</span>
-                  <span style={{fontSize:11,color:"#1D1D1F",lineHeight:1.45}}>{item}</span>
-                </div>
-              ))}
-            </div>}
+              <div>
+                {ph.items.map((item,j)=>(
+                  <div key={j} style={{display:"flex",alignItems:"flex-start",gap:6,marginBottom:3}}>
+                    <span style={{color:teal,fontSize:10,marginTop:2,flexShrink:0}}>•</span>
+                    <span style={{fontSize:11,color:"#1D1D1F",lineHeight:1.45}}>{item}</span>
+                  </div>
+                ))}
+              </div>
+            </>}
           </div>
         </div>
         );
@@ -700,6 +692,102 @@ function RecoveryTimeline({finding,joint,selected,onSelect}){
   );
 }
 
+
+/* ═══════════════════ REPORT PREVIEW OVERLAY ═══════════════════ */
+function ReportPreview({findings,joint,paid,onUnlock,onDismiss,onDownload}){
+  const jLabel=joint==="shoulder"?"Shoulder":joint==="hip"?"Hip":"Knee";
+  const sevColors={severe:"#BF1029",moderate:"#C45D00",mild:"#A68B00"};
+  return(
+    <div style={{position:"absolute",inset:0,zIndex:30,background:"rgba(250,249,247,0.97)",display:"flex",flexDirection:"column",animation:"fadeIn .4s",overflow:"hidden"}}>
+      {/* Header bar */}
+      <div style={{padding:"12px 16px",borderBottom:"1px solid rgba(0,0,0,0.06)",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0,background:"#fff"}}>
+        <div style={{display:"flex",alignItems:"center",gap:8}}>
+          <span style={{fontSize:16}}>📋</span>
+          <div>
+            <div style={{fontSize:13,fontWeight:700,color:"#1D1D1F"}}>Your {jLabel} MRI Report</div>
+            <div style={{fontSize:10,color:"#6E6E73"}}>Assessment complete · Personalized to your results</div>
+          </div>
+        </div>
+        <button onClick={onDismiss} style={{background:"none",border:"none",fontSize:18,color:"#AEAEB2",cursor:"pointer",padding:"4px 6px"}}>✕</button>
+      </div>
+
+      {/* Scrollable report preview */}
+      <div style={{flex:1,overflow:"auto",padding:"16px 20px",position:"relative"}}>
+        {/* Clear section — visible findings summary */}
+        <div style={{marginBottom:16}}>
+          <div style={{fontSize:9,fontWeight:700,color:"#AEAEB2",textTransform:"uppercase",letterSpacing:1.2,marginBottom:8}}>MRI Findings Summary</div>
+          {(findings||[]).map((f,i)=>{
+            const sc=sevColors[f.sev]||"#6E6E73";
+            return(
+              <div key={i} style={{padding:"10px 12px",marginBottom:6,borderRadius:8,background:"#fff",border:"1px solid rgba(0,0,0,0.06)"}}>
+                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:3}}>
+                  <span style={{fontSize:8,fontWeight:700,color:sc,background:sc+"12",padding:"2px 6px",borderRadius:3,textTransform:"uppercase"}}>{f.sev}</span>
+                  <span style={{fontSize:13,fontWeight:700,color:"#1D1D1F",fontFamily:"Georgia,serif"}}>{f.str}</span>
+                </div>
+                <div style={{fontSize:11,fontWeight:600,color:sc,marginBottom:2}}>{f.path}</div>
+                <div style={{fontSize:11,color:"#6E6E73",lineHeight:1.5}}>{f.desc}</div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Transition — gradient fade to blur */}
+        <div style={{position:"relative"}}>
+          {/* Blurred content */}
+          <div style={{filter:"blur(4px)",opacity:.6,pointerEvents:"none",userSelect:"none"}}>
+            <div style={{fontSize:9,fontWeight:700,color:"#AEAEB2",textTransform:"uppercase",letterSpacing:1.2,marginBottom:8}}>Questions Your Doctor Will Ask</div>
+            {(findings||[]).slice(0,2).map((f,i)=>(
+              <div key={i} style={{marginBottom:8}}>
+                <div style={{fontSize:11,fontWeight:700,color:"#1D1D1F",marginBottom:4}}>{f.str}</div>
+                {(f.questions||[]).slice(0,2).map((q,qi)=>(
+                  <div key={qi} style={{padding:"6px 10px",marginBottom:3,borderRadius:6,background:"#F5F9FE",border:"1px solid rgba(0,113,227,0.08)",fontSize:11,color:"#6E6E73"}}>{q}</div>
+                ))}
+              </div>
+            ))}
+
+            <div style={{fontSize:9,fontWeight:700,color:"#AEAEB2",textTransform:"uppercase",letterSpacing:1.2,marginBottom:8,marginTop:16}}>Treatment Comparison</div>
+            {(findings||[]).slice(0,1).flatMap(f=>f.treatments||[]).slice(0,3).map((tx,i)=>(
+              <div key={i} style={{padding:"8px 12px",marginBottom:4,borderRadius:8,background:"#fff",border:"1px solid rgba(0,0,0,0.06)",borderLeft:`3px solid ${tx.color||"#0071E3"}`}}>
+                <div style={{fontSize:12,fontWeight:700,color:"#1D1D1F"}}>{tx.name}</div>
+                <div style={{fontSize:10,color:"#6E6E73",marginTop:2}}>{tx.desc?.slice(0,80)}...</div>
+              </div>
+            ))}
+
+            <div style={{fontSize:9,fontWeight:700,color:"#AEAEB2",textTransform:"uppercase",letterSpacing:1.2,marginBottom:8,marginTop:16}}>Personalized Exercise Program</div>
+            {["Phase 1: Early Recovery — Weeks 1-2","Phase 2: Building Strength — Weeks 3-6","Phase 3: Return to Activity — Weeks 7-12"].map((p,i)=>(
+              <div key={i} style={{padding:"8px 12px",marginBottom:4,borderRadius:8,background:"#fff",border:"1px solid rgba(0,0,0,0.06)",fontSize:11,color:"#1D1D1F",fontWeight:600}}>{p}</div>
+            ))}
+          </div>
+
+          {/* Gradient overlay on blur transition */}
+          <div style={{position:"absolute",top:-30,left:0,right:0,height:30,background:"linear-gradient(180deg,rgba(250,249,247,0) 0%,rgba(250,249,247,0.5) 100%)",pointerEvents:"none"}} />
+        </div>
+      </div>
+
+      {/* CTA bar at bottom */}
+      <div style={{padding:"12px 16px",borderTop:"1px solid rgba(0,0,0,0.06)",background:"#fff",flexShrink:0}}>
+        {paid?(
+          <button onClick={onDownload} style={{
+            width:"100%",padding:"12px",borderRadius:10,border:"none",
+            background:"linear-gradient(135deg,#0071E3 0%,#0059B3 100%)",
+            color:"#fff",fontSize:14,fontWeight:700,cursor:"pointer",
+            boxShadow:"0 4px 16px rgba(0,113,227,0.3)",
+          }}>Download Full PDF Report</button>
+        ):(
+          <div>
+            <button onClick={onUnlock} style={{
+              width:"100%",padding:"12px",borderRadius:10,border:"none",
+              background:"linear-gradient(135deg,#0071E3 0%,#0059B3 100%)",
+              color:"#fff",fontSize:14,fontWeight:700,cursor:"pointer",
+              boxShadow:"0 4px 16px rgba(0,113,227,0.3)",marginBottom:6,
+            }}>$5 — Unlock Full Report</button>
+            <div style={{textAlign:"center",fontSize:10,color:"#AEAEB2"}}>Includes specialist perspectives, exercises, treatments & PDF download</div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 function Trust(){return(
   <div style={{padding:"10px 14px",background:T.sfA,borderRadius:8,border:`1px solid ${T.bd}`,marginTop:12}}>
@@ -2232,6 +2320,7 @@ export default function App(){
   const[checkingPayment,setCheckingPayment]=useState(false);
   const[assessAnswers,setAssessAnswers]=useState(null);
   const[recoveryStage,setRecoveryStage]=useState(null); // {index, week, label, title}
+  const[showReportPreview,setShowReportPreview]=useState(false);
   const[doctorAnswers,setDoctorAnswers]=useState({}); // keyed by "findingId_qIndex"
 
   // Derive assessment from doctor question answers
@@ -2270,7 +2359,7 @@ export default function App(){
 
   // Auto-set assessAnswers from doctor questions if not already set via ReportTab
   useEffect(()=>{
-    if(!assessAnswers&&derivedAssess){setAssessAnswers(derivedAssess)}
+    if(!assessAnswers&&derivedAssess){setAssessAnswers(derivedAssess);setShowReportPreview(true)}
   },[derivedAssess,assessAnswers]);
   const[joint,setJoint]=useState(null); // "knee"|"shoulder"|"hip"|null // null = not completed
   useEffect(()=>{const c=()=>setMob(window.innerWidth<768);c();window.addEventListener("resize",c);return()=>window.removeEventListener("resize",c)},[]);
@@ -2346,7 +2435,7 @@ export default function App(){
 
   // (revealing phase removed — go straight to summary)
 
-  const reset=()=>{setPhase("input");setFindings(null);setRi(-1);setActive(null);setShowH(false);setText("");setTab("findings");setActiveEx(null);setDetailFinding(null);setActiveTx(null);setTxFinding(null);setErr(null);setAssessAnswers(null);setRecoveryStage(null);setDoctorAnswers({});setJoint(null);setTourProgress(0)};
+  const reset=()=>{setPhase("input");setFindings(null);setRi(-1);setActive(null);setShowH(false);setText("");setTab("findings");setActiveEx(null);setDetailFinding(null);setActiveTx(null);setTxFinding(null);setErr(null);setAssessAnswers(null);setRecoveryStage(null);setShowReportPreview(false);setDoctorAnswers({});setJoint(null);setTourProgress(0)};
   const togSel=f=>{
     const deselecting = active?.id===f.id;
     setActive(deselecting?null:f);
@@ -2473,9 +2562,13 @@ export default function App(){
                : tab==="findings" ? <Summary findings={findings} active={active} onSel={togSel} mob={true} />
                : tab==="exercises" ? <PTLibrary findings={findings} onSelectFinding={togSel} activeEx={activeEx} setActiveEx={setActiveEx} assessAnswers={assessAnswers} paid={paid} onUnlock={startCheckout} onGoToReport={()=>onTabChange("report")} joint={joint} recoveryStage={recoveryStage} />
                : tab==="treatments" ? <TreatmentsTab findings={findings} activeTx={activeTx} setActiveTx={selectTx} txFinding={txFinding} />
-               : tab==="report" ? <ReportTab findings={findings} onGenerateReport={(f,a,j)=>generateReport(f,j,recoveryStage)} onComplete={(a)=>setAssessAnswers(a)} joint={joint} onGoToExercises={()=>onTabChange("exercises")} paid={paid} assessAnswers={assessAnswers} doctorAnswers={doctorAnswers} />
+               : tab==="report" ? <ReportTab findings={findings} onGenerateReport={(f,a,j)=>generateReport(f,j,recoveryStage)} onComplete={(a)=>{setAssessAnswers(a);setShowReportPreview(true)}} joint={joint} onGoToExercises={()=>onTabChange("exercises")} paid={paid} assessAnswers={assessAnswers} doctorAnswers={doctorAnswers} />
                : null}
             </div>
+          </div>}
+          {/* Report preview overlay */}
+          {showReportPreview&&phase==="summary"&&<div style={{position:"absolute",inset:0,zIndex:40}}>
+            <ReportPreview findings={findings} joint={joint} paid={paid} onUnlock={startCheckout} onDismiss={()=>setShowReportPreview(false)} onDownload={()=>{generateReport(findings,joint,recoveryStage);setShowReportPreview(false)}} />
           </div>}
         </div>
       )}
@@ -2506,26 +2599,28 @@ export default function App(){
                   padding:"4px 10px",borderRadius:5,fontSize:9,fontWeight:600,cursor:"pointer",
                 }}>Lock</button>
               </div>}
-              <TabbedPanel findings={findings} active={active} onSel={togSel} mob={false} tab={tab} setTab={onTabChange} activeEx={activeEx} setActiveEx={setActiveEx} activeTx={activeTx} setActiveTx={selectTx} txFinding={txFinding} paid={paid} onUnlock={startCheckout} assessAnswers={assessAnswers} onAssessComplete={(a)=>setAssessAnswers(a)} onGenerateReport={(f,a,j)=>generateReport(f,j,recoveryStage)} joint={joint} doctorAnswers={doctorAnswers} recoveryStage={recoveryStage} />
+              <TabbedPanel findings={findings} active={active} onSel={togSel} mob={false} tab={tab} setTab={onTabChange} activeEx={activeEx} setActiveEx={setActiveEx} activeTx={activeTx} setActiveTx={selectTx} txFinding={txFinding} paid={paid} onUnlock={startCheckout} assessAnswers={assessAnswers} onAssessComplete={(a)=>{setAssessAnswers(a);setShowReportPreview(true)}} onGenerateReport={(f,a,j)=>generateReport(f,j,recoveryStage)} joint={joint} doctorAnswers={doctorAnswers} recoveryStage={recoveryStage} />
             </>}
           </div>
         </div>
         <ResizableSplit
-          show={!!(detailFinding||activeEx||activeTx)}
+          show={!!(detailFinding||activeEx||activeTx||showReportPreview)}
           defaultPct={50} minPct={30} maxPct={70}
           left={
             <div style={{width:"100%",height:"100%",position:"relative",background:`radial-gradient(ellipse at 50% 40%,#faf9f7 0%,${T.bg} 100%)`}}>
               <JointCanvas findings={findings} active={active} phase={phase} showH={showH} joint={joint} />
               {phase==="analyzing"&&<AnalyzingSplash joint={joint} mob={false} />}
               {phase==="summary"&&<SpecialistFinder joint={joint} mob={false} />}
-              {active&&phase==="summary"&&!detailFinding&&!activeEx&&!activeTx&&<div style={{position:"absolute",top:14,left:180,background:T.sf,padding:"7px 14px",borderRadius:9,boxShadow:"0 2px 12px rgba(0,0,0,.05)",fontSize:13,fontWeight:600,color:T.tx,zIndex:10,animation:"fadeIn .3s"}}>{active.str} <span style={{color:T[active.sev].c,fontSize:11,marginLeft:6}}>● {active.path}</span></div>}
+              {active&&phase==="summary"&&!detailFinding&&!activeEx&&!activeTx&&!showReportPreview&&<div style={{position:"absolute",top:14,left:180,background:T.sf,padding:"7px 14px",borderRadius:9,boxShadow:"0 2px 12px rgba(0,0,0,.05)",fontSize:13,fontWeight:600,color:T.tx,zIndex:10,animation:"fadeIn .3s"}}>{active.str} <span style={{color:T[active.sev].c,fontSize:11,marginLeft:6}}>● {active.path}</span></div>}
               <div style={{position:"absolute",top:14,right:14,fontSize:10,color:T.txF,pointerEvents:"none"}}>Drag to rotate · Scroll to zoom</div>
               {phase==="input"&&<div style={{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",textAlign:"center",pointerEvents:"none"}}><div style={{fontSize:48,marginBottom:14,opacity:.15}}>🦴</div><div style={{fontSize:15,color:T.txL,fontWeight:500}}>Your 3D joint model</div><div style={{fontSize:12,color:T.txF,marginTop:6}}>Paste an MRI report to see findings visualized</div></div>}
-              {phase==="summary"&&!detailFinding&&!activeEx&&!activeTx&&<div style={{position:"absolute",bottom:20,left:20,right:20,maxWidth:440,background:paid?"#fff":"linear-gradient(135deg,#0071E3 0%,#0059B3 100%)",borderRadius:11,padding:"14px 18px",boxShadow:"0 4px 20px rgba(0,0,0,.08)",border:paid?`1px solid ${T.bd}`:"none",display:"flex",alignItems:"center",justifyContent:"space-between",zIndex:10,animation:"slideUp .5s cubic-bezier(.16,1,.3,1)"}}><div><div style={{fontSize:13,fontWeight:600,color:paid?T.tx:"#fff"}}>{paid?"Your full report is ready":"Unlock detailed analysis"}</div><div style={{fontSize:11,color:paid?T.txL:"rgba(255,255,255,0.8)",marginTop:2}}>{paid?"Specialist perspectives, exercises, questions":"Specialist insights, exercise guides, treatment deep-dives"}</div></div><button onClick={paid?()=>generateReport(findings,joint,recoveryStage):startCheckout} style={{background:paid?T.ac:"#fff",border:"none",color:paid?"#fff":"#0071E3",padding:"9px 18px",borderRadius:8,fontSize:12,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,marginLeft:14,boxShadow:paid?"none":"0 2px 8px rgba(0,0,0,0.15)"}}>{paid?"Download PDF":`${PRICE} — Unlock Pro`}</button></div>}
+              {phase==="summary"&&!detailFinding&&!activeEx&&!activeTx&&!showReportPreview&&<div style={{position:"absolute",bottom:20,left:20,right:20,maxWidth:440,background:paid?"#fff":"linear-gradient(135deg,#0071E3 0%,#0059B3 100%)",borderRadius:11,padding:"14px 18px",boxShadow:"0 4px 20px rgba(0,0,0,.08)",border:paid?`1px solid ${T.bd}`:"none",display:"flex",alignItems:"center",justifyContent:"space-between",zIndex:10,animation:"slideUp .5s cubic-bezier(.16,1,.3,1)"}}><div><div style={{fontSize:13,fontWeight:600,color:paid?T.tx:"#fff"}}>{paid?"Your full report is ready":"Unlock detailed analysis"}</div><div style={{fontSize:11,color:paid?T.txL:"rgba(255,255,255,0.8)",marginTop:2}}>{paid?"Specialist perspectives, exercises, questions":"Specialist insights, exercise guides, treatment deep-dives"}</div></div><button onClick={paid?()=>generateReport(findings,joint,recoveryStage):startCheckout} style={{background:paid?T.ac:"#fff",border:"none",color:paid?"#fff":"#0071E3",padding:"9px 18px",borderRadius:8,fontSize:12,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,marginLeft:14,boxShadow:paid?"none":"0 2px 8px rgba(0,0,0,0.15)"}}>{paid?"Download PDF":`${PRICE} — Unlock Pro`}</button></div>}
             </div>
           }
           right={
-            activeEx
+            showReportPreview&&!detailFinding&&!activeEx&&!activeTx
+              ? <ReportPreview findings={findings} joint={joint} paid={paid} onUnlock={startCheckout} onDismiss={()=>setShowReportPreview(false)} onDownload={()=>{generateReport(findings,joint,recoveryStage);setShowReportPreview(false)}} />
+              : activeEx
               ? <ExerciseDetail ex={activeEx} onClose={()=>setActiveEx(null)} mob={false} paid={paid} onUnlock={startCheckout} />
               : activeTx
               ? <TreatmentDetail tx={activeTx} finding={txFinding} onClose={handleTxClose} allFindings={findings} paid={paid} onUnlock={startCheckout} />
