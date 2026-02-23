@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import * as THREE from "three";
 import * as Tone from "tone";
 import { generateReport } from "./reportGenerator";
+import PTLibrary from "./PTLibrary";
 
 /* ═══════════════════ DESIGN TOKENS ═══════════════════ */
 const T = {
@@ -192,6 +193,62 @@ function Trust(){return(
   </div>
 )}
 
+/* ═══════════════════ TAB BAR ═══════════════════ */
+function TabBar({tab,setTab,mob}){
+  const tabs=[["findings","Findings"],["exercises","Exercises"],["report","Report"]];
+  return(
+    <div style={{display:"flex",gap:3,background:"#ECEAE6",borderRadius:9,padding:3,marginBottom:mob?12:14,flexShrink:0}}>
+      {tabs.map(([k,label])=>(
+        <button key={k} onClick={()=>setTab(k)} style={{
+          flex:1,padding:mob?"7px 6px":"7px 10px",borderRadius:7,border:"none",fontSize:11,fontWeight:600,cursor:"pointer",
+          background:tab===k?"#fff":"transparent",color:tab===k?"#1D1D1F":"#AEAEB2",
+          boxShadow:tab===k?"0 1px 3px rgba(0,0,0,0.06)":"none",transition:"all .15s"
+        }}>{label}</button>
+      ))}
+    </div>
+  );
+}
+
+/* ═══════════════════ REPORT TAB ═══════════════════ */
+function ReportTab({findings}){
+  return(
+    <div style={{animation:"fadeIn .4s"}}>
+      <div style={{textAlign:"center",padding:"20px 0 10px"}}>
+        <div style={{fontSize:40,marginBottom:10}}>📄</div>
+        <div style={{fontSize:15,fontWeight:600,color:"#1D1D1F",marginBottom:4}}>Multi-Specialist Report</div>
+        <div style={{fontSize:12,color:"#AEAEB2",lineHeight:1.5,maxWidth:280,margin:"0 auto 16px"}}>
+          Full findings analysis with specialist perspectives, questions for your doctor, treatment landscape, and phased exercise plan.
+        </div>
+        <button onClick={()=>generateReport(findings)} style={{
+          background:"#0071E3",border:"none",color:"#fff",padding:"11px 28px",borderRadius:10,
+          fontSize:14,fontWeight:600,cursor:"pointer",marginBottom:14
+        }}>Download PDF Report</button>
+        <div style={{fontSize:10,color:"#AEAEB2"}}>Generated instantly in your browser</div>
+      </div>
+      <div style={{marginTop:14,padding:"10px 12px",background:"#FAFAF8",borderRadius:8,border:"1px solid rgba(0,0,0,0.06)"}}>
+        <div style={{fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:1.5,color:"#AEAEB2",marginBottom:8}}>What's Included</div>
+        {["5 findings analyzed with severity assessment","Specialist perspectives from our advisory panel","20+ questions organized by specialty","Treatment pathways comparison","3-phase exercise program (12 weeks)","Recovery timeline: conservative vs. surgical"].map((item,i)=>(
+          <div key={i} style={{fontSize:11,color:"#6E6E73",padding:"4px 0",display:"flex",alignItems:"center",gap:6}}>
+            <span style={{color:"#0071E3",fontSize:12}}>✓</span>{item}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════ TABBED PANEL ═══════════════════ */
+function TabbedPanel({findings,active,onSel,mob,tab,setTab}){
+  return(
+    <>
+      <TabBar tab={tab} setTab={setTab} mob={mob} />
+      {tab==="findings"&&<Summary findings={findings} active={active} onSel={onSel} mob={mob} />}
+      {tab==="exercises"&&<PTLibrary findings={findings} onSelectFinding={onSel} />}
+      {tab==="report"&&<ReportTab findings={findings} />}
+    </>
+  );
+}
+
 /* ═══════════════════ SUMMARY PANEL ═══════════════════ */
 function Summary({findings,active,onSel,mob}){
   const ct={mild:0,moderate:0,severe:0};findings.forEach(f=>ct[f.sev]++);
@@ -234,6 +291,7 @@ export default function App(){
   const[active,setActive]=useState(null);
   const[showH,setShowH]=useState(false);
   const[mob,setMob]=useState(false);
+  const[tab,setTab]=useState("findings"); // "findings" | "exercises" | "report"
   useEffect(()=>{const c=()=>setMob(window.innerWidth<768);c();window.addEventListener("resize",c);return()=>window.removeEventListener("resize",c)},[]);
 
   const go=useCallback(async()=>{
@@ -248,7 +306,7 @@ export default function App(){
     if(phase==="revealing"&&ri>=FD.length){setPhase("summary");setActive(null)}
   },[ri,phase]);
 
-  const reset=()=>{setPhase("input");setFindings(null);setRi(-1);setActive(null);setShowH(false);setText("")};
+  const reset=()=>{setPhase("input");setFindings(null);setRi(-1);setActive(null);setShowH(false);setText("");setTab("findings")};
   const togSel=f=>{setActive(p=>p?.id===f.id?null:f);setShowH(false)};
   const hBtn=()=>setShowH(!showH);
 
@@ -292,7 +350,7 @@ export default function App(){
             {phase==="revealing"&&<NCard f={active} i={ri} n={FD.length} onN={()=>setRi(i=>i+1)} onP={()=>setRi(i=>Math.max(0,i-1))} mob={true} />}
             {phase==="analyzing"&&<div style={{position:"absolute",inset:0,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",background:"rgba(245,244,241,.6)"}}><div style={{width:28,height:28,border:`3px solid ${T.bgD}`,borderTopColor:T.ac,borderRadius:"50%",animation:"spin .8s linear infinite"}} /><span style={{fontSize:13,color:T.txM,marginTop:10}}>Analyzing...</span></div>}
           </div>
-          {phase==="summary"&&findings&&<div style={{flex:1,overflow:"auto",padding:16,background:T.sf,borderTop:`1px solid ${T.bd}`}}><Summary findings={findings} active={active} onSel={togSel} mob={true} /></div>}
+          {phase==="summary"&&findings&&<div style={{flex:1,overflow:"auto",padding:16,background:T.sf,borderTop:`1px solid ${T.bd}`}}><TabbedPanel findings={findings} active={active} onSel={togSel} mob={true} tab={tab} setTab={setTab} /></div>}
         </>
       )}
     </div>
@@ -307,7 +365,7 @@ export default function App(){
           <div style={{padding:"22px 20px",display:"flex",flexDirection:"column",flex:1,overflow:"auto",minWidth:phase==="input"?400:360}}>
             {phase==="input"&&inputUI()}
             {phase==="analyzing"&&<div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:12}}><div style={{width:32,height:32,border:`3px solid ${T.bgD}`,borderTopColor:T.ac,borderRadius:"50%",animation:"spin .8s linear infinite"}} /><span style={{fontSize:14,color:T.txM,fontWeight:500}}>Analyzing your MRI report...</span><span style={{fontSize:12,color:T.txL}}>Building your visualization</span></div>}
-            {phase==="summary"&&findings&&<Summary findings={findings} active={active} onSel={togSel} mob={false} />}
+            {phase==="summary"&&findings&&<TabbedPanel findings={findings} active={active} onSel={togSel} mob={false} tab={tab} setTab={setTab} />}
           </div>
         </div>
         <div style={{flex:1,position:"relative",background:`radial-gradient(ellipse at 50% 40%,#faf9f7 0%,${T.bg} 100%)`}}>
