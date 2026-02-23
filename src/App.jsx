@@ -383,19 +383,15 @@ function Trust(){return(
 
 /* ═══════════════════ TAB BAR ═══════════════════ */
 function TabBar({tab,setTab,mob,paid}){
-  const tabs=[["findings","Findings",false],["exercises","Exercises",true],["treatments","Treatments",true],["report","Report",true]];
+  const tabs=[["findings","Findings"],["exercises","Exercises"],["treatments","Treatments"],["report","Report"]];
   return(
     <div style={{display:"flex",gap:3,background:"#ECEAE6",borderRadius:9,padding:3,marginBottom:mob?12:14,flexShrink:0}}>
-      {tabs.map(([k,label,premium])=>(
+      {tabs.map(([k,label])=>(
         <button key={k} onClick={()=>setTab(k)} style={{
-          flex:1,padding:mob?"7px 4px":"7px 10px",borderRadius:7,border:"none",fontSize:11,fontWeight:600,cursor:"pointer",
+          flex:1,padding:mob?"7px 6px":"7px 10px",borderRadius:7,border:"none",fontSize:11,fontWeight:600,cursor:"pointer",
           background:tab===k?"#fff":"transparent",color:tab===k?"#1D1D1F":"#AEAEB2",
           boxShadow:tab===k?"0 1px 3px rgba(0,0,0,0.06)":"none",transition:"all .15s",
-          display:"flex",alignItems:"center",justifyContent:"center",gap:3,
-        }}>
-          {label}
-          {premium&&!paid&&<span style={{fontSize:6,fontWeight:800,color:"#0071E3",background:"rgba(0,113,227,0.1)",padding:"1px 3px",borderRadius:2,lineHeight:1}}>PRO</span>}
-        </button>
+        }}>{label}</button>
       ))}
     </div>
   );
@@ -475,8 +471,35 @@ function TreatmentsTab({findings,activeTx,setActiveTx,txFinding}){
 }
 
 /* ═══════════════════ TREATMENT DETAIL (Right Pane) ═══════════════════ */
-function TreatmentDetail({tx,finding,onClose,allFindings}){
+function TreatmentDetail({tx,finding,onClose,allFindings,paid,onUnlock}){
   if(!tx||!finding)return null;
+  if(!paid) return(
+    <div style={{display:"flex",flexDirection:"column",height:"100%",background:"#fff",animation:"slideInRight .3s cubic-bezier(.16,1,.3,1)",overflow:"hidden"}}>
+      <div style={{padding:"16px 18px 12px",borderBottom:"1px solid rgba(0,0,0,0.06)",flexShrink:0}}>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:6}}>
+          <button onClick={()=>onClose("close")} style={{display:"flex",alignItems:"center",gap:4,background:"none",border:"none",color:"#AEAEB2",fontSize:12,cursor:"pointer",padding:0}}>← Back</button>
+        </div>
+        <h2 style={{fontSize:18,fontWeight:700,color:"#1D1D1F",margin:0,fontFamily:"Georgia,serif"}}>{tx.name}</h2>
+        <div style={{fontSize:11,color:"#6E6E73",marginTop:2}}>For: {finding.str} — {finding.path}</div>
+      </div>
+      <LockedPreview onUnlock={onUnlock} features={["Detailed treatment description","Expected timeline and milestones","Pros and considerations analysis","Alternative treatment comparison","Treatment spectrum positioning"]}>
+        <div style={{padding:"16px 18px"}}>
+          <div style={{marginBottom:16,padding:"12px 14px",background:"#F5F4F1",borderRadius:10,fontSize:12.5,lineHeight:1.65,color:"#1D1D1F"}}>{tx.desc}</div>
+          <div style={{marginBottom:16,padding:"12px 14px",background:"#E8F5EC",borderRadius:10,borderLeft:"3px solid #2D8B4E",fontSize:12,lineHeight:1.6}}>{tx.timeline}</div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+            <div style={{padding:12,borderRadius:10,background:"rgba(45,139,78,0.05)",border:"1px solid rgba(45,139,78,0.1)"}}>
+              <div style={{fontSize:10,fontWeight:700,color:"#2D8B4E",marginBottom:4}}>PROS</div>
+              <div style={{fontSize:11,color:"#6E6E73",lineHeight:1.5}}>{tx.pros}</div>
+            </div>
+            <div style={{padding:12,borderRadius:10,background:"rgba(191,16,41,0.03)",border:"1px solid rgba(191,16,41,0.1)"}}>
+              <div style={{fontSize:10,fontWeight:700,color:"#BF1029",marginBottom:4}}>CONSIDERATIONS</div>
+              <div style={{fontSize:11,color:"#6E6E73",lineHeight:1.5}}>{tx.cons}</div>
+            </div>
+          </div>
+        </div>
+      </LockedPreview>
+    </div>
+  );
   const sc=finding.sev==="severe"?"#BF1029":finding.sev==="moderate"?"#C45D00":"#A68B00";
   const TYPE_LABELS={conservative:"Conservative",interventional:"Interventional",surgical:"Surgical"};
   const TYPE_ICONS={conservative:"🟢",interventional:"🟡",surgical:"🔵"};
@@ -597,24 +620,9 @@ function TabbedPanel({findings,active,onSel,mob,tab,setTab,activeEx,setActiveEx,
     <>
       <TabBar tab={tab} setTab={setTab} mob={mob} paid={paid} />
       {tab==="findings"&&<Summary findings={findings} active={active} onSel={onSel} mob={mob} />}
-      {tab==="exercises"&&(paid
-        ? <PTLibrary findings={findings} onSelectFinding={onSel} activeEx={activeEx} setActiveEx={setActiveEx} />
-        : <LockedPreview onUnlock={onUnlock} features={["18 exercises matched to your findings","3-phase progression (Weeks 1-12)","Video demonstrations","Safety guidelines per exercise"]}>
-            <PTLibrary findings={findings} onSelectFinding={()=>{}} activeEx={null} setActiveEx={()=>{}} />
-          </LockedPreview>
-      )}
-      {tab==="treatments"&&(paid
-        ? <TreatmentsTab findings={findings} activeTx={activeTx} setActiveTx={(tx,f)=>setActiveTx(tx,f)} txFinding={txFinding} />
-        : <LockedPreview onUnlock={onUnlock} features={["Conservative to surgical options","Timeline and recovery comparison","Pros and considerations for each","Specialist recommendations"]}>
-            <TreatmentsTab findings={findings} activeTx={null} setActiveTx={()=>{}} txFinding={null} />
-          </LockedPreview>
-      )}
-      {tab==="report"&&(paid
-        ? <ReportTab findings={findings} />
-        : <LockedPreview onUnlock={onUnlock} features={["Multi-specialist analysis","Treatment comparison tables","Self-assessment questionnaire","Printable for your appointment"]}>
-            <ReportTab findings={findings} />
-          </LockedPreview>
-      )}
+      {tab==="exercises"&&<PTLibrary findings={findings} onSelectFinding={onSel} activeEx={activeEx} setActiveEx={setActiveEx} />}
+      {tab==="treatments"&&<TreatmentsTab findings={findings} activeTx={activeTx} setActiveTx={(tx,f)=>setActiveTx(tx,f)} txFinding={txFinding} />}
+      {tab==="report"&&<ReportTab findings={findings} />}
     </>
   );
 }
@@ -938,8 +946,21 @@ const PHASE_CLR={1:"#0071E3",2:"#2D8B4E",3:"#6B3FA0"};
 const PHASE_NM={1:"Phase 1: Early Recovery",2:"Phase 2: Building Strength",3:"Phase 3: Functional"};
 const PHASE_TM={1:"Weeks 1-2",2:"Weeks 3-6",3:"Weeks 7-12"};
 
-function ExerciseDetail({ex,onClose,mob}){
+function ExerciseDetail({ex,onClose,mob,paid,onUnlock}){
   if(!ex)return null;
+  if(!paid) return(
+    <div style={{display:"flex",flexDirection:"column",height:"100%",background:"#fff",animation:"slideInRight .3s cubic-bezier(.16,1,.3,1)",overflow:"hidden"}}>
+      <div style={{padding:"16px 18px 12px",borderBottom:"1px solid rgba(0,0,0,0.06)",flexShrink:0}}>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:6}}>
+          <button onClick={onClose} style={{display:"flex",alignItems:"center",gap:4,background:"none",border:"none",color:"#AEAEB2",fontSize:12,cursor:"pointer",padding:0}}>← Back</button>
+        </div>
+        <h2 style={{fontSize:mob?18:20,fontWeight:700,color:"#1D1D1F",margin:0,fontFamily:"Georgia,serif"}}>{ex.name}</h2>
+      </div>
+      <LockedPreview onUnlock={onUnlock} features={["Step-by-step exercise instructions","Video demonstration","Safety guidelines and contraindications","Recommended sets, reps, and frequency","Clinical rationale for each exercise"]}>
+        <ExerciseDetailContent ex={ex} mob={mob} />
+      </LockedPreview>
+    </div>
+  );
   const pc=PHASE_CLR[ex.phase];
   return(
     <div style={{
@@ -1047,7 +1068,37 @@ function ExerciseDetail({ex,onClose,mob}){
   );
 }
 
-/* ═══════════════════ RESIZABLE SPLIT PANE ═══════════════════ */
+/* Lightweight content for blurred exercise preview */
+function ExerciseDetailContent({ex,mob}){
+  const pc=PHASE_CLR[ex.phase];
+  return(
+    <div style={{padding:"16px 18px"}}>
+      <div style={{width:"100%",aspectRatio:"16/9",background:"linear-gradient(135deg,#1D1D1F,#2C2C2E)",borderRadius:12,marginBottom:16,display:"flex",alignItems:"center",justifyContent:"center"}}>
+        <span style={{color:"rgba(255,255,255,0.5)",fontSize:12}}>Video Demonstration</span>
+      </div>
+      <div style={{marginBottom:16}}>
+        <h3 style={{fontSize:14,fontWeight:700,color:"#1D1D1F",marginBottom:8}}>How to Perform</h3>
+        <div style={{padding:"12px 14px",background:"#F5F4F1",borderRadius:10,fontSize:12.5,lineHeight:1.65,color:"#1D1D1F"}}>{ex.desc}</div>
+      </div>
+      <div style={{marginBottom:16}}>
+        <h3 style={{fontSize:14,fontWeight:700,color:"#1D1D1F",marginBottom:8}}>Why This Exercise</h3>
+        <div style={{padding:"12px 14px",background:pc+"08",borderRadius:10,fontSize:12.5,lineHeight:1.65,color:"#6E6E73"}}>{ex.why}</div>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+        <div style={{padding:14,background:"#F5F9FE",borderRadius:10,textAlign:"center"}}>
+          <div style={{fontSize:9,fontWeight:700,color:"#AEAEB2",textTransform:"uppercase",letterSpacing:1,marginBottom:4}}>Prescription</div>
+          <div style={{fontSize:15,fontWeight:700,color:"#0071E3"}}>{ex.rx}</div>
+        </div>
+        <div style={{padding:14,background:"#F5F9FE",borderRadius:10,textAlign:"center"}}>
+          <div style={{fontSize:9,fontWeight:700,color:"#AEAEB2",textTransform:"uppercase",letterSpacing:1,marginBottom:4}}>Tempo</div>
+          <div style={{fontSize:15,fontWeight:700,color:"#0071E3"}}>{ex.duration}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
 function ResizableSplit({left,right,show,minPct=25,maxPct=75,defaultPct=50}){
   const containerRef=useRef(null);
   const [pct,setPct]=useState(defaultPct);
@@ -1265,9 +1316,9 @@ export default function App(){
 
   const hasDetail=!!(activeEx||activeTx||detailFinding);
   const mobDetailContent=activeEx
-    ? <ExerciseDetail ex={activeEx} onClose={()=>setActiveEx(null)} mob={true} />
+    ? <ExerciseDetail ex={activeEx} onClose={()=>setActiveEx(null)} mob={true} paid={paid} onUnlock={startCheckout} />
     : activeTx
-    ? <TreatmentDetail tx={activeTx} finding={txFinding} onClose={handleTxClose} allFindings={findings} />
+    ? <TreatmentDetail tx={activeTx} finding={txFinding} onClose={handleTxClose} allFindings={findings} paid={paid} onUnlock={startCheckout} />
     : detailFinding
     ? <FindingDetail finding={detailFinding} onClose={()=>{setDetailFinding(null);setActive(null)}} mob={true} onSelectTx={selectTx} paid={paid} onUnlock={startCheckout} />
     : null;
@@ -1313,9 +1364,9 @@ export default function App(){
             <div style={{flex:1,overflow:"auto",padding:"0 16px 16px"}}>
               {hasDetail ? mobDetailContent
                : tab==="findings" ? <Summary findings={findings} active={active} onSel={togSel} mob={true} />
-               : tab==="exercises" ? (paid ? <PTLibrary findings={findings} onSelectFinding={togSel} activeEx={activeEx} setActiveEx={setActiveEx} /> : <LockedPreview onUnlock={startCheckout} features={["18 exercises matched to your findings","3-phase progression","Video demonstrations","Safety guidelines"]}><PTLibrary findings={findings} onSelectFinding={()=>{}} activeEx={null} setActiveEx={()=>{}} /></LockedPreview>)
-               : tab==="treatments" ? (paid ? <TreatmentsTab findings={findings} activeTx={activeTx} setActiveTx={selectTx} txFinding={txFinding} /> : <LockedPreview onUnlock={startCheckout} features={["Conservative to surgical options","Timeline comparison","Pros and considerations","Specialist recommendations"]}><TreatmentsTab findings={findings} activeTx={null} setActiveTx={()=>{}} txFinding={null} /></LockedPreview>)
-               : tab==="report" ? (paid ? <ReportTab findings={findings} /> : <LockedPreview onUnlock={startCheckout} features={["Multi-specialist analysis","Treatment comparison","Self-assessment questionnaire","Printable for your appointment"]}><ReportTab findings={findings} /></LockedPreview>)
+               : tab==="exercises" ? <PTLibrary findings={findings} onSelectFinding={togSel} activeEx={activeEx} setActiveEx={setActiveEx} />
+               : tab==="treatments" ? <TreatmentsTab findings={findings} activeTx={activeTx} setActiveTx={selectTx} txFinding={txFinding} />
+               : tab==="report" ? <ReportTab findings={findings} />
                : null}
             </div>
           </div>}
@@ -1363,14 +1414,14 @@ export default function App(){
               {active&&phase==="summary"&&!detailFinding&&!activeEx&&!activeTx&&<div style={{position:"absolute",top:14,left:14,background:T.sf,padding:"7px 14px",borderRadius:9,boxShadow:"0 2px 12px rgba(0,0,0,.05)",fontSize:13,fontWeight:600,color:T.tx,zIndex:10,animation:"fadeIn .3s"}}>{active.str} <span style={{color:T[active.sev].c,fontSize:11,marginLeft:6}}>● {active.path}</span></div>}
               <div style={{position:"absolute",top:14,right:14,fontSize:10,color:T.txF,pointerEvents:"none"}}>Drag to rotate · Scroll to zoom</div>
               {phase==="input"&&<div style={{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",textAlign:"center",pointerEvents:"none"}}><div style={{fontSize:48,marginBottom:14,opacity:.15}}>🦴</div><div style={{fontSize:15,color:T.txL,fontWeight:500}}>Your 3D knee model</div><div style={{fontSize:12,color:T.txF,marginTop:6}}>Paste an MRI report to see findings visualized</div></div>}
-              {phase==="summary"&&!detailFinding&&!activeEx&&!activeTx&&<div style={{position:"absolute",bottom:20,left:20,right:20,maxWidth:440,background:paid?"#fff":"linear-gradient(135deg,#0071E3 0%,#0059B3 100%)",borderRadius:11,padding:"14px 18px",boxShadow:"0 4px 20px rgba(0,0,0,.08)",border:paid?`1px solid ${T.bd}`:"none",display:"flex",alignItems:"center",justifyContent:"space-between",zIndex:10,animation:"slideUp .5s cubic-bezier(.16,1,.3,1)"}}><div><div style={{fontSize:13,fontWeight:600,color:paid?T.tx:"#fff"}}>{paid?"Your full report is ready":"Unlock your complete report"}</div><div style={{fontSize:11,color:paid?T.txL:"rgba(255,255,255,0.8)",marginTop:2}}>{paid?"Specialist perspectives, exercises, questions":"Specialist analysis, PT exercises, treatment comparison"}</div></div><button onClick={paid?()=>generateReport(findings):startCheckout} style={{background:paid?T.ac:"#fff",border:"none",color:paid?"#fff":"#0071E3",padding:"9px 18px",borderRadius:8,fontSize:12,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,marginLeft:14,boxShadow:paid?"none":"0 2px 8px rgba(0,0,0,0.15)"}}>{paid?"Download PDF":`${PRICE} — Unlock`}</button></div>}
+              {phase==="summary"&&!detailFinding&&!activeEx&&!activeTx&&<div style={{position:"absolute",bottom:20,left:20,right:20,maxWidth:440,background:paid?"#fff":"linear-gradient(135deg,#0071E3 0%,#0059B3 100%)",borderRadius:11,padding:"14px 18px",boxShadow:"0 4px 20px rgba(0,0,0,.08)",border:paid?`1px solid ${T.bd}`:"none",display:"flex",alignItems:"center",justifyContent:"space-between",zIndex:10,animation:"slideUp .5s cubic-bezier(.16,1,.3,1)"}}><div><div style={{fontSize:13,fontWeight:600,color:paid?T.tx:"#fff"}}>{paid?"Your full report is ready":"Unlock detailed analysis"}</div><div style={{fontSize:11,color:paid?T.txL:"rgba(255,255,255,0.8)",marginTop:2}}>{paid?"Specialist perspectives, exercises, questions":"Specialist insights, exercise guides, treatment deep-dives"}</div></div><button onClick={paid?()=>generateReport(findings):startCheckout} style={{background:paid?T.ac:"#fff",border:"none",color:paid?"#fff":"#0071E3",padding:"9px 18px",borderRadius:8,fontSize:12,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,marginLeft:14,boxShadow:paid?"none":"0 2px 8px rgba(0,0,0,0.15)"}}>{paid?"Download PDF":`${PRICE} — Unlock Pro`}</button></div>}
             </div>
           }
           right={
             activeEx
-              ? <ExerciseDetail ex={activeEx} onClose={()=>setActiveEx(null)} mob={false} />
+              ? <ExerciseDetail ex={activeEx} onClose={()=>setActiveEx(null)} mob={false} paid={paid} onUnlock={startCheckout} />
               : activeTx
-              ? <TreatmentDetail tx={activeTx} finding={txFinding} onClose={handleTxClose} allFindings={findings} />
+              ? <TreatmentDetail tx={activeTx} finding={txFinding} onClose={handleTxClose} allFindings={findings} paid={paid} onUnlock={startCheckout} />
               : <FindingDetail finding={detailFinding} onClose={()=>{setDetailFinding(null);setActive(null)}} mob={false} onSelectTx={selectTx} paid={paid} onUnlock={startCheckout} />
           }
         />
