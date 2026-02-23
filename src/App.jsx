@@ -426,55 +426,32 @@ function Gauge({score,sev}){const s=T[sev];return(
 
 /* ═══════════════════ NARRATIVE CARD ═══════════════════ */
 /* ═══════════════════ ANALYZING SPLASH ═══════════════════ */
-function AnalyzingSplash({joint,mob}){
+function AnalyzingSplash({joint,mob,findings}){
   const jLabel=joint==="shoulder"?"Shoulder":joint==="hip"?"Hip":"Knee";
-  const steps=["Parsing MRI impression","Identifying structures","Classifying pathology","Mapping severity","Building 3D model"];
-  const[step,setStep]=useState(0);
-  useEffect(()=>{const t=setInterval(()=>setStep(s=>s<steps.length-1?s+1:s),400);return()=>clearInterval(t)},[]);
+  const[progress,setProgress]=useState(0);
+  const[label,setLabel]=useState("Reading report...");
+  useEffect(()=>{
+    const steps=[
+      {t:0,p:20,l:"Reading report..."},
+      {t:300,p:50,l:"Identifying structures..."},
+      {t:600,p:75,l:"Classifying pathology..."},
+      {t:900,p:90,l:"Building 3D model..."},
+      {t:1200,p:100,l:"Done"},
+    ];
+    const timers=steps.map(s=>setTimeout(()=>{setProgress(s.p);setLabel(s.l)},s.t));
+    return()=>timers.forEach(clearTimeout);
+  },[]);
   return(
-    <div style={{position:"absolute",inset:0,zIndex:25,background:"radial-gradient(ellipse at 50% 40%,rgba(250,249,247,0.97),rgba(245,244,241,0.98))",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",animation:"fadeIn .3s"}}>
-      {/* Animated boxes and connectors */}
-      <div style={{position:"relative",width:mob?260:340,height:mob?140:160,marginBottom:20}}>
-        {/* Flow boxes */}
-        {steps.map((s,i)=>{
-          const isActive=i<=step;
-          const isCurrent=i===step;
-          const cols=mob?2:3;
-          const row=Math.floor(i/cols);
-          const col=i%cols;
-          const bw=mob?110:100;const bh=36;const gx=mob?14:16;const gy=14;
-          const x=col*(bw+gx);
-          const y=row*(bh+gy+10);
-          return(
-            <div key={i}>
-              <div style={{
-                position:"absolute",left:x,top:y,width:bw,height:bh,
-                borderRadius:8,
-                background:isCurrent?"rgba(0,113,227,0.08)":isActive?"rgba(45,139,78,0.06)":"rgba(0,0,0,0.02)",
-                border:`1.5px solid ${isCurrent?"rgba(0,113,227,0.3)":isActive?"rgba(45,139,78,0.15)":"rgba(0,0,0,0.06)"}`,
-                display:"flex",alignItems:"center",justifyContent:"center",gap:5,padding:"0 8px",
-                transition:"all .4s cubic-bezier(.16,1,.3,1)",
-                opacity:isActive?1:0.35,
-                transform:isCurrent?"scale(1.04)":"scale(1)",
-              }}>
-                <span style={{fontSize:11,fontWeight:isCurrent?700:500,color:isCurrent?"#0071E3":isActive?"#2D8B4E":"#AEAEB2",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{isActive&&i<step?"✓ ":""}{s}</span>
-              </div>
-              {/* Arrow connector */}
-              {i<steps.length-1&&(i+1)%cols!==0&&<div style={{
-                position:"absolute",left:x+bw+2,top:y+bh/2-1,width:gx-4,height:2,
-                background:i<step?"rgba(45,139,78,0.25)":"rgba(0,0,0,0.06)",
-                transition:"background .4s",
-              }}><div style={{position:"absolute",right:-2,top:-3,fontSize:8,color:i<step?"#2D8B4E":"#AEAEB2"}}>›</div></div>}
-            </div>
-          );
-        })}
-      </div>
-      {/* Status text */}
-      <div style={{textAlign:"center"}}>
-        <div style={{fontSize:mob?14:16,fontWeight:700,color:"#1D1D1F",marginBottom:4}}>Generating {jLabel} Model</div>
-        <div style={{fontSize:12,color:"#6E6E73",display:"flex",alignItems:"center",gap:6,justifyContent:"center"}}>
-          <div style={{width:14,height:14,border:"2px solid #ECEAE6",borderTopColor:"#0071E3",borderRadius:"50%",animation:"spin .7s linear infinite"}} />
-          <span>{steps[step]}...</span>
+    <div style={{position:"absolute",inset:0,zIndex:25,background:"radial-gradient(ellipse at 50% 40%,rgba(250,249,247,0.97),rgba(245,244,241,0.98))",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",animation:"fadeIn .2s"}}>
+      <div style={{width:mob?220:280,marginBottom:20}}>
+        {/* Progress bar */}
+        <div style={{height:4,background:"#ECEAE6",borderRadius:2,overflow:"hidden",marginBottom:12}}>
+          <div style={{height:"100%",background:"linear-gradient(90deg,#0071E3,#1A7F7A)",borderRadius:2,width:`${progress}%`,transition:"width .3s ease-out"}} />
+        </div>
+        {/* Label */}
+        <div style={{textAlign:"center"}}>
+          <div style={{fontSize:mob?15:17,fontWeight:700,color:"#1D1D1F",marginBottom:4,fontFamily:"Georgia,serif"}}>Analyzing {jLabel} MRI</div>
+          <div style={{fontSize:12,color:"#6E6E73",transition:"opacity .2s"}}>{label}</div>
         </div>
       </div>
     </div>
@@ -2274,7 +2251,7 @@ export default function App(){
 
     if(isDemo){
       setJoint("knee");
-      setTimeout(()=>{pTrans();setFindings(DEMO_FD);setPhase("revealing");setRi(0)},2800);
+      setTimeout(()=>{pTrans();setFindings(DEMO_FD);setPhase("summary");setActive(null)},1500);
     } else {
       try {
         // Detect joint type
@@ -2296,8 +2273,8 @@ export default function App(){
         }
         pTrans();
         setFindings(mapped);
-        setPhase("revealing");
-        setRi(0);
+        // Short delay so the analyzing splash completes visually
+        setTimeout(()=>{setPhase("summary");setActive(null)},1500);
       } catch(e) {
         console.error('Parse failed:', e);
         setErr(e.message || "Unable to analyze this report. Please check the text and try again.");
@@ -2306,21 +2283,7 @@ export default function App(){
     }
   },[text]);
 
-  // Auto-tour: advance through findings on timer
-  useEffect(()=>{
-    if(phase!=="revealing"||!findings||ri<0)return;
-    if(ri>=findings.length){setPhase("summary");setActive(null);setTourProgress(0);return}
-    setActive(findings[ri]);pRev(ri);setTourProgress(0);
-    const DWELL=3000; // ms per finding
-    const TICK=30;
-    let elapsed=0;
-    const iv=setInterval(()=>{
-      elapsed+=TICK;
-      setTourProgress(Math.min(100,(elapsed/DWELL)*100));
-      if(elapsed>=DWELL){clearInterval(iv);setRi(r=>r+1)}
-    },TICK);
-    return()=>clearInterval(iv);
-  },[ri,phase,findings]);
+  // (revealing phase removed — go straight to summary)
 
   const reset=()=>{setPhase("input");setFindings(null);setRi(-1);setActive(null);setShowH(false);setText("");setTab("findings");setActiveEx(null);setDetailFinding(null);setActiveTx(null);setTxFinding(null);setErr(null);setAssessAnswers(null);setRecoveryStage(null);setDoctorAnswers({});setJoint(null);setTourProgress(0)};
   const togSel=f=>{
@@ -2415,7 +2378,6 @@ export default function App(){
           <div style={{height:`${mobSplit}%`,position:"relative",flexShrink:0,overflow:"hidden"}}>
             <JointCanvas findings={findings} active={active} phase={phase} showH={showH} joint={joint} />
             {phase==="summary"&&<SpecialistFinder joint={joint} mob={true} />}
-            {phase==="revealing"&&<FindingTooltip f={active} i={ri} n={findings?.length||0} mob={true} progress={tourProgress} />}
             {phase==="analyzing"&&<AnalyzingSplash joint={joint} mob={true} />}
           </div>
           {/* Vertical drag handle */}
@@ -2464,7 +2426,7 @@ export default function App(){
     <div style={{width:"100%",height:"100vh",background:T.bg,display:"flex",flexDirection:"column",overflow:"hidden"}}>
       {styles}{hdr}
       <div style={{flex:1,display:"flex",overflow:"hidden"}}>
-        <div style={{width:phase==="revealing"||phase==="analyzing"?0:(phase==="input"?400:360),borderRight:phase==="revealing"||phase==="analyzing"?"none":`1px solid ${T.bd}`,display:"flex",flexDirection:"column",flexShrink:0,background:T.sf,transition:"width .5s cubic-bezier(.16,1,.3,1)",overflow:"hidden"}}>
+        <div style={{width:phase==="analyzing"?0:(phase==="input"?400:360),borderRight:phase==="analyzing"?"none":`1px solid ${T.bd}`,display:"flex",flexDirection:"column",flexShrink:0,background:T.sf,transition:"width .5s cubic-bezier(.16,1,.3,1)",overflow:"hidden"}}>
           <div style={{padding:"22px 20px",display:"flex",flexDirection:"column",flex:1,overflow:"auto",minWidth:phase==="input"?400:360}}>
             {phase==="input"&&inputUI()}
             {phase==="summary"&&findings&&<>
@@ -2494,7 +2456,6 @@ export default function App(){
             <div style={{width:"100%",height:"100%",position:"relative",background:`radial-gradient(ellipse at 50% 40%,#faf9f7 0%,${T.bg} 100%)`}}>
               <JointCanvas findings={findings} active={active} phase={phase} showH={showH} joint={joint} />
               {phase==="analyzing"&&<AnalyzingSplash joint={joint} mob={false} />}
-              {phase==="revealing"&&<FindingTooltip f={active} i={ri} n={findings?.length||0} mob={false} progress={tourProgress} />}
               {phase==="summary"&&<SpecialistFinder joint={joint} mob={false} />}
               {active&&phase==="summary"&&!detailFinding&&!activeEx&&!activeTx&&<div style={{position:"absolute",top:14,left:180,background:T.sf,padding:"7px 14px",borderRadius:9,boxShadow:"0 2px 12px rgba(0,0,0,.05)",fontSize:13,fontWeight:600,color:T.tx,zIndex:10,animation:"fadeIn .3s"}}>{active.str} <span style={{color:T[active.sev].c,fontSize:11,marginLeft:6}}>● {active.path}</span></div>}
               <div style={{position:"absolute",top:14,right:14,fontSize:10,color:T.txF,pointerEvents:"none"}}>Drag to rotate · Scroll to zoom</div>
