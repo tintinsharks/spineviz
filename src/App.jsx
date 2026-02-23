@@ -238,12 +238,12 @@ function ReportTab({findings}){
 }
 
 /* ═══════════════════ TABBED PANEL ═══════════════════ */
-function TabbedPanel({findings,active,onSel,mob,tab,setTab}){
+function TabbedPanel({findings,active,onSel,mob,tab,setTab,activeEx,setActiveEx}){
   return(
     <>
       <TabBar tab={tab} setTab={setTab} mob={mob} />
       {tab==="findings"&&<Summary findings={findings} active={active} onSel={onSel} mob={mob} />}
-      {tab==="exercises"&&<PTLibrary findings={findings} onSelectFinding={onSel} />}
+      {tab==="exercises"&&<PTLibrary findings={findings} onSelectFinding={onSel} activeEx={activeEx} setActiveEx={setActiveEx} />}
       {tab==="report"&&<ReportTab findings={findings} />}
     </>
   );
@@ -282,6 +282,120 @@ function Summary({findings,active,onSel,mob}){
   );
 }
 
+/* ═══════════════════ EXERCISE DETAIL PANE ═══════════════════ */
+const PHASE_CLR={1:"#0071E3",2:"#2D8B4E",3:"#6B3FA0"};
+const PHASE_NM={1:"Phase 1: Early Recovery",2:"Phase 2: Building Strength",3:"Phase 3: Functional"};
+const PHASE_TM={1:"Weeks 1-2",2:"Weeks 3-6",3:"Weeks 7-12"};
+
+function ExerciseDetail({ex,onClose,mob}){
+  if(!ex)return null;
+  const pc=PHASE_CLR[ex.phase];
+  return(
+    <div style={{
+      display:"flex",flexDirection:"column",height:"100%",background:"#fff",
+      animation:"slideInRight .3s cubic-bezier(.16,1,.3,1)",overflow:"hidden",
+    }}>
+      {/* Header */}
+      <div style={{padding:"16px 18px 12px",borderBottom:"1px solid rgba(0,0,0,0.06)",flexShrink:0}}>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:6}}>
+          <button onClick={onClose} style={{display:"flex",alignItems:"center",gap:4,background:"none",border:"none",color:"#AEAEB2",fontSize:12,cursor:"pointer",padding:0}}>
+            ← Back to exercises
+          </button>
+          <span style={{fontSize:9,fontWeight:700,color:pc,background:pc+"14",padding:"3px 10px",borderRadius:5,textTransform:"uppercase",letterSpacing:1}}>
+            {PHASE_TM[ex.phase]}
+          </span>
+        </div>
+        <h2 style={{fontSize:mob?18:20,fontWeight:700,color:"#1D1D1F",margin:0,fontFamily:"Georgia,serif"}}>{ex.name}</h2>
+        <div style={{fontSize:11,color:pc,fontWeight:600,marginTop:2}}>{PHASE_NM[ex.phase]}</div>
+      </div>
+
+      {/* Scrollable content */}
+      <div style={{flex:1,overflow:"auto",padding:"16px 18px"}}>
+
+        {/* VIDEO PLACEHOLDER */}
+        <div style={{
+          width:"100%",aspectRatio:"16/9",background:"linear-gradient(135deg,#1D1D1F 0%,#2C2C2E 100%)",
+          borderRadius:12,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",
+          marginBottom:16,position:"relative",overflow:"hidden",
+        }}>
+          <div style={{width:48,height:48,borderRadius:"50%",background:"rgba(255,255,255,0.15)",
+            display:"flex",alignItems:"center",justifyContent:"center",marginBottom:8,
+            backdropFilter:"blur(4px)",border:"1px solid rgba(255,255,255,0.1)"}}>
+            <div style={{width:0,height:0,borderTop:"10px solid transparent",borderBottom:"10px solid transparent",
+              borderLeft:"16px solid rgba(255,255,255,0.8)",marginLeft:3}} />
+          </div>
+          <span style={{color:"rgba(255,255,255,0.7)",fontSize:12,fontWeight:500}}>Video Demonstration</span>
+          <span style={{color:"rgba(255,255,255,0.35)",fontSize:10,marginTop:2}}>Coming soon — {ex.name}</span>
+          {/* Decorative exercise icon */}
+          <div style={{position:"absolute",bottom:10,right:14,fontSize:9,color:"rgba(255,255,255,0.2)",fontFamily:"monospace"}}>
+            ClearScan PT Library
+          </div>
+        </div>
+
+        {/* HOW TO PERFORM */}
+        <div style={{marginBottom:16}}>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
+            <div style={{width:24,height:24,borderRadius:7,background:pc+"14",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>📋</div>
+            <h3 style={{fontSize:14,fontWeight:700,color:"#1D1D1F",margin:0}}>How to Perform</h3>
+          </div>
+          <div style={{padding:"12px 14px",background:"#F5F4F1",borderRadius:10,fontSize:13,lineHeight:1.7,color:"#1D1D1F"}}>
+            {ex.desc}
+          </div>
+          {/* Why this exercise */}
+          <div style={{padding:"10px 14px",background:pc+"08",borderRadius:10,borderLeft:`3px solid ${pc}`,marginTop:8}}>
+            <div style={{fontSize:10,fontWeight:700,color:pc,textTransform:"uppercase",letterSpacing:1,marginBottom:3}}>Why this exercise matters</div>
+            <div style={{fontSize:12,lineHeight:1.6,color:"#1D1D1F"}}>{ex.why}</div>
+          </div>
+        </div>
+
+        {/* REPS & CIRCUIT */}
+        <div style={{marginBottom:16}}>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
+            <div style={{width:24,height:24,borderRadius:7,background:pc+"14",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>🔄</div>
+            <h3 style={{fontSize:14,fontWeight:700,color:"#1D1D1F",margin:0}}>Reps & Circuit</h3>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+            <div style={{padding:"14px",background:"#F5F9FE",borderRadius:10,textAlign:"center"}}>
+              <div style={{fontSize:9,fontWeight:700,color:"#AEAEB2",textTransform:"uppercase",letterSpacing:1,marginBottom:4}}>Prescription</div>
+              <div style={{fontSize:15,fontWeight:700,color:"#0071E3"}}>{ex.rx}</div>
+            </div>
+            <div style={{padding:"14px",background:"#F5F9FE",borderRadius:10,textAlign:"center"}}>
+              <div style={{fontSize:9,fontWeight:700,color:"#AEAEB2",textTransform:"uppercase",letterSpacing:1,marginBottom:4}}>Tempo</div>
+              <div style={{fontSize:15,fontWeight:700,color:"#0071E3"}}>{ex.duration}</div>
+            </div>
+          </div>
+          {/* Targets */}
+          <div style={{marginTop:10,padding:"10px 14px",background:"#FAFAF8",borderRadius:10}}>
+            <div style={{fontSize:9,fontWeight:700,color:"#AEAEB2",textTransform:"uppercase",letterSpacing:1,marginBottom:6}}>Addresses these findings</div>
+            <div style={{display:"flex",flexWrap:"wrap",gap:4}}>
+              {(ex.finding||"").split(" / ").map((f,i)=>(
+                <span key={i} style={{fontSize:10,padding:"3px 9px",borderRadius:5,background:"rgba(0,113,227,0.06)",color:"#0071E3",fontWeight:600}}>{f}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* SAFETY */}
+        <div style={{marginBottom:16}}>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
+            <div style={{width:24,height:24,borderRadius:7,background:"rgba(191,16,41,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>⚠️</div>
+            <h3 style={{fontSize:14,fontWeight:700,color:"#1D1D1F",margin:0}}>Safety & Precautions</h3>
+          </div>
+          <div style={{padding:"12px 14px",borderRadius:10,border:"1px solid rgba(191,16,41,0.12)",background:"rgba(191,16,41,0.03)"}}>
+            <div style={{fontSize:12.5,lineHeight:1.65,color:"#6E6E73"}}>{ex.avoid}</div>
+          </div>
+          <div style={{marginTop:8,padding:"10px 14px",background:"#E6F5F4",borderRadius:10,border:"1px solid rgba(26,127,122,0.15)"}}>
+            <div style={{fontSize:11,lineHeight:1.5,color:"#1A7F7A"}}>
+              <strong>Always discuss with your PT</strong> before starting or progressing this exercise. Your therapist will modify intensity based on your specific examination and tolerance.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
 /* ═══════════════════ APP ═══════════════════ */
 export default function App(){
   const[text,setText]=useState("");
@@ -292,6 +406,7 @@ export default function App(){
   const[showH,setShowH]=useState(false);
   const[mob,setMob]=useState(false);
   const[tab,setTab]=useState("findings"); // "findings" | "exercises" | "report"
+  const[activeEx,setActiveEx]=useState(null); // selected exercise for detail pane
   useEffect(()=>{const c=()=>setMob(window.innerWidth<768);c();window.addEventListener("resize",c);return()=>window.removeEventListener("resize",c)},[]);
 
   const go=useCallback(async()=>{
@@ -306,9 +421,10 @@ export default function App(){
     if(phase==="revealing"&&ri>=FD.length){setPhase("summary");setActive(null)}
   },[ri,phase]);
 
-  const reset=()=>{setPhase("input");setFindings(null);setRi(-1);setActive(null);setShowH(false);setText("");setTab("findings")};
+  const reset=()=>{setPhase("input");setFindings(null);setRi(-1);setActive(null);setShowH(false);setText("");setTab("findings");setActiveEx(null)};
   const togSel=f=>{setActive(p=>p?.id===f.id?null:f);setShowH(false)};
   const hBtn=()=>setShowH(!showH);
+  const onTabChange=(t)=>{setTab(t);if(t!=="exercises")setActiveEx(null)};
 
   const inputUI=(pad)=>(
     <>
@@ -337,7 +453,7 @@ export default function App(){
     </div>
   );
 
-  const styles=<style>{`*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,'SF Pro Text','Helvetica Neue',sans-serif;-webkit-font-smoothing:antialiased}::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:rgba(0,0,0,.08);border-radius:4px}textarea::placeholder{color:#AEAEB2}textarea:focus{outline:none;border-color:#0071E3 !important;box-shadow:0 0 0 3px rgba(0,113,227,.07)}@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes spin{to{transform:rotate(360deg)}}`}</style>;
+  const styles=<style>{`*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,'SF Pro Text','Helvetica Neue',sans-serif;-webkit-font-smoothing:antialiased}::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:rgba(0,0,0,.08);border-radius:4px}textarea::placeholder{color:#AEAEB2}textarea:focus{outline:none;border-color:#0071E3 !important;box-shadow:0 0 0 3px rgba(0,113,227,.07)}@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes spin{to{transform:rotate(360deg)}}@keyframes slideInRight{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}`}</style>;
 
   // ─── MOBILE ───
   if(mob)return(
@@ -350,7 +466,9 @@ export default function App(){
             {phase==="revealing"&&<NCard f={active} i={ri} n={FD.length} onN={()=>setRi(i=>i+1)} onP={()=>setRi(i=>Math.max(0,i-1))} mob={true} />}
             {phase==="analyzing"&&<div style={{position:"absolute",inset:0,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",background:"rgba(245,244,241,.6)"}}><div style={{width:28,height:28,border:`3px solid ${T.bgD}`,borderTopColor:T.ac,borderRadius:"50%",animation:"spin .8s linear infinite"}} /><span style={{fontSize:13,color:T.txM,marginTop:10}}>Analyzing...</span></div>}
           </div>
-          {phase==="summary"&&findings&&<div style={{flex:1,overflow:"auto",padding:16,background:T.sf,borderTop:`1px solid ${T.bd}`}}><TabbedPanel findings={findings} active={active} onSel={togSel} mob={true} tab={tab} setTab={setTab} /></div>}
+          {phase==="summary"&&findings&&<div style={{flex:1,overflow:"auto",padding:16,background:T.sf,borderTop:`1px solid ${T.bd}`}}>
+            {activeEx ? <ExerciseDetail ex={activeEx} onClose={()=>setActiveEx(null)} mob={true} /> : <TabbedPanel findings={findings} active={active} onSel={togSel} mob={true} tab={tab} setTab={onTabChange} activeEx={activeEx} setActiveEx={setActiveEx} />}
+          </div>}
         </>
       )}
     </div>
@@ -365,16 +483,25 @@ export default function App(){
           <div style={{padding:"22px 20px",display:"flex",flexDirection:"column",flex:1,overflow:"auto",minWidth:phase==="input"?400:360}}>
             {phase==="input"&&inputUI()}
             {phase==="analyzing"&&<div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:12}}><div style={{width:32,height:32,border:`3px solid ${T.bgD}`,borderTopColor:T.ac,borderRadius:"50%",animation:"spin .8s linear infinite"}} /><span style={{fontSize:14,color:T.txM,fontWeight:500}}>Analyzing your MRI report...</span><span style={{fontSize:12,color:T.txL}}>Building your visualization</span></div>}
-            {phase==="summary"&&findings&&<TabbedPanel findings={findings} active={active} onSel={togSel} mob={false} tab={tab} setTab={setTab} />}
+            {phase==="summary"&&findings&&<TabbedPanel findings={findings} active={active} onSel={togSel} mob={false} tab={tab} setTab={onTabChange} activeEx={activeEx} setActiveEx={setActiveEx} />}
           </div>
         </div>
-        <div style={{flex:1,position:"relative",background:`radial-gradient(ellipse at 50% 40%,#faf9f7 0%,${T.bg} 100%)`}}>
-          <KneeCanvas findings={findings} active={active} phase={phase} showH={showH} />
-          {phase==="revealing"&&<NCard f={active} i={ri} n={FD.length} onN={()=>setRi(i=>i+1)} onP={()=>setRi(i=>Math.max(0,i-1))} mob={false} />}
-          {active&&phase==="summary"&&<div style={{position:"absolute",top:14,left:14,background:T.sf,padding:"7px 14px",borderRadius:9,boxShadow:"0 2px 12px rgba(0,0,0,.05)",fontSize:13,fontWeight:600,color:T.tx,zIndex:10,animation:"fadeIn .3s"}}>{active.str} <span style={{color:T[active.sev].c,fontSize:11,marginLeft:6}}>● {active.path}</span></div>}
-          <div style={{position:"absolute",top:14,right:14,fontSize:10,color:T.txF,pointerEvents:"none"}}>Drag to rotate · Scroll to zoom</div>
-          {phase==="input"&&<div style={{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",textAlign:"center",pointerEvents:"none"}}><div style={{fontSize:48,marginBottom:14,opacity:.15}}>🦴</div><div style={{fontSize:15,color:T.txL,fontWeight:500}}>Your 3D knee model</div><div style={{fontSize:12,color:T.txF,marginTop:6}}>Paste an MRI report to see findings visualized</div></div>}
-          {phase==="summary"&&<div style={{position:"absolute",bottom:20,left:20,right:20,maxWidth:440,background:T.sf,borderRadius:11,padding:"14px 18px",boxShadow:"0 4px 20px rgba(0,0,0,.06)",border:`1px solid ${T.bd}`,display:"flex",alignItems:"center",justifyContent:"space-between",zIndex:10,animation:"slideUp .5s cubic-bezier(.16,1,.3,1)"}}><div><div style={{fontSize:13,fontWeight:600,color:T.tx}}>Your full report is ready</div><div style={{fontSize:11,color:T.txL,marginTop:2}}>Specialist perspectives, exercises, questions for your doctor</div></div><button onClick={()=>generateReport(FD)} style={{background:T.ac,border:"none",color:"#fff",padding:"9px 18px",borderRadius:8,fontSize:12,fontWeight:600,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,marginLeft:14}}>Download Report (PDF)</button></div>}
+        <div style={{flex:1,display:"flex",overflow:"hidden"}}>
+          {/* 3D Viewport — shrinks when exercise detail is open */}
+          <div style={{flex:activeEx?1:1,position:"relative",background:`radial-gradient(ellipse at 50% 40%,#faf9f7 0%,${T.bg} 100%)`,transition:"flex .3s ease"}}>
+            <KneeCanvas findings={findings} active={active} phase={phase} showH={showH} />
+            {phase==="revealing"&&<NCard f={active} i={ri} n={FD.length} onN={()=>setRi(i=>i+1)} onP={()=>setRi(i=>Math.max(0,i-1))} mob={false} />}
+            {active&&phase==="summary"&&!activeEx&&<div style={{position:"absolute",top:14,left:14,background:T.sf,padding:"7px 14px",borderRadius:9,boxShadow:"0 2px 12px rgba(0,0,0,.05)",fontSize:13,fontWeight:600,color:T.tx,zIndex:10,animation:"fadeIn .3s"}}>{active.str} <span style={{color:T[active.sev].c,fontSize:11,marginLeft:6}}>● {active.path}</span></div>}
+            <div style={{position:"absolute",top:14,right:14,fontSize:10,color:T.txF,pointerEvents:"none"}}>Drag to rotate · Scroll to zoom</div>
+            {phase==="input"&&<div style={{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",textAlign:"center",pointerEvents:"none"}}><div style={{fontSize:48,marginBottom:14,opacity:.15}}>🦴</div><div style={{fontSize:15,color:T.txL,fontWeight:500}}>Your 3D knee model</div><div style={{fontSize:12,color:T.txF,marginTop:6}}>Paste an MRI report to see findings visualized</div></div>}
+            {phase==="summary"&&!activeEx&&<div style={{position:"absolute",bottom:20,left:20,right:20,maxWidth:440,background:T.sf,borderRadius:11,padding:"14px 18px",boxShadow:"0 4px 20px rgba(0,0,0,.06)",border:`1px solid ${T.bd}`,display:"flex",alignItems:"center",justifyContent:"space-between",zIndex:10,animation:"slideUp .5s cubic-bezier(.16,1,.3,1)"}}><div><div style={{fontSize:13,fontWeight:600,color:T.tx}}>Your full report is ready</div><div style={{fontSize:11,color:T.txL,marginTop:2}}>Specialist perspectives, exercises, questions for your doctor</div></div><button onClick={()=>generateReport(FD)} style={{background:T.ac,border:"none",color:"#fff",padding:"9px 18px",borderRadius:8,fontSize:12,fontWeight:600,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,marginLeft:14}}>Download Report (PDF)</button></div>}
+          </div>
+          {/* Exercise Detail Pane — slides in from right */}
+          {activeEx&&(
+            <div style={{width:380,borderLeft:`1px solid ${T.bd}`,flexShrink:0,animation:"slideInRight .3s cubic-bezier(.16,1,.3,1)"}}>
+              <ExerciseDetail ex={activeEx} onClose={()=>setActiveEx(null)} mob={false} />
+            </div>
+          )}
         </div>
       </div>
     </div>

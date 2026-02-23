@@ -123,9 +123,8 @@ const PHASE_NAMES = { 1: "Phase 1: Early Recovery", 2: "Phase 2: Building Streng
 const PHASE_TIME = { 1: "Weeks 1-2", 2: "Weeks 3-6", 3: "Weeks 7-12" };
 const PHASE_COLOR = { 1: "#0071E3", 2: "#2D8B4E", 3: "#6B3FA0" };
 
-export default function PTLibrary({ findings, onSelectFinding }) {
+export default function PTLibrary({ findings, onSelectFinding, activeEx, setActiveEx }) {
   const [viewMode, setViewMode] = useState("byPhase"); // byPhase | byFinding
-  const [expandedEx, setExpandedEx] = useState(null);
   const [activePhase, setActivePhase] = useState(null);
 
   if (!findings || findings.length === 0) return null;
@@ -134,26 +133,25 @@ export default function PTLibrary({ findings, onSelectFinding }) {
   const findingIds = new Set(findings.map(f => f.id));
   const relevantExercises = EXERCISES.filter(ex => ex.targets.some(t => findingIds.has(t)));
 
-  const toggleEx = (id) => setExpandedEx(prev => prev === id ? null : id);
+  const toggleEx = (ex) => setActiveEx?.(prev => prev?.id === ex.id ? null : ex);
 
   // ── Exercise Card ──
   const ExCard = ({ ex }) => {
-    const isOpen = expandedEx === ex.id;
+    const isSel = activeEx?.id === ex.id;
     const pc = PHASE_COLOR[ex.phase];
-    // Which of the patient's findings does this exercise address?
     const addressedFindings = findings.filter(f => ex.targets.includes(f.id));
 
     return (
       <div style={{ marginBottom: 6 }}>
-        <div onClick={() => toggleEx(ex.id)} style={{
+        <div onClick={() => toggleEx(ex)} style={{
           padding: "10px 12px", borderRadius: 8, cursor: "pointer",
-          border: `1px solid ${isOpen ? pc+"33" : "rgba(0,0,0,0.06)"}`,
-          background: isOpen ? pc+"08" : "#fff", transition: "all .2s",
+          border: `1px solid ${isSel ? pc+"44" : "rgba(0,0,0,0.06)"}`,
+          background: isSel ? pc+"08" : "#fff", transition: "all .2s",
         }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <span style={{ color: pc, fontSize: 14, fontWeight: 700, fontFamily: "monospace", width: 20 }}>
-                {isOpen ? "−" : "+"}
+                {isSel ? "●" : "○"}
               </span>
               <span style={{ fontSize: 13, fontWeight: 600, color: "#1D1D1F" }}>{ex.name}</span>
             </div>
@@ -161,7 +159,7 @@ export default function PTLibrary({ findings, onSelectFinding }) {
               {PHASE_TIME[ex.phase]}
             </span>
           </div>
-          <div style={{ display: "flex", gap: 4, marginTop: 4, marginLeft: 28 }}>
+          <div style={{ display: "flex", gap: 4, marginTop: 4, marginLeft: 28, flexWrap: "wrap" }}>
             {addressedFindings.map(f => (
               <span key={f.id} onClick={(e) => { e.stopPropagation(); onSelectFinding?.(f); }}
                 style={{ fontSize: 9, color: f.sev === "severe" ? "#BF1029" : f.sev === "moderate" ? "#C45D00" : "#A68B00",
@@ -171,41 +169,8 @@ export default function PTLibrary({ findings, onSelectFinding }) {
               </span>
             ))}
           </div>
-          {!isOpen && <div style={{ fontSize: 11, color: "#AEAEB2", marginTop: 3, marginLeft: 28 }}>{ex.rx}</div>}
+          <div style={{ fontSize: 11, color: "#AEAEB2", marginTop: 3, marginLeft: 28 }}>{ex.rx}</div>
         </div>
-
-        {isOpen && (
-          <div style={{ padding: "12px 14px 14px 42px", animation: "fadeIn .2s ease" }}>
-            {/* Prescription */}
-            <div style={{ display: "flex", gap: 16, marginBottom: 10 }}>
-              <div>
-                <div style={{ fontSize: 9, fontWeight: 700, color: "#AEAEB2", textTransform: "uppercase", letterSpacing: 1, marginBottom: 2 }}>Sets / Reps</div>
-                <div style={{ fontSize: 12, fontWeight: 600, color: "#1D1D1F" }}>{ex.rx}</div>
-              </div>
-              <div>
-                <div style={{ fontSize: 9, fontWeight: 700, color: "#AEAEB2", textTransform: "uppercase", letterSpacing: 1, marginBottom: 2 }}>Tempo</div>
-                <div style={{ fontSize: 12, fontWeight: 600, color: "#1D1D1F" }}>{ex.duration}</div>
-              </div>
-            </div>
-
-            {/* How to */}
-            <div style={{ fontSize: 12, lineHeight: 1.6, color: "#6E6E73", marginBottom: 8 }}>{ex.desc}</div>
-
-            {/* Why this exercise */}
-            <div style={{ padding: "8px 10px", background: pc+"08", borderRadius: 6, borderLeft: `3px solid ${pc}`, marginBottom: 8 }}>
-              <div style={{ fontSize: 9, fontWeight: 700, color: pc, textTransform: "uppercase", letterSpacing: 1, marginBottom: 2 }}>Why this exercise</div>
-              <div style={{ fontSize: 11, lineHeight: 1.5, color: "#1D1D1F" }}>{ex.why}</div>
-            </div>
-
-            {/* Caution */}
-            {ex.avoid && ex.avoid !== "None." && ex.avoid !== "None — this is safe for virtually all knee injuries." && ex.avoid !== "None — this is a safe, essential exercise." && (
-              <div style={{ padding: "8px 10px", background: "rgba(191,16,41,0.04)", borderRadius: 6, borderLeft: "3px solid rgba(191,16,41,0.3)" }}>
-                <div style={{ fontSize: 9, fontWeight: 700, color: "#BF1029", textTransform: "uppercase", letterSpacing: 1, marginBottom: 2 }}>Caution</div>
-                <div style={{ fontSize: 11, lineHeight: 1.5, color: "#6E6E73" }}>{ex.avoid}</div>
-              </div>
-            )}
-          </div>
-        )}
       </div>
     );
   };
