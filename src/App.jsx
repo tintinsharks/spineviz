@@ -528,58 +528,58 @@ function RecoveryTimeline({finding,joint,selected,onSelect}){
 
     if(sev==="severe"||hasSurgical){
       if(j==="shoulder"){
-        phases.push({week:"Now",title:"Just Diagnosed",desc:"You have your MRI results and are deciding next steps",icon:"📋",
+        phases.push({week:"Now",title:"Just Diagnosed",desc:"You have your MRI results and are deciding next steps",icon:"📋",meters:{pain:70,mobility:35,strength:40},
           items:["You may have pain at rest or with certain movements","Reaching overhead or behind your back is difficult","Sleep may be disrupted lying on the affected side","You're weighing conservative vs. surgical options"]});
-        phases.push({week:"0-2",title:"Starting Treatment",desc:"Whether PT or post-surgery, this is the protection window",icon:"🛡️",
+        phases.push({week:"0-2",title:"Starting Treatment",desc:"Whether PT or post-surgery, this is the protection window",icon:"🛡️",meters:{pain:60,mobility:20,strength:25},
           items:["Arm may be in a sling or movement is restricted","Pain is managed with ice, medication, or both","Gentle pendulum exercises to prevent stiffness","Showering & dressing may need help or adaptation"]});
-        phases.push({week:"3-6",title:"Getting Motion Back",desc:"Moving more, but still have clear limitations",icon:"🤲",
+        phases.push({week:"3-6",title:"Getting Motion Back",desc:"Moving more, but still have clear limitations",icon:"🤲",meters:{pain:40,mobility:50,strength:40},
           items:["You can reach forward but overhead is still limited","Stiffness is the main complaint, not sharp pain","Assisted stretches and light isometrics are tolerable","Driving and desk work are becoming manageable"]});
-        phases.push({week:"6-12",title:"Building Strength",desc:"Motion is better — working on power and endurance",icon:"💪",
+        phases.push({week:"6-12",title:"Building Strength",desc:"Motion is better — working on power and endurance",icon:"💪",meters:{pain:20,mobility:70,strength:60},
           items:["You can reach overhead with some effort","Carrying light groceries or bags is possible","Resistance band and light dumbbell work tolerated","Sleeping on the affected side still uncomfortable"]});
-        phases.push({week:"12-20",title:"Returning to Activity",desc:"Most daily tasks done — testing sport-like movements",icon:"🏃",
+        phases.push({week:"12-20",title:"Returning to Activity",desc:"Most daily tasks done — testing sport-like movements",icon:"🏃",meters:{pain:10,mobility:85,strength:80},
           items:["Lifting, pushing, pulling with moderate confidence","Throwing or overhead movements being reintroduced","Work duties mostly or fully resumed","Soreness after activity is normal but improving"]});
-        phases.push({week:"20-26",title:"Full Confidence",desc:"Strength regained — doing everything you did before",icon:"🏁",
+        phases.push({week:"20-26",title:"Full Confidence",desc:"Strength regained — doing everything you did before",icon:"🏁",meters:{pain:5,mobility:95,strength:95},
           items:["Full overhead strength and range of motion","All sports and activities without restriction","No pain with daily activities or exercise","Maintenance exercises keep you strong long-term"]});
       } else {
-        phases.push({week:"Now",title:"Just Diagnosed",desc:"You have your MRI results and are deciding next steps",icon:"📋",
+        phases.push({week:"Now",title:"Just Diagnosed",desc:"You have your MRI results and are deciding next steps",icon:"📋",meters:{pain:65,mobility:40,strength:45},
           items:["Your knee may swell after activity or feel unstable","Walking is possible but you may limp or feel uncertain","Stairs, squatting, or pivoting causes pain or giving-way","You're weighing conservative vs. surgical options"]});
-        phases.push({week:"0-2",title:"Starting Treatment",desc:"Whether PT or post-surgery, this is the protection window",icon:"🛡️",
+        phases.push({week:"0-2",title:"Starting Treatment",desc:"Whether PT or post-surgery, this is the protection window",icon:"🛡️",meters:{pain:55,mobility:25,strength:20},
           items:["Walking may require crutches or a brace","Bending past 90° is difficult or restricted","Doing gentle quad sets and ankle pumps","Ice and elevation are part of the daily routine"]});
-        phases.push({week:"3-6",title:"Walking More Normally",desc:"Off crutches and moving with more confidence",icon:"🚶",
+        phases.push({week:"3-6",title:"Walking More Normally",desc:"Off crutches and moving with more confidence",icon:"🚶",meters:{pain:35,mobility:55,strength:40},
           items:["Walking without a visible limp on flat ground","Bending to ~120° is achievable","Stairs possible but may lead with the good leg","Light cycling or pool walking feels comfortable"]});
-        phases.push({week:"6-12",title:"Building Strength",desc:"Walking is easy — working on power and balance",icon:"🏋️",
+        phases.push({week:"6-12",title:"Building Strength",desc:"Walking is easy — working on power and balance",icon:"🏋️",meters:{pain:15,mobility:75,strength:65},
           items:["Bodyweight squats without pain","Standing on one leg for 30+ seconds","Step-ups, lunges, and resistance exercises","Jogging in a straight line may be starting"]});
-        phases.push({week:"12-20",title:"Returning to Activity",desc:"Testing your knee with real-world demands",icon:"🏃",
+        phases.push({week:"12-20",title:"Returning to Activity",desc:"Testing your knee with real-world demands",icon:"🏃",meters:{pain:8,mobility:85,strength:80},
           items:["Running, jumping, and cutting drills introduced","Climbing stairs without thinking about it","Confidence in quick movements is building","Some soreness after hard sessions is normal"]});
-        phases.push({week:"20-26",title:"Full Confidence",desc:"Your knee feels strong and trustworthy again",icon:"🏁",
+        phases.push({week:"20-26",title:"Full Confidence",desc:"Your knee feels strong and trustworthy again",icon:"🏁",meters:{pain:5,mobility:95,strength:95},
           items:["Full return to sport and recreation","No instability, giving-way, or swelling after activity","Strength equal or near-equal to the other side","Maintenance exercises keep you protected"]});
       }
     } else if(sev==="moderate"){
       if(j==="shoulder"){
-        phases.push({week:"Now",title:"Just Diagnosed",desc:"You know what's going on — time to start addressing it",icon:"📋",
+        phases.push({week:"Now",title:"Just Diagnosed",desc:"You know what's going on — time to start addressing it",icon:"📋",meters:{pain:55,mobility:50,strength:55},
           items:["Pain with certain movements, especially overhead","Sleep disrupted if lying on the affected side","Most daily tasks OK but some cause a sharp catch","Starting conservative treatment (PT, modification)"]});
-        phases.push({week:"2-4",title:"Calming Things Down",desc:"Pain and inflammation being managed actively",icon:"🛡️",
+        phases.push({week:"2-4",title:"Calming Things Down",desc:"Pain and inflammation being managed actively",icon:"🛡️",meters:{pain:35,mobility:60,strength:55},
           items:["Pain decreasing with activity modification","Avoiding aggravating positions","Gentle stretches and isometrics are tolerable","Ice or anti-inflammatories are helping"]});
-        phases.push({week:"4-8",title:"Getting Stronger",desc:"Sharp pain gone — building back up",icon:"💪",
+        phases.push({week:"4-8",title:"Getting Stronger",desc:"Sharp pain gone — building back up",icon:"💪",meters:{pain:15,mobility:80,strength:75},
           items:["Reaching overhead with only mild discomfort","Resistance band exercises done consistently","Carrying objects at your side is comfortable","Shoulder feels more stable day-to-day"]});
-        phases.push({week:"8-12",title:"Back to Normal",desc:"Doing everything you did before with confidence",icon:"🏁",
+        phases.push({week:"8-12",title:"Back to Normal",desc:"Doing everything you did before with confidence",icon:"🏁",meters:{pain:5,mobility:95,strength:90},
           items:["Full range of motion without pain","Exercise and sport activities resumed","No catch or sharp pain with movement","Maintenance exercises 2-3x/week"]});
       } else {
-        phases.push({week:"Now",title:"Just Diagnosed",desc:"You know what's going on — time to start addressing it",icon:"📋",
+        phases.push({week:"Now",title:"Just Diagnosed",desc:"You know what's going on — time to start addressing it",icon:"📋",meters:{pain:50,mobility:55,strength:55},
           items:["Pain or swelling after activity, especially stairs","Walking fine but longer distances uncomfortable","May hear clicking, catching, or feel stiffness","Starting conservative treatment (PT, modification)"]});
-        phases.push({week:"2-4",title:"Calming Things Down",desc:"Reducing pain and swelling so rehab can progress",icon:"🛡️",
+        phases.push({week:"2-4",title:"Calming Things Down",desc:"Reducing pain and swelling so rehab can progress",icon:"🛡️",meters:{pain:30,mobility:65,strength:55},
           items:["Pain decreasing with rest and modification","Swelling going down with ice and compression","Gentle range of motion and quad activation tolerated","Avoiding deep squats and impact activities"]});
-        phases.push({week:"4-8",title:"Getting Stronger",desc:"Acute phase over — rebuilding strength and stability",icon:"💪",
+        phases.push({week:"4-8",title:"Getting Stronger",desc:"Acute phase over — rebuilding strength and stability",icon:"💪",meters:{pain:12,mobility:80,strength:75},
           items:["Walking long distances comfortable again","Squatting to ~90° without sharp pain","Balance and resistance exercises progressing","Cycling or swimming feels good"]});
-        phases.push({week:"8-12",title:"Back to Normal",desc:"Knee feels reliable for daily life and activity",icon:"🏁",
+        phases.push({week:"8-12",title:"Back to Normal",desc:"Knee feels reliable for daily life and activity",icon:"🏁",meters:{pain:5,mobility:95,strength:92},
           items:["Stairs, hills, and uneven terrain no problem","Sport and exercise fully resumed","No swelling after activity","Maintenance exercises prevent recurrence"]});
       }
     } else {
-      phases.push({week:"Now",title:"Just Diagnosed",desc:"Likely manageable with simple modifications",icon:"📋",
+      phases.push({week:"Now",title:"Just Diagnosed",desc:"Likely manageable with simple modifications",icon:"📋",meters:{pain:30,mobility:75,strength:70},
         items:["Mild discomfort with certain movements","Daily activities mostly unaffected","More noticeable after prolonged activity","Simple changes and targeted exercises should help"]});
-      phases.push({week:"2-4",title:"Improving",desc:"Targeted exercises are reducing symptoms",icon:"💪",
+      phases.push({week:"2-4",title:"Improving",desc:"Targeted exercises are reducing symptoms",icon:"💪",meters:{pain:12,mobility:88,strength:82},
         items:["Discomfort noticeably less frequent","Strengthening exercises done consistently","Activity tolerance increasing","Most days you don't think about it"]});
-      phases.push({week:"4-8",title:"Resolved",desc:"Symptoms gone or minimal — maintain with exercise",icon:"🏁",
+      phases.push({week:"4-8",title:"Resolved",desc:"Symptoms gone or minimal — maintain with exercise",icon:"🏁",meters:{pain:3,mobility:95,strength:95},
         items:["No pain with daily activities or exercise","Full strength and range of motion","Continue maintenance 2-3x/week","Follow up only if symptoms return"]});
     }
     return phases;
@@ -641,17 +641,43 @@ function RecoveryTimeline({finding,joint,selected,onSelect}){
             border:isSel?`2px solid ${teal}`:`1px solid ${isPast?"rgba(26,127,122,0.1)":"rgba(0,0,0,0.05)"}`,
             transition:"all .2s",marginBottom:0,
           }}>
-            <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:isSel?3:0}}>
-              <div style={{flex:1}}>
-                <div style={{display:"flex",alignItems:"center",gap:6}}>
+            {/* Header row: title left, meters right */}
+            <div style={{display:"flex",alignItems:"flex-start",gap:8}}>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
                   <span style={{fontSize:12,fontWeight:700,color:isPast?"#AEAEB2":isSel?"#1D1D1F":"#6E6E73"}}>{ph.title}</span>
                   {isSel&&<span style={{fontSize:8,fontWeight:700,color:"#fff",background:teal,padding:"2px 6px",borderRadius:3}}>YOU ARE HERE</span>}
                   {isPast&&<span style={{fontSize:8,fontWeight:600,color:teal,background:"rgba(26,127,122,0.08)",padding:"2px 6px",borderRadius:3}}>✓ DONE</span>}
                 </div>
                 <div style={{fontSize:9,color:"#AEAEB2",fontWeight:600}}>Week {ph.week}</div>
               </div>
+              {/* Functional meters */}
+              {ph.meters&&<div style={{width:90,flexShrink:0}}>
+                {[
+                  {label:"Pain",val:ph.meters.pain,color:"#BF1029",inverted:true},
+                  {label:"Mobility",val:ph.meters.mobility,color:"#0071E3"},
+                  {label:"Strength",val:ph.meters.strength,color:"#2D8B4E"},
+                ].map((m,mi)=>(
+                  <div key={mi} style={{marginBottom:mi<2?4:0}}>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:1}}>
+                      <span style={{fontSize:7,fontWeight:700,color:isFuture?"#D0D0D0":isPast?"#AEAEB2":"#6E6E73",textTransform:"uppercase",letterSpacing:.5}}>{m.label}</span>
+                      <span style={{fontSize:7,fontWeight:700,color:isFuture?"#D0D0D0":m.inverted?(m.val>50?"#BF1029":m.val>20?"#C45D00":"#2D8B4E"):m.color}}>{m.inverted?(m.val>50?"High":m.val>20?"Med":"Low"):`${m.val}%`}</span>
+                    </div>
+                    <div style={{height:4,background:isFuture?"#ECEAE6":"rgba(0,0,0,0.06)",borderRadius:2,overflow:"hidden"}}>
+                      <div style={{
+                        width:`${m.val}%`,height:"100%",borderRadius:2,
+                        background:isFuture?"#D0D0D0":m.inverted?
+                          (m.val>50?"#BF1029":m.val>20?"#C45D00":"#2D8B4E")
+                          :m.color,
+                        opacity:isPast?.5:1,
+                        transition:"width .4s ease-out",
+                      }} />
+                    </div>
+                  </div>
+                ))}
+              </div>}
             </div>
-            {isSel&&<div style={{fontSize:10,color:"#6E6E73",marginBottom:4,fontStyle:"italic"}}>{ph.desc}</div>}
+            {isSel&&<div style={{fontSize:10,color:"#6E6E73",marginBottom:4,marginTop:4,fontStyle:"italic"}}>{ph.desc}</div>}
             {isSel&&<div style={{marginTop:2}}>
               {ph.items.map((item,j)=>(
                 <div key={j} style={{display:"flex",alignItems:"flex-start",gap:6,marginBottom:3}}>
