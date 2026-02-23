@@ -265,6 +265,67 @@ const CONTENT = {
     ],
   },
 
+  /* ─── LCL ─── */
+  lcl: {
+    desc: () => "Your lateral collateral ligament is injured — the ligament on the outer side of your knee that resists inward bowing forces.",
+    imp: "Pain on the outer side of the knee. May feel unstable with lateral stress or pivoting.",
+    ctx: "LCL injuries are less common than MCL injuries and are more likely to be associated with other ligament damage (posterolateral corner).",
+    lenses: [
+      { spec: "Sports Medicine Ortho", color: "#0071E3", text: "Isolated LCL injuries can often be managed conservatively. However, LCL tears frequently occur with posterolateral corner injuries, which may require surgical repair for optimal outcomes." },
+      { spec: "Physiatry / Rehab", color: "#2D8B4E", text: "Strengthening of the lateral stabilizers — IT band, lateral hamstrings, and peroneals — helps compensate for LCL laxity during conservative management." },
+    ],
+    questions: ["Is this an isolated LCL injury or part of a posterolateral corner injury?", "Do I need surgical repair?", "Will bracing be sufficient?"],
+    timeline: "Isolated Grade 1-2: 3-6 weeks. Grade 3 or combined: may require surgery with 4-6 month recovery.",
+    selfAssess: [
+      { q: "Does your knee feel unstable when you put weight on it and try to pivot?", why: "Lateral instability with weight-bearing suggests a higher-grade injury." },
+      { q: "Did the injury involve a blow to the inner side of your knee?", why: "A varus force (blow to the medial side) is the classic mechanism for LCL injuries." },
+    ],
+    treatments: [
+      { name: "Bracing + Physical Therapy", type: "conservative", color: "#2D8B4E", desc: "Hinged knee brace with progressive lateral stabilization exercises.", timeline: "3-6 weeks for Grade 1-2.", pros: "Effective for isolated, low-grade injuries.", cons: "Higher-grade tears may not heal sufficiently without surgery." },
+      { name: "LCL / Posterolateral Corner Repair", type: "surgical", color: "#0071E3", desc: "Surgical repair or reconstruction of the LCL and associated structures. Best outcomes when performed within 2-3 weeks of injury.", timeline: "4-6 months recovery.", pros: "Restores lateral stability. Better long-term outcomes for high-grade injuries.", cons: "Requires surgery and prolonged rehab. Peroneal nerve at risk (monitored carefully)." },
+    ],
+  },
+
+  /* ─── QUADRICEPS TENDON ─── */
+  quad_tendon: {
+    desc: () => "Your quadriceps tendon shows changes — the large tendon above the kneecap connecting your thigh muscles to your patella.",
+    imp: "Pain above the kneecap, especially with straightening the knee against resistance or going downstairs.",
+    ctx: "Quadriceps tendon pathology ranges from tendinosis (degeneration) to partial or complete tears. More common in patients over 40.",
+    lenses: [
+      { spec: "Sports Medicine Ortho", color: "#0071E3", text: "Complete quad tendon ruptures require urgent surgical repair. Partial tears and tendinosis are typically managed conservatively with eccentric loading programs." },
+      { spec: "Physical Therapy", color: "#1A7F7A", text: "Eccentric quad strengthening (slow lowering exercises) is the evidence-based first-line treatment for tendinosis. Avoid jumping and explosive movements until symptoms resolve." },
+    ],
+    questions: ["Is this tendinosis or a structural tear?", "Do I need imaging follow-up?", "When can I return to full activity?"],
+    timeline: "Tendinosis: 6-12 weeks with eccentric loading. Partial tear: 3-6 months. Complete tear: surgical repair with 4-6 month recovery.",
+    selfAssess: [
+      { q: "Can you straighten your knee against gravity while sitting?", why: "Inability to extend the knee suggests a significant or complete tear — this needs urgent evaluation." },
+      { q: "Is there a visible or palpable gap above the kneecap?", why: "A palpable defect above the patella is a clinical sign of a complete rupture." },
+    ],
+    treatments: [
+      { name: "Eccentric Loading Program", type: "conservative", color: "#2D8B4E", desc: "Progressive eccentric quad exercises — the gold standard for tendinosis.", timeline: "6-12 weeks.", pros: "Evidence-based, highly effective for tendinosis.", cons: "Requires daily compliance. Some discomfort expected initially." },
+      { name: "Quad Tendon Repair", type: "surgical", color: "#0071E3", desc: "Surgical reattachment of torn tendon. Required for complete ruptures.", timeline: "4-6 months recovery.", pros: "Restores extensor mechanism. Essential for complete tears.", cons: "Significant quad weakness during rehab. Stiffness risk." },
+    ],
+  },
+
+  /* ─── LOOSE BODY ─── */
+  loose_body: {
+    desc: () => "A loose body (free fragment) has been detected within your knee joint — a piece of cartilage or bone floating freely in the joint space.",
+    imp: "Intermittent locking, catching, or sharp pain when the fragment gets caught between joint surfaces. Symptoms may come and go.",
+    ctx: "Loose bodies can result from cartilage injuries, osteochondritis dissecans, or degenerative processes. They often require removal if symptomatic.",
+    lenses: [
+      { spec: "Sports Medicine Ortho", color: "#0071E3", text: "Symptomatic loose bodies that cause locking or catching are typically removed arthroscopically. Small asymptomatic fragments may be monitored." },
+    ],
+    questions: ["Is this loose body causing my symptoms?", "Does it need to be removed?", "Could it damage my joint if left alone?"],
+    timeline: "Arthroscopic removal: return to activities in 2-4 weeks. Observation: ongoing monitoring.",
+    selfAssess: [
+      { q: "Does your knee ever suddenly lock in one position and then release?", why: "Intermittent mechanical locking is the hallmark symptom of a loose body catching between joint surfaces." },
+    ],
+    treatments: [
+      { name: "Observation", type: "conservative", color: "#2D8B4E", desc: "Monitor if asymptomatic. Avoid activities that provoke locking.", timeline: "Ongoing monitoring with periodic reassessment.", pros: "Avoids surgery. Some loose bodies become asymptomatic.", cons: "Risk of cartilage damage if fragment repeatedly catches." },
+      { name: "Arthroscopic Removal", type: "surgical", color: "#0071E3", desc: "Minimally invasive removal of the loose body through small incisions.", timeline: "Outpatient procedure. Return to activity in 2-4 weeks.", pros: "Definitive treatment. Quick recovery. Eliminates locking.", cons: "Minor surgical risks. Does not address the underlying cause of fragment formation." },
+    ],
+  },
+
   /* ─── PATELLAR TENDON ─── */
   patella_tendon: {
     desc: () => "Your patellar tendon shows changes — the tendon connecting your kneecap to your shin bone.",
