@@ -29,27 +29,64 @@ const FD=[
     desc:"A horizontal cleavage tear in the posterior horn of your medial meniscus — the C-shaped shock absorber on the inner side of your knee.",
     imp:"Pain along the inner knee line, especially with deep squats, twisting, or stair climbing. Possible catching or locking.",
     ctx:"Horizontal meniscal tears are among the most common knee findings. Many respond well to physical therapy without surgery.",
-    sc:.5,cam:{p:[1.8,.3,2.2],t:[0,-.1,0]}},
+    sc:.5,cam:{p:[1.8,.3,2.2],t:[0,-.1,0]},
+    lenses:[
+      {spec:"Sports Medicine Ortho",color:"#0071E3",text:"Horizontal tears are often degenerative and many can be managed conservatively. If ACL reconstruction is pursued, the meniscus is typically evaluated during the same procedure. The key question is whether this tear is stable or unstable."},
+      {spec:"Physical Therapy",color:"#1A7F7A",text:"For conservative management, targeted strengthening of quadriceps and hip musculature reduces mechanical load through the medial compartment. Avoid deep squatting and pivoting until cleared."},
+      {spec:"Trauma Ortho",color:"#C45D00",text:"The posterior horn location is important. Options range from partial meniscectomy (trimming) to meniscal repair (suturing). Repair is preferred when feasible, as preserving meniscal tissue protects the joint long-term."},
+    ],
+    questions:["Is my meniscal tear contributing to symptoms, or could it be managed conservatively?","If you operate on the ACL, will you also address the meniscus?","Would you repair or trim, and what's the difference in recovery?","How does meniscus repair change the rehabilitation timeline?"],
+    timeline:"Conservative: 3-6 weeks to return to most activities. Post-repair: 4-6 weeks restricted weight-bearing, 3-4 months full recovery.",
+  },
   {id:"acl",str:"ACL",path:"Complete Tear",sev:"severe",m:["acl"],
     desc:"Your anterior cruciate ligament is completely torn — the primary stabilizer preventing your shin bone from sliding forward.",
     imp:"Instability during cutting, pivoting, or sudden stops. Walking and cycling typically unaffected.",
     ctx:"About 200,000 ACL injuries occur annually in the US. Treatment depends on your activity goals — many return to full activity with structured rehabilitation.",
-    sc:.85,cam:{p:[1.5,.2,2.5],t:[0,0,0]}},
+    sc:.85,cam:{p:[1.5,.2,2.5],t:[0,0,0]},
+    lenses:[
+      {spec:"Sports Medicine Ortho",color:"#0071E3",text:"The decision between surgical reconstruction and conservative management depends heavily on your activity goals. For patients wanting to return to cutting/pivoting sports, reconstruction is generally recommended. For straight-line activities, structured PT may restore functional stability without surgery."},
+      {spec:"Pain Medicine",color:"#6B3FA0",text:"The ACL itself is often not the primary pain generator after the acute phase. Much of the ongoing pain may come from associated bone bruising, effusion, and altered biomechanics. If pain persists beyond expectations, there may be interventional options worth discussing."},
+      {spec:"Physiatry / Rehab",color:"#2D8B4E",text:"Regardless of whether surgery is pursued, early rehabilitation focusing on quad activation, ROM restoration, and swelling control is universally recommended. \"Prehab\" before surgery is associated with better post-operative outcomes."},
+    ],
+    questions:["Based on my age and activity level, would you recommend reconstruction or PT?","If I pursue PT first, what signs would tell us surgery is needed?","What graft type would you recommend, and why?","What is the realistic timeline for returning to my specific activities?","Are there factors in my MRI that make my case more complex than typical?"],
+    timeline:"Conservative: 3-6 months structured PT. Surgical: 6-9 months total recovery, return to sport 9-12 months.",
+  },
   {id:"bone",str:"Bone",path:"Bone Bruise",sev:"mild",m:["condyle_lateral","tibial_plateau"],
     desc:"Bone marrow edema in your lateral femoral condyle and posterolateral tibial plateau — a very common companion finding with ACL tears.",
     imp:"Deep, aching pain that gradually fades over 6-12 weeks. No specific treatment required.",
     ctx:"Present in over 80% of acute ACL injuries. The bruise pattern confirms the mechanism. Resolves on its own within 2-3 months.",
-    sc:.2,cam:{p:[2,.8,1.5],t:[0,.2,0]}},
+    sc:.2,cam:{p:[2,.8,1.5],t:[0,.2,0]},
+    lenses:[
+      {spec:"Trauma Ortho",color:"#C45D00",text:"This bruise pattern is seen in the vast majority of acute ACL injuries and provides diagnostic confirmation of the injury mechanism. It does not require specific treatment and resolves on its own within 2-3 months."},
+      {spec:"Pain Medicine",color:"#6B3FA0",text:"Bone bruises can be a significant pain source in the early weeks. If pain is disproportionate to expectations, your physician can discuss whether protective weight-bearing modifications or anti-inflammatory strategies would help."},
+    ],
+    questions:["Is this bruise pattern typical for my type of injury?","Will this affect the surgical plan or timing?","Do I need to limit weight-bearing because of the bone bruise?"],
+    timeline:"Typically resolves in 2-3 months without specific treatment. Pain usually improves significantly within 4-6 weeks.",
+  },
   {id:"eff",str:"Joint Fluid",path:"Moderate Effusion",sev:"moderate",m:["effusion"],
     desc:"Moderate excess fluid in your knee joint — your body's inflammatory response to the internal injuries.",
     imp:"Stiffness, tightness, difficulty fully bending or straightening. May feel warm and puffy.",
     ctx:"Expected after acute injury. Improves with RICE (rest, ice, compression, elevation) over 2-4 weeks.",
-    sc:.45,cam:{p:[2.5,1.5,1.5],t:[0,.5,0]}},
+    sc:.45,cam:{p:[2.5,1.5,1.5],t:[0,.5,0]},
+    lenses:[
+      {spec:"Physiatry / Rehab",color:"#2D8B4E",text:"Reducing effusion is the most important early goal because swelling directly inhibits quad activation (arthrogenic muscle inhibition). RICE protocol and gentle ROM exercises are first-line."},
+      {spec:"Pain Medicine",color:"#6B3FA0",text:"If effusion persists beyond 4-6 weeks despite conservative measures, aspiration with or without corticosteroid injection may be considered to break the inflammatory cycle and facilitate rehab."},
+    ],
+    questions:["Should the fluid be drained (aspirated)?","What's normal swelling vs. concerning swelling at this stage?","How will effusion affect my rehabilitation timeline?"],
+    timeline:"Acute effusion typically resolves in 2-4 weeks with RICE. Persistent effusion beyond 6 weeks may warrant aspiration.",
+  },
   {id:"cart",str:"Articular Cartilage",path:"Grade 2 Chondromalacia",sev:"mild",m:["cartilage_medial"],
     desc:"The smooth cartilage on the inner surface of your thigh bone shows softening and early wear — Grade 2 on a 4-point scale.",
     imp:"Occasional dull ache with prolonged sitting or weight-bearing. Mild grinding sensation possible.",
     ctx:"Very common and frequently incidental. Quadriceps strengthening is the most effective conservative treatment.",
-    sc:.25,cam:{p:[2,-.2,2],t:[0,-.1,0]}},
+    sc:.25,cam:{p:[2,-.2,2],t:[0,-.1,0]},
+    lenses:[
+      {spec:"Pain Medicine",color:"#6B3FA0",text:"Grade 2 cartilage changes are found on a very large proportion of knee MRIs in adults over 30, often with no symptoms at all. This finding may be incidental — present before your injury and not contributing to your current symptoms. Discuss with your physician."},
+      {spec:"Physical Therapy",color:"#1A7F7A",text:"The strongest evidence for managing early cartilage changes is quadriceps and gluteal strengthening, which reduces compressive load through the medial compartment. Low-impact activities like cycling and swimming are well-tolerated."},
+    ],
+    questions:["Is this cartilage finding likely causing my pain, or is it incidental?","Will this get worse over time?","Are there any injections (PRP, viscosupplementation) worth considering?","Should I change my exercise habits long-term to protect the cartilage?"],
+    timeline:"Grade 2 changes are typically managed long-term with strength maintenance. Not expected to progress rapidly with appropriate exercise.",
+  },
 ];
 
 /* ═══════════════════ SOUND ═══════════════════ */
@@ -282,6 +319,110 @@ function Summary({findings,active,onSel,mob}){
   );
 }
 
+/* ═══════════════════ FINDING DETAIL PANE ═══════════════════ */
+function FindingDetail({finding,onClose,mob}){
+  if(!finding)return null;
+  const sc=T[finding.sev];
+  return(
+    <div style={{display:"flex",flexDirection:"column",height:"100%",background:"#fff",animation:"slideInRight .3s cubic-bezier(.16,1,.3,1)",overflow:"hidden"}}>
+      {/* Header */}
+      <div style={{padding:"16px 18px 12px",borderBottom:"1px solid rgba(0,0,0,0.06)",flexShrink:0}}>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:6}}>
+          <button onClick={onClose} style={{display:"flex",alignItems:"center",gap:4,background:"none",border:"none",color:"#AEAEB2",fontSize:12,cursor:"pointer",padding:0}}>← Back to findings</button>
+          <span style={{fontSize:9,fontWeight:700,color:sc.c,background:sc.bg,border:`1px solid ${sc.bd}`,padding:"3px 10px",borderRadius:5,textTransform:"uppercase",letterSpacing:1}}>{finding.sev}</span>
+        </div>
+        <h2 style={{fontSize:mob?18:20,fontWeight:700,color:T.tx,margin:0,fontFamily:"Georgia,serif"}}>{finding.str}</h2>
+        <div style={{fontSize:12,color:sc.c,fontWeight:600,marginTop:2}}>{finding.path}</div>
+      </div>
+
+      {/* Scrollable content */}
+      <div style={{flex:1,overflow:"auto",padding:"16px 18px"}}>
+
+        {/* Severity gauge */}
+        <div style={{marginBottom:16}}>
+          <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
+            <span style={{fontSize:9,fontWeight:700,color:"#AEAEB2",textTransform:"uppercase",letterSpacing:1}}>Severity</span>
+            <span style={{fontSize:10,fontWeight:600,color:sc.c}}>{Math.round(finding.sc*100)}%</span>
+          </div>
+          <div style={{height:6,background:"#ECEAE6",borderRadius:3,overflow:"hidden"}}>
+            <div style={{height:"100%",width:`${finding.sc*100}%`,background:sc.c,borderRadius:3,transition:"width .5s ease"}} />
+          </div>
+        </div>
+
+        {/* What it is */}
+        <div style={{marginBottom:16}}>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
+            <div style={{width:24,height:24,borderRadius:7,background:sc.bg,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>🔍</div>
+            <h3 style={{fontSize:14,fontWeight:700,color:T.tx,margin:0}}>What This Means</h3>
+          </div>
+          <div style={{padding:"12px 14px",background:"#F5F4F1",borderRadius:10,fontSize:13,lineHeight:1.7,color:T.tx}}>{finding.desc}</div>
+        </div>
+
+        {/* What you may feel */}
+        <div style={{marginBottom:16}}>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
+            <div style={{width:24,height:24,borderRadius:7,background:"rgba(0,113,227,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>💬</div>
+            <h3 style={{fontSize:14,fontWeight:700,color:T.tx,margin:0}}>What You May Experience</h3>
+          </div>
+          <div style={{padding:"12px 14px",background:"#F5F9FE",borderRadius:10,borderLeft:"3px solid #0071E3",fontSize:12.5,lineHeight:1.65,color:"#6E6E73"}}>{finding.imp}</div>
+        </div>
+
+        {/* Clinical context */}
+        <div style={{marginBottom:16,padding:"10px 14px",background:"#FAFAF8",borderRadius:10}}>
+          <div style={{fontSize:9,fontWeight:700,color:"#AEAEB2",textTransform:"uppercase",letterSpacing:1,marginBottom:4}}>Clinical Context</div>
+          <div style={{fontSize:12,lineHeight:1.6,color:"#6E6E73"}}>{finding.ctx}</div>
+        </div>
+
+        {/* Expected timeline */}
+        {finding.timeline&&<div style={{marginBottom:16}}>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
+            <div style={{width:24,height:24,borderRadius:7,background:"rgba(45,139,78,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>⏱</div>
+            <h3 style={{fontSize:14,fontWeight:700,color:T.tx,margin:0}}>Expected Timeline</h3>
+          </div>
+          <div style={{padding:"12px 14px",background:"#E8F5EC",borderRadius:10,borderLeft:"3px solid #2D8B4E",fontSize:12,lineHeight:1.6,color:"#1D1D1F"}}>{finding.timeline}</div>
+        </div>}
+
+        {/* Specialist perspectives */}
+        {finding.lenses&&finding.lenses.length>0&&<div style={{marginBottom:16}}>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
+            <div style={{width:24,height:24,borderRadius:7,background:"rgba(107,63,160,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>👥</div>
+            <h3 style={{fontSize:14,fontWeight:700,color:T.tx,margin:0}}>Specialist Perspectives</h3>
+          </div>
+          {finding.lenses.map((l,i)=>(
+            <div key={i} style={{padding:"10px 12px",borderRadius:8,marginBottom:6,background:l.color+"06",borderLeft:`3px solid ${l.color}`}}>
+              <div style={{fontSize:10,fontWeight:700,color:l.color,marginBottom:3}}>{l.spec}</div>
+              <div style={{fontSize:12,lineHeight:1.6,color:"#6E6E73"}}>{l.text}</div>
+            </div>
+          ))}
+        </div>}
+
+        {/* Questions to ask */}
+        {finding.questions&&finding.questions.length>0&&<div style={{marginBottom:16}}>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
+            <div style={{width:24,height:24,borderRadius:7,background:"rgba(196,93,0,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>❓</div>
+            <h3 style={{fontSize:14,fontWeight:700,color:T.tx,margin:0}}>Questions for Your Doctor</h3>
+          </div>
+          <div style={{padding:"10px 14px",background:"#FAFAF8",borderRadius:10,border:"1px solid rgba(0,0,0,0.04)"}}>
+            {finding.questions.map((q,i)=>(
+              <div key={i} style={{display:"flex",gap:8,padding:"6px 0",borderBottom:i<finding.questions.length-1?"1px solid rgba(0,0,0,0.04)":"none"}}>
+                <span style={{color:"#C45D00",fontSize:11,flexShrink:0,marginTop:1}}>□</span>
+                <span style={{fontSize:12,lineHeight:1.5,color:T.tx}}>{q}</span>
+              </div>
+            ))}
+          </div>
+        </div>}
+
+        {/* Disclaimer */}
+        <div style={{padding:"8px 10px",background:"#E6F5F4",borderRadius:8,border:"1px solid rgba(26,127,122,0.12)"}}>
+          <div style={{fontSize:10,lineHeight:1.5,color:"#1A7F7A"}}>
+            This information reflects general clinical perspectives for this type of finding. Your treating physician will provide recommendations specific to your situation.
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ═══════════════════ EXERCISE DETAIL PANE ═══════════════════ */
 const PHASE_CLR={1:"#0071E3",2:"#2D8B4E",3:"#6B3FA0"};
 const PHASE_NM={1:"Phase 1: Early Recovery",2:"Phase 2: Building Strength",3:"Phase 3: Functional"};
@@ -407,6 +548,7 @@ export default function App(){
   const[mob,setMob]=useState(false);
   const[tab,setTab]=useState("findings"); // "findings" | "exercises" | "report"
   const[activeEx,setActiveEx]=useState(null); // selected exercise for detail pane
+  const[detailFinding,setDetailFinding]=useState(null); // selected finding for detail pane
   useEffect(()=>{const c=()=>setMob(window.innerWidth<768);c();window.addEventListener("resize",c);return()=>window.removeEventListener("resize",c)},[]);
 
   const go=useCallback(async()=>{
@@ -421,10 +563,16 @@ export default function App(){
     if(phase==="revealing"&&ri>=FD.length){setPhase("summary");setActive(null)}
   },[ri,phase]);
 
-  const reset=()=>{setPhase("input");setFindings(null);setRi(-1);setActive(null);setShowH(false);setText("");setTab("findings");setActiveEx(null)};
-  const togSel=f=>{setActive(p=>p?.id===f.id?null:f);setShowH(false)};
+  const reset=()=>{setPhase("input");setFindings(null);setRi(-1);setActive(null);setShowH(false);setText("");setTab("findings");setActiveEx(null);setDetailFinding(null)};
+  const togSel=f=>{
+    const deselecting = active?.id===f.id;
+    setActive(deselecting?null:f);
+    setDetailFinding(deselecting?null:f);
+    setActiveEx(null);
+    setShowH(false);
+  };
   const hBtn=()=>setShowH(!showH);
-  const onTabChange=(t)=>{setTab(t);if(t!=="exercises")setActiveEx(null)};
+  const onTabChange=(t)=>{setTab(t);if(t!=="exercises")setActiveEx(null);if(t!=="findings")setDetailFinding(null)};
 
   const inputUI=(pad)=>(
     <>
@@ -467,7 +615,9 @@ export default function App(){
             {phase==="analyzing"&&<div style={{position:"absolute",inset:0,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",background:"rgba(245,244,241,.6)"}}><div style={{width:28,height:28,border:`3px solid ${T.bgD}`,borderTopColor:T.ac,borderRadius:"50%",animation:"spin .8s linear infinite"}} /><span style={{fontSize:13,color:T.txM,marginTop:10}}>Analyzing...</span></div>}
           </div>
           {phase==="summary"&&findings&&<div style={{flex:1,overflow:"auto",padding:16,background:T.sf,borderTop:`1px solid ${T.bd}`}}>
-            {activeEx ? <ExerciseDetail ex={activeEx} onClose={()=>setActiveEx(null)} mob={true} /> : <TabbedPanel findings={findings} active={active} onSel={togSel} mob={true} tab={tab} setTab={onTabChange} activeEx={activeEx} setActiveEx={setActiveEx} />}
+            {activeEx ? <ExerciseDetail ex={activeEx} onClose={()=>setActiveEx(null)} mob={true} />
+             : detailFinding ? <FindingDetail finding={detailFinding} onClose={()=>{setDetailFinding(null);setActive(null)}} mob={true} />
+             : <TabbedPanel findings={findings} active={active} onSel={togSel} mob={true} tab={tab} setTab={onTabChange} activeEx={activeEx} setActiveEx={setActiveEx} />}
           </div>}
         </>
       )}
@@ -487,19 +637,22 @@ export default function App(){
           </div>
         </div>
         <div style={{flex:1,display:"flex",overflow:"hidden"}}>
-          {/* 3D Viewport — shrinks when exercise detail is open */}
-          <div style={{flex:activeEx?1:1,position:"relative",background:`radial-gradient(ellipse at 50% 40%,#faf9f7 0%,${T.bg} 100%)`,transition:"flex .3s ease"}}>
+          {/* 3D Viewport — shrinks when detail pane is open */}
+          <div style={{flex:1,position:"relative",background:`radial-gradient(ellipse at 50% 40%,#faf9f7 0%,${T.bg} 100%)`,transition:"flex .3s ease"}}>
             <KneeCanvas findings={findings} active={active} phase={phase} showH={showH} />
             {phase==="revealing"&&<NCard f={active} i={ri} n={FD.length} onN={()=>setRi(i=>i+1)} onP={()=>setRi(i=>Math.max(0,i-1))} mob={false} />}
-            {active&&phase==="summary"&&!activeEx&&<div style={{position:"absolute",top:14,left:14,background:T.sf,padding:"7px 14px",borderRadius:9,boxShadow:"0 2px 12px rgba(0,0,0,.05)",fontSize:13,fontWeight:600,color:T.tx,zIndex:10,animation:"fadeIn .3s"}}>{active.str} <span style={{color:T[active.sev].c,fontSize:11,marginLeft:6}}>● {active.path}</span></div>}
+            {active&&phase==="summary"&&!detailFinding&&!activeEx&&<div style={{position:"absolute",top:14,left:14,background:T.sf,padding:"7px 14px",borderRadius:9,boxShadow:"0 2px 12px rgba(0,0,0,.05)",fontSize:13,fontWeight:600,color:T.tx,zIndex:10,animation:"fadeIn .3s"}}>{active.str} <span style={{color:T[active.sev].c,fontSize:11,marginLeft:6}}>● {active.path}</span></div>}
             <div style={{position:"absolute",top:14,right:14,fontSize:10,color:T.txF,pointerEvents:"none"}}>Drag to rotate · Scroll to zoom</div>
             {phase==="input"&&<div style={{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",textAlign:"center",pointerEvents:"none"}}><div style={{fontSize:48,marginBottom:14,opacity:.15}}>🦴</div><div style={{fontSize:15,color:T.txL,fontWeight:500}}>Your 3D knee model</div><div style={{fontSize:12,color:T.txF,marginTop:6}}>Paste an MRI report to see findings visualized</div></div>}
-            {phase==="summary"&&!activeEx&&<div style={{position:"absolute",bottom:20,left:20,right:20,maxWidth:440,background:T.sf,borderRadius:11,padding:"14px 18px",boxShadow:"0 4px 20px rgba(0,0,0,.06)",border:`1px solid ${T.bd}`,display:"flex",alignItems:"center",justifyContent:"space-between",zIndex:10,animation:"slideUp .5s cubic-bezier(.16,1,.3,1)"}}><div><div style={{fontSize:13,fontWeight:600,color:T.tx}}>Your full report is ready</div><div style={{fontSize:11,color:T.txL,marginTop:2}}>Specialist perspectives, exercises, questions for your doctor</div></div><button onClick={()=>generateReport(FD)} style={{background:T.ac,border:"none",color:"#fff",padding:"9px 18px",borderRadius:8,fontSize:12,fontWeight:600,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,marginLeft:14}}>Download Report (PDF)</button></div>}
+            {phase==="summary"&&!detailFinding&&!activeEx&&<div style={{position:"absolute",bottom:20,left:20,right:20,maxWidth:440,background:T.sf,borderRadius:11,padding:"14px 18px",boxShadow:"0 4px 20px rgba(0,0,0,.06)",border:`1px solid ${T.bd}`,display:"flex",alignItems:"center",justifyContent:"space-between",zIndex:10,animation:"slideUp .5s cubic-bezier(.16,1,.3,1)"}}><div><div style={{fontSize:13,fontWeight:600,color:T.tx}}>Your full report is ready</div><div style={{fontSize:11,color:T.txL,marginTop:2}}>Specialist perspectives, exercises, questions for your doctor</div></div><button onClick={()=>generateReport(FD)} style={{background:T.ac,border:"none",color:"#fff",padding:"9px 18px",borderRadius:8,fontSize:12,fontWeight:600,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,marginLeft:14}}>Download Report (PDF)</button></div>}
           </div>
-          {/* Exercise Detail Pane — slides in from right */}
-          {activeEx&&(
-            <div style={{width:380,borderLeft:`1px solid ${T.bd}`,flexShrink:0,animation:"slideInRight .3s cubic-bezier(.16,1,.3,1)"}}>
-              <ExerciseDetail ex={activeEx} onClose={()=>setActiveEx(null)} mob={false} />
+          {/* Detail Pane — Finding or Exercise */}
+          {(detailFinding||activeEx)&&(
+            <div style={{width:400,borderLeft:`1px solid ${T.bd}`,flexShrink:0,animation:"slideInRight .3s cubic-bezier(.16,1,.3,1)"}}>
+              {activeEx
+                ? <ExerciseDetail ex={activeEx} onClose={()=>setActiveEx(null)} mob={false} />
+                : <FindingDetail finding={detailFinding} onClose={()=>{setDetailFinding(null);setActive(null)}} mob={false} />
+              }
             </div>
           )}
         </div>
