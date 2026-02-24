@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import * as THREE from "three";
 import * as Tone from "tone";
+import { Analytics } from "@vercel/analytics/react";
 import { generateReport } from "./reportGenerator";
 import PTLibrary from "./PTLibrary";
 import { detectJoint, parseReport, JOINT_INFO } from "./jointRouter";
@@ -3110,6 +3111,7 @@ export default function App(){
           </div>}
         </div>
       )}
+      <Analytics />
     </div>
   );
 
@@ -3118,6 +3120,7 @@ export default function App(){
     <div style={{width:"100%",height:"100vh",background:T.bg,overflow:"auto"}}>
       {styles}
       <LandingPage onStart={()=>setPhase("input")} onSelectCondition={selectCondition} mob={false} dark={dark} toggleDark={toggleDark} />
+      <Analytics />
     </div>
   );
   return(
@@ -3173,6 +3176,7 @@ export default function App(){
           }
         />
       </div>
+      <Analytics />
     </div>
   );
 }
